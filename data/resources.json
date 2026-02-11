@@ -1,0 +1,101 @@
+[
+  {
+    "id": "1",
+    "organization": "Red River Recovery Center",
+    "county": "Comanche",
+    "category": "Substance Use Treatment",
+    "phone": "580-555-1010",
+    "description": "Provides outpatient counseling, medication-assisted treatment (MAT), and relapse prevention services for adults.",
+    "lastVerified": "2026-02-01"
+  },
+  {
+    "id": "2",
+    "organization": "Prairie Wellness Behavioral Health",
+    "county": "Caddo",
+    "category": "Mental Health Services",
+    "phone": "405-555-2020",
+    "description": "Individual and family counseling services for youth and adults, including trauma-informed care.",
+    "lastVerified": "2026-01-20"
+  },
+  {
+    "id": "3",
+    "organization": "Sooner Safe Housing Initiative",
+    "county": "Cleveland",
+    "category": "Housing Support",
+    "phone": "405-555-3030",
+    "description": "Transitional housing program for individuals in recovery from substance use disorder.",
+    "lastVerified": "2026-02-05"
+  },
+  {
+    "id": "4",
+    "organization": "Western Oklahoma Crisis Support",
+    "county": "Canadian",
+    "category": "Mental Health Services",
+    "phone": "988",
+    "description": "24/7 crisis intervention and referral services for individuals experiencing mental health or substance use crises.",
+    "lastVerified": "2026-02-10"
+  },
+  {
+    "id": "5",
+    "organization": "Oklahoma Community Food Network",
+    "county": "Oklahoma",
+    "category": "Food Assistance",
+    "phone": "405-555-4040",
+    "description": "Provides weekly food distribution and emergency food pantry services for families in need.",
+    "lastVerified": "2026-02-15"
+  },
+  {
+    "id": "6",
+    "organization": "Rural Transit Access Program",
+    "county": "Grady",
+    "category": "Transportation Services",
+    "phone": "405-555-5050",
+    "description": "Non-emergency medical transportation and rural community transit services.",
+    "lastVerified": "2026-02-12"
+  },
+  {
+    "id": "7",
+    "organization": "Workforce Ready Oklahoma",
+    "county": "Tulsa",
+    "category": "Employment Services",
+    "phone": "918-555-6060",
+    "description": "Job training, resume workshops, and employment placement assistance.",
+    "lastVerified": "2026-02-18"
+  },
+  {
+    "id": "8",
+    "organization": "Community Health Access Clinic",
+    "county": "Oklahoma",
+    "category": "Healthcare Services",
+    "phone": "405-555-7070",
+    "description": "Sliding-scale primary care clinic offering preventive and chronic care services.",
+    "lastVerified": "2026-02-11"
+  },
+  {
+    "id": "9",
+    "organization": "Emergency Utility Assistance Program",
+    "county": "Canadian",
+    "category": "Financial Assistance",
+    "phone": "405-555-8080",
+    "description": "Provides emergency utility and short-term rental assistance for eligible households.",
+    "lastVerified": "2026-02-14"
+  },
+  {
+    "id": "10",
+    "organization": "Oklahoma Re-Entry Legal Support",
+    "county": "Caddo",
+    "category": "Legal Assistance",
+    "phone": "405-555-9090",
+    "description": "Legal support services for expungement and re-entry assistance.",
+    "lastVerified": "2026-02-16"
+  },
+  {
+    "id": "11",
+    "organization": "Safe Haven Advocacy Center",
+    "county": "Cleveland",
+    "category": "Domestic Violence Services",
+    "phone": "405-555-1111",
+    "description": "Emergency shelter, advocacy, and counseling for survivors of domestic violence.",
+    "lastVerified": "2026-02-17"
+  }
+]
