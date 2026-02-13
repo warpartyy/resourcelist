@@ -19,19 +19,23 @@ type Resource = {
 
 const resources = resourcesData as Resource[];
 
-export default function ResourcePage({
+export default async function ResourcePage({
   params,
 }: {
-  params: { slug: string };
+  params: Promise<{ slug: string }>;
 }) {
+  const { slug } = await params;
+
   const resource = resources.find(
-    (r) => r.slug === params.slug
+    (r) => r.slug === slug
   );
 
   if (!resource) {
     return (
       <Container>
-        <h1 className="text-2xl font-bold">Resource not found.</h1>
+        <h1 className="text-2xl font-bold">
+          Resource not found.
+        </h1>
       </Container>
     );
   }
@@ -61,7 +65,9 @@ export default function ResourcePage({
         <h2 className="text-xl font-semibold mb-2">
           Eligibility
         </h2>
-        <p className="text-zinc-300">{resource.eligibility}</p>
+        <p className="text-zinc-300">
+          {resource.eligibility}
+        </p>
       </div>
 
       <div className="mb-6">
@@ -70,6 +76,7 @@ export default function ResourcePage({
         </h2>
         <p>📞 {resource.phone}</p>
         <p>📍 {resource.address}</p>
+
         <a
           href={resource.website}
           target="_blank"
@@ -77,7 +84,9 @@ export default function ResourcePage({
         >
           Visit Website
         </a>
+
         <br />
+
         <a
           href={resource.applicationLink}
           target="_blank"

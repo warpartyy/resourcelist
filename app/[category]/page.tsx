@@ -9,32 +9,32 @@ type Resource = {
   categories: string[];
   countiesServed: string[];
   phone: string;
-  website: string;
-  applicationLink: string;
-  address: string;
   description: string;
-  services: string[];
-  eligibility: string;
-  lastVerified: string;
 };
 
 const resources = resourcesData as Resource[];
 
-export default function EmploymentPage() {
-const filtered = resources.filter((r) =>
-  r.categories.includes("employment-services")
-);
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const { category } = await params;
+
+  const filtered = resources.filter((r) =>
+    r.categories.includes(category)
+  );
+
+  const displayTitle = category
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
 
   return (
     <Container>
       <h1 className="text-3xl font-bold mb-4">
-        Employment & Job Support
+        {displayTitle}
       </h1>
-
-      <p className="text-zinc-400 mb-8 max-w-2xl">
-        Access job training, workforce development programs,
-        resume assistance, and re-entry employment services.
-      </p>
 
       <div className="grid gap-6">
         {filtered.length > 0 ? (
@@ -43,7 +43,18 @@ const filtered = resources.filter((r) =>
           ))
         ) : (
           <p className="text-zinc-500">
-            No employment resources currently listed.
+<div className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
+  <h2 className="text-lg font-semibold mb-2">
+    Resources Coming Soon
+  </h2>
+  <p className="text-zinc-400">
+    We are actively expanding this category.
+    Please check back soon or use the chat tool for assistance.
+  </p>
+</div>
+
+
+
           </p>
         )}
       </div>
