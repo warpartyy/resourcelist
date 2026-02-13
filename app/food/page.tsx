@@ -4,20 +4,27 @@ import Container from "../../components/ui/Container";
 
 type Resource = {
   id: string;
+  slug: string;
   organization: string;
-  county: string;
-  category: string;
+  categories: string[];
+  countiesServed: string[];
   phone: string;
+  website: string;
+  applicationLink: string;
+  address: string;
   description: string;
+  services: string[];
+  eligibility: string;
   lastVerified: string;
 };
 
 const resources = resourcesData as Resource[];
 
 export default function FoodPage() {
-  const filtered = resources.filter((r) =>
-    r.category.toLowerCase().includes("food")
-  );
+
+const filtered = resources.filter((r) =>
+  r.categories.includes("food-assistance")
+);
 
   return (
     <Container>

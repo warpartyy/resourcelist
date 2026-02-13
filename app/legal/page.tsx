@@ -4,25 +4,31 @@ import Container from "../../components/ui/Container";
 
 type Resource = {
   id: string;
+  slug: string;
   organization: string;
-  county: string;
-  category: string;
+  categories: string[];
+  countiesServed: string[];
   phone: string;
+  website: string;
+  applicationLink: string;
+  address: string;
   description: string;
+  services: string[];
+  eligibility: string;
   lastVerified: string;
 };
 
 const resources = resourcesData as Resource[];
 
 export default function LegalPage() {
-  const filtered = resources.filter((r) =>
-    r.category.toLowerCase().includes("legal")
-  );
+const filtered = resources.filter((r) =>
+  r.categories.includes("legal-services")
+);
 
   return (
     <Container>
       <h1 className="text-3xl font-bold mb-4">
-        Legal Assistance
+        Legal Services
       </h1>
 
       <p className="text-zinc-400 mb-8 max-w-2xl">
