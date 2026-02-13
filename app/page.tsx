@@ -82,6 +82,16 @@ export default function Home() {
           title="Domestic Violence & Safety"
           description="Emergency shelter, advocacy, and survivor support services."
         />
+<Link href="/suggest-resource">
+  <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl hover:bg-zinc-800 transition">
+    <h2 className="text-xl font-semibold mb-2">
+      Suggest a Resource
+    </h2>
+    <p className="text-zinc-400">
+      Help us expand this directory by submitting a resource for review.
+    </p>
+  </div>
+</Link>
 
       </div>
     </Container>
