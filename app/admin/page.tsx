@@ -163,8 +163,7 @@ return (
     ) : ( 
       <SubmissionsPanel
         submissions={submissions}
-        activeTab={adminSection}
-        setActiveTab={setAdminSection}
+        section={adminSection}
         editingId={editingId}
         setEditingId={setEditingId}
         editedSubmission={editedSubmission}
@@ -173,7 +172,11 @@ return (
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onApprove={approveSubmission}
         onReject={handleRejectSubmission}
-      />
+/>
+
+
+
+
     )}
   </AdminLayout>
 );
