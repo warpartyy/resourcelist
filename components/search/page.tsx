@@ -1,4 +1,5 @@
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
+
 import Container from "@/components/ui/Container";
 import ResourceCard from "@/components/ResourceCard";
 import SearchFilters from "@/components/search/SearchFilters";
@@ -14,16 +15,21 @@ export default async function SearchPage({
     state?: string;
   };
 }) {
-  const { parent, sub, tags, county, state } = searchParams;
+const { parent, sub, tags, county, state } = searchParams;
 
-  let query = supabase
-    .from("resources")
-    .select("*")
-    .order("organization", { ascending: true });
+const supabase = getSupabase(); // 👈 add this
 
-  if (parent) {
-    query = query.contains("parent_categories", [parent]);
-  }
+let query = supabase
+  .from("resources")
+  .select("*")
+  .order("organization", { ascending: true });
+
+if (parent) {
+  query = query.contains("parent_categories", [parent]);
+}
+
+
+
 
   if (sub) {
     query = query.contains("subcategories", [sub]);
