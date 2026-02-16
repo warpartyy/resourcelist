@@ -2,7 +2,7 @@
 export const dynamic = "force-dynamic";
 
 import { useState } from "react";
-import { supabase } from "../../lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import Container from "../../components/ui/Container";
 import { PARENT_CATEGORIES, SUBCATEGORIES, SUBCATEGORY_PARENT_MAP} from "@/lib/taxonomy";
 import { useSearchParams } from "next/navigation";
@@ -102,9 +102,12 @@ zip: formData.get("zip")?.toString() || null,
 
 console.log("Submitting:", newSubmission);
 
+const supabase = getSupabase();
+
 const response = await supabase
   .from("resource_submissions")
   .insert([newSubmission]);
+
 
 
 console.log("Full response:", JSON.stringify(response, null, 2));
