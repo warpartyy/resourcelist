@@ -1,7 +1,5 @@
 "use client";
-
 import {PARENT_CATEGORIES, SUBCATEGORIES, TAG_GROUPS,} from "@/lib/taxonomy";
-
 
 type Props = {
   editedSubmission: any;
@@ -36,79 +34,52 @@ export default function ResourceEditForm({
         placeholder="Organization"
         className="w-full bg-zinc-800 p-2 rounded mb-2"
       />
-
-
-{/* Parent Category */}
-<div className="mb-4">
-  <div className="mb-2 font-semibold text-sm text-zinc-400">
-    Parent Category
-  </div>
-
-  <select
-value={editedSubmission.parent_category || ""}
-onChange={(e) =>
-  setEditedSubmission({
-    ...editedSubmission,
-    parent_category: e.target.value,
-  })
-}
-
-
-    className="w-full bg-zinc-800 p-2 rounded"
-  >
-    <option value="">Select Parent Category</option>
-    {PARENT_CATEGORIES.map((cat) => (
-      <option key={cat.value} value={cat.value}>
-        {cat.label}
-      </option>
-    ))}
-  </select>
-</div>
-
-
+      
 {/* Subcategories */}
 <div className="mb-6">
   <div className="mb-2 font-semibold text-sm text-zinc-400">
     Subcategories
   </div>
 
-  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
     {SUBCATEGORIES.map((sub) => {
-      const selected =
+      const isSelected =
         editedSubmission.subcategories?.includes(sub.value) || false;
 
       return (
-        <label
+        <button
           key={sub.value}
-          className="flex items-center gap-2 text-sm"
+          type="button"
+          onClick={() => {
+            let updated = editedSubmission.subcategories || [];
+
+            if (isSelected) {
+              updated = updated.filter(
+                (s: string) => s !== sub.value
+              );
+            } else {
+              updated = [...updated, sub.value];
+            }
+
+            setEditedSubmission({
+              ...editedSubmission,
+              subcategories: updated,
+            });
+          }}
+          className={`p-3 rounded-lg border transition text-left ${
+            isSelected
+              ? "bg-blue-600 border-blue-400 text-white shadow-lg"
+              : "bg-zinc-900 border-zinc-700 text-zinc-300 hover:border-blue-500"
+          }`}
         >
-          <input
-            type="checkbox"
-            checked={selected}
-            onChange={() => {
-              let updated =
-                editedSubmission.subcategories || [];
-
-              if (selected) {
-                updated = updated.filter(
-                  (s: string) => s !== sub.value
-                );
-              } else {
-                updated = [...updated, sub.value];
-              }
-
-              setEditedSubmission({
-                ...editedSubmission,
-                subcategories: updated,
-              });
-            }}
-          />
           {sub.label}
-        </label>
+        </button>
       );
     })}
   </div>
 </div>
+
 
 
 {/* Tags */}
