@@ -8,6 +8,8 @@ import SubmissionCard from "../../components/admin/SubmissionCard";
 import SubmissionsPanel from "../../components/admin/SubmissionsPanel";
 import ResourcesPanel from "../../components/admin/ResourcesPanel";
 import AdminLayout from "../../components/admin/AdminLayout";
+import {getSubmissions, rejectSubmission, approveSubmissionRecord,} from "@/lib/services/submissionService";
+import {approveResource, updateResource,} from "@/lib/services/resourceService";
 
 
 const CATEGORY_OPTIONS = [
@@ -34,8 +36,6 @@ const COUNTY_OPTIONS = [
   "Tillman",
   // Add more as needed
 ];
-
-
 
 
 
@@ -109,76 +109,43 @@ useEffect(() => {
 
 
 
-
 const approveSubmission = async (submission: any) => {
   const finalData =
     editingId === submission.id
       ? editedSubmission
       : submission;
 
-// Check for duplicate (organization + address)
-const { data: existing } = await supabase
-  .from("resources")
-  .select("id")
-  .eq("organization", finalData.organization)
-  .eq("address", finalData.address);
+  const { error } = await approveResource(finalData);
 
-if (existing && existing.length > 0) {
-  alert("A resource with this organization and address already exists.");
-  return;
-}
-
-
-      
-  const insertResponse = await supabase
-    .from("resources")
-    .insert([
-      {
-        slug: finalData.organization
-          .toLowerCase()
-          .replace(/\s+/g, "-"),
-        organization: finalData.organization,
-        categories: finalData.categories,
-        counties_served: finalData.counties_served,
-        phone: finalData.phone,
-        website: finalData.website,
-        application_link: finalData.application_link,
-        address: finalData.address,
-        description: finalData.description,
-        services: finalData.services,
-        eligibility: finalData.eligibility,
-        last_verified: new Date().toISOString().split("T")[0],
-      },
-    ]);
-
-  if (insertResponse.error) {
-    alert("Insert failed.");
+  if (error) {
+    alert("Save failed.");
     return;
   }
 
-  await supabase
-    .from("resource_submissions")
-    .update({ status: "approved" })
-    .eq("id", submission.id);
+  await approveSubmissionRecord(submission.id);
 
   setEditingId(null);
   fetchData();
-
 };
 
 
 
-  const rejectSubmission = async (id: string) => {
-    await supabase
-      .from("resource_submissions")
-      .update({ status: "rejected" })
-      .eq("id", id);
-
-    fetchData();
-  };
 
 
-  if (loading) return <div className="p-8">Loading...</div>;
+const handleRejectSubmission = async (id: string) => {
+  const { error } = await rejectSubmission(id);
+
+  if (error) {
+    alert("Reject failed.");
+    return;
+  }
+
+  fetchData();
+};
+
+
+
+
 
 return (
   <AdminLayout
@@ -193,7 +160,7 @@ return (
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
       />
-    ) : (
+    ) : ( 
       <SubmissionsPanel
         submissions={submissions}
         activeTab={adminSection}
@@ -205,19 +172,9 @@ return (
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onApprove={approveSubmission}
-        onReject={rejectSubmission}
+        onReject={handleRejectSubmission}
       />
     )}
   </AdminLayout>
 );
-
-
-
-
-
-
-
-
-
-
 }

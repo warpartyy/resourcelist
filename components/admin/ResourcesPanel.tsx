@@ -1,8 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../lib/supabase";
 import ResourceEditForm from "./ResourceEditForm";
+import { updateResource, deleteResource } from "@/lib/services/resourceService";
+
+
 
 type Props = {
   resources: any[];
@@ -20,46 +22,23 @@ export default function ResourcesPanel({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedResource, setEditedResource] = useState<any>({});
 
-  const updateResource = async (resource: any) => {
-    const finalData =
-      editingId === resource.id ? editedResource : resource;
 
-    const { error } = await supabase
-      .from("resources")
-      .update({
-        organization: finalData.organization,
-        categories: finalData.categories,
-        counties_served: finalData.counties_served,
-        phone: finalData.phone,
-        website: finalData.website,
-        application_link: finalData.application_link,
-        address: finalData.address,
-        description: finalData.description,
-        services: finalData.services,
-        eligibility: finalData.eligibility,
-        last_verified: new Date().toISOString().split("T")[0],
-      })
-      .eq("id", resource.id);
+const handleDelete = async (id: string) => {
+  const confirmDelete = confirm(
+    "Are you sure you want to delete this resource?"
+  );
+  if (!confirmDelete) return;
 
-    if (error) {
-      alert("Update failed.");
-      return;
-    }
+  const { error } = await deleteResource(id);
 
-    setEditingId(null);
-    fetchData();
-  };
+  if (error) {
+    alert("Delete failed.");
+    return;
+  }
 
-  const deleteResource = async (id: string) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this resource?"
-    );
-    if (!confirmDelete) return;
+  fetchData();
+};
 
-    await supabase.from("resources").delete().eq("id", id);
-
-    fetchData();
-  };
 
   if (resources.length === 0) {
     return (
@@ -110,19 +89,35 @@ export default function ResourcesPanel({
                 Edit
               </button>
 
-              <button
-                onClick={() => updateResource(resource)}
-                className="bg-green-600 px-4 py-2 rounded-lg"
-              >
-                Update
-              </button>
+<button
+  onClick={async () => {
+    const finalData =
+      editingId === resource.id ? editedResource : resource;
 
-              <button
-                onClick={() => deleteResource(resource.id)}
-                className="bg-red-600 px-4 py-2 rounded-lg"
-              >
-                Delete
-              </button>
+    const { error } = await updateResource(resource.id, finalData);
+
+    if (error) {
+      alert("Update failed.");
+      return;
+    }
+
+    setEditingId(null);
+    fetchData();
+  }}
+  className="bg-green-600 px-4 py-2 rounded-lg"
+>
+  Update
+</button>
+
+
+<button
+  onClick={() => handleDelete(resource.id)}
+  className="bg-red-600 px-4 py-2 rounded-lg"
+>
+  Delete
+</button>
+
+
             </div>
           </div>
         );

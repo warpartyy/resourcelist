@@ -14,10 +14,13 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+
 export const metadata: Metadata = {
-  title: "Oklahoma Resource Navigator",
-  description: "Public resource directory for Oklahoma communities.",
+  title: "War Party Resources",
+  description: "Community-driven resource directory connecting people to essential services.",
 };
+
+
 
 export default function RootLayout({
   children,
@@ -27,13 +30,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-gray-100`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen flex flex-col bg-zinc-950 text-white`}
       >
         <Header />
 
-        <main className="flex-grow max-w-6xl mx-auto p-6 w-full">
-          {children}
-        </main>
+<main className="flex-grow w-full">
+  {children}
+</main>
+
+
 
         <Footer />
       </body>

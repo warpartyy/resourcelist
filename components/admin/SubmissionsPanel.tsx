@@ -1,13 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
 import SubmissionCard from "./SubmissionCard";
 
 type Props = {
   submissions: any[];
-  activeTab: "pending" | "approved" | "rejected";
-  setActiveTab: (tab: "pending" | "approved" | "rejected") => void;
-  fetchData: () => void;
+  section: "pending" | "approved" | "rejected";
   editingId: string | null;
   setEditingId: (id: string | null) => void;
   editedSubmission: any;
@@ -20,8 +17,7 @@ type Props = {
 
 export default function SubmissionsPanel({
   submissions,
-  activeTab,
-  setActiveTab,
+  section,
   editingId,
   setEditingId,
   editedSubmission,
@@ -33,29 +29,25 @@ export default function SubmissionsPanel({
 }: Props) {
   return (
     <>
-      {/* Status Tabs */}
-      <div className="flex gap-4 mb-6">
-        {["pending", "approved", "rejected"].map((tab) => (
-          <button
-            key={tab}
-            onClick={() =>
-              setActiveTab(tab as "pending" | "approved" | "rejected")
-            }
-            className={`px-4 py-2 rounded-lg capitalize ${
-              activeTab === tab
-                ? "bg-blue-600"
-                : "bg-zinc-800 hover:bg-zinc-700"
-            }`}
-          >
-            {tab}
-          </button>
-        ))}
+      {/* Section Header */}
+      <div className="mb-8">
+        <h1 className="text-2xl font-semibold capitalize">
+          {section} Submissions
+        </h1>
+        <p className="text-zinc-400 text-sm mt-1">
+          {section === "pending" &&
+            "Review and approve new submissions."}
+          {section === "approved" &&
+            "Previously approved submissions."}
+          {section === "rejected" &&
+            "Submissions that were not approved."}
+        </p>
       </div>
 
       {/* Empty State */}
       {submissions.length === 0 ? (
         <div className="text-zinc-400">
-          No {activeTab} submissions.
+          No {section} submissions.
         </div>
       ) : (
         submissions.map((submission) => (

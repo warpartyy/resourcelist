@@ -1,5 +1,8 @@
 "use client";
 
+import {PARENT_CATEGORIES, SUBCATEGORIES, TAG_GROUPS,} from "@/lib/taxonomy";
+
+
 type Props = {
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
@@ -34,53 +37,132 @@ export default function ResourceEditForm({
         className="w-full bg-zinc-800 p-2 rounded mb-2"
       />
 
-      {/* Categories */}
-      <div className="mb-4">
-        <div className="mb-2 font-semibold text-sm text-zinc-400">
-          Categories
-        </div>
 
-        <div className="grid grid-cols-2 gap-2">
-          {CATEGORY_OPTIONS.map((option) => {
-            const selected =
-              editedSubmission.categories?.includes(option.value);
+{/* Parent Category */}
+<div className="mb-4">
+  <div className="mb-2 font-semibold text-sm text-zinc-400">
+    Parent Category
+  </div>
 
-            return (
-              <label
-                key={option.value}
-                className="flex items-center gap-2 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  checked={selected}
-                  onChange={() => {
-                    let updatedCategories =
-                      editedSubmission.categories || [];
+  <select
+value={editedSubmission.parent_category || ""}
+onChange={(e) =>
+  setEditedSubmission({
+    ...editedSubmission,
+    parent_category: e.target.value,
+  })
+}
 
-                    if (selected) {
-                      updatedCategories =
-                        updatedCategories.filter(
-                          (c: string) => c !== option.value
-                        );
-                    } else {
-                      updatedCategories = [
-                        ...updatedCategories,
-                        option.value,
-                      ];
-                    }
 
-                    setEditedSubmission({
-                      ...editedSubmission,
-                      categories: updatedCategories,
-                    });
-                  }}
-                />
-                {option.label}
-              </label>
-            );
-          })}
-        </div>
+    className="w-full bg-zinc-800 p-2 rounded"
+  >
+    <option value="">Select Parent Category</option>
+    {PARENT_CATEGORIES.map((cat) => (
+      <option key={cat.value} value={cat.value}>
+        {cat.label}
+      </option>
+    ))}
+  </select>
+</div>
+
+
+{/* Subcategories */}
+<div className="mb-6">
+  <div className="mb-2 font-semibold text-sm text-zinc-400">
+    Subcategories
+  </div>
+
+  <div className="grid grid-cols-2 gap-2 max-h-48 overflow-y-auto">
+    {SUBCATEGORIES.map((sub) => {
+      const selected =
+        editedSubmission.subcategories?.includes(sub.value) || false;
+
+      return (
+        <label
+          key={sub.value}
+          className="flex items-center gap-2 text-sm"
+        >
+          <input
+            type="checkbox"
+            checked={selected}
+            onChange={() => {
+              let updated =
+                editedSubmission.subcategories || [];
+
+              if (selected) {
+                updated = updated.filter(
+                  (s: string) => s !== sub.value
+                );
+              } else {
+                updated = [...updated, sub.value];
+              }
+
+              setEditedSubmission({
+                ...editedSubmission,
+                subcategories: updated,
+              });
+            }}
+          />
+          {sub.label}
+        </label>
+      );
+    })}
+  </div>
+</div>
+
+
+{/* Tags */}
+<div className="mb-6">
+  <div className="mb-3 font-semibold text-sm text-zinc-400">
+    Tags
+  </div>
+
+  {Object.entries(TAG_GROUPS).map(([groupName, tags]) => (
+    <div key={groupName} className="mb-4">
+      <div className="capitalize text-xs text-zinc-500 mb-2">
+        {groupName}
       </div>
+
+      <div className="grid grid-cols-2 gap-2">
+        {tags.map((tag) => {
+          const selected =
+            editedSubmission.tags?.includes(tag) || false;
+
+          return (
+            <label
+              key={tag}
+              className="flex items-center gap-2 text-sm"
+            >
+              <input
+                type="checkbox"
+                checked={selected}
+                onChange={() => {
+                  let updated =
+                    editedSubmission.tags || [];
+
+                  if (selected) {
+                    updated = updated.filter(
+                      (t: string) => t !== tag
+                    );
+                  } else {
+                    updated = [...updated, tag];
+                  }
+
+                  setEditedSubmission({
+                    ...editedSubmission,
+                    tags: updated,
+                  });
+                }}
+              />
+              {tag}
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  ))}
+</div>
+
 
       {/* Counties */}
       <div className="mb-4">
