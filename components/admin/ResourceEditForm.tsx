@@ -89,50 +89,55 @@ export default function ResourceEditForm({
   </div>
 
   {Object.entries(TAG_GROUPS).map(([groupName, tags]) => (
-    <div key={groupName} className="mb-4">
-      <div className="capitalize text-xs text-zinc-500 mb-2">
+    <div
+  key={groupName}
+  className="mb-8 pb-6 border-b border-zinc-800 last:border-b-0"
+>
+
+      <div className="capitalize text-xs text-zinc-500 mb-3">
         {groupName}
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {tags.map((tag) => {
           const selected =
             editedSubmission.tags?.includes(tag) || false;
 
           return (
-            <label
+            <button
+              type="button"
               key={tag}
-              className="flex items-center gap-2 text-sm"
+              onClick={() => {
+                let updated = editedSubmission.tags || [];
+
+                if (selected) {
+                  updated = updated.filter((t: string) => t !== tag);
+                } else {
+                  updated = [...updated, tag];
+                }
+
+                setEditedSubmission({
+                  ...editedSubmission,
+                  tags: updated,
+                });
+              }}
+className={`p-3 rounded-lg border transition text-left cursor-pointer ${
+  selected
+    ? "bg-blue-600 border-blue-400 text-white shadow-lg ring-2 ring-blue-400/40"
+    : "bg-zinc-900 border-zinc-700 text-zinc-300 hover:border-blue-500"
+}`}
+
             >
-              <input
-                type="checkbox"
-                checked={selected}
-                onChange={() => {
-                  let updated =
-                    editedSubmission.tags || [];
-
-                  if (selected) {
-                    updated = updated.filter(
-                      (t: string) => t !== tag
-                    );
-                  } else {
-                    updated = [...updated, tag];
-                  }
-
-                  setEditedSubmission({
-                    ...editedSubmission,
-                    tags: updated,
-                  });
-                }}
-              />
               {tag}
-            </label>
+            </button>
           );
         })}
       </div>
     </div>
   ))}
 </div>
+
+
 
 
       {/* Counties */}
@@ -182,6 +187,7 @@ export default function ResourceEditForm({
           })}
         </div>
       </div>
+
 
       {/* Phone */}
       <input

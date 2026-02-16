@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
+import Image from "next/image";
 
 export default function Header() {
   const pathname = usePathname();
@@ -66,15 +67,27 @@ export default function Header() {
         }
       `}
     >
-      <div className="max-w-6xl mx-auto h-16 flex items-center justify-between px-6">
+      <div className="max-w-7xl mx-auto h-20 flex items-center justify-between px-4">
+
 
         {/* Logo */}
-        <Link
-          href="/"
-          className="text-lg tracking-tight text-white hover:text-zinc-300 transition font-medium"
-        >
-          WAR PARTY | Resources
-        </Link>
+<Link
+  href="/"
+  className="flex items-center gap-3 text-white hover:text-zinc-300 transition"
+>
+  <Image
+    src="/war-party-logo.png"   // 👈 change to your actual file name
+    alt="War Party Logo"
+    width={36}
+    height={36}
+    className="object-contain"
+  />
+
+  <span className="text-xl font-semibold tracking-tight">
+    Resources
+  </span>
+</Link>
+
 
         {/* Mobile Hamburger */}
         <button
