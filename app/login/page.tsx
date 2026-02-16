@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Container from "../../components/ui/Container";
 
@@ -10,20 +10,23 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
 
-  const handleLogin = async (e: any) => {
-    e.preventDefault();
+const handleLogin = async (e: any) => {
+  e.preventDefault();
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+  const supabase = getSupabase();
 
-    if (!error) {
-      router.push("/admin");
-    } else {
-      alert("Login failed.");
-    }
-  };
+  const { error } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (!error) {
+    router.push("/admin");
+  } else {
+    alert("Login failed.");
+  }
+};
+
 
   return (
     <Container>

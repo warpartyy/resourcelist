@@ -1,4 +1,4 @@
-import { supabase } from "../../../lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import Container from "../../../components/ui/Container";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -8,6 +8,8 @@ export default async function ResourcePage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  const supabase = getSupabase(); // 👈 add this
+
   const { slug } = await params;
 
   const { data: resource, error } = await supabase
@@ -16,9 +18,9 @@ export default async function ResourcePage({
     .eq("slug", slug)
     .single();
 
-if (error || !resource) {
-  notFound();
-}
+  if (error || !resource) {
+    notFound();
+  }
 
 
   const primaryCategory =

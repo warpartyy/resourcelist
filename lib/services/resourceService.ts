@@ -1,42 +1,43 @@
-import { supabase } from "@/lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import { deriveParentCategories } from "./categoryService";
 
 /**
  * Approve a submission → insert or update resource
  */
+
 export async function approveResource(data: any) {
+  const supabase = getSupabase(); // 👈 ADD THIS
+
   const slug = data.organization
     ?.toLowerCase()
     .replace(/\s+/g, "-");
 
-  // Always derive parent categories from subcategories
   const derivedParents = deriveParentCategories(
     data.subcategories || []
   );
 
+const resourcePayload = {
+  organization: data.organization,
+  slug,
+  parent_categories: derivedParents,
+  subcategories: data.subcategories || [],
+  tags: data.tags || [],
+  counties_served: data.counties_served || [],
+  phone: data.phone || null,
+  website: data.website || null,
+  application_link: data.application_link || null,
+  address: data.address || null,
+  city: data.city || null,
+  state: data.state || null,
+  zip: data.zip || null,
+  description: data.description || null,
+  services: data.services || [],
+  eligibility: data.eligibility || null,
+  last_verified: new Date().toISOString().split("T")[0],
+  source_submission_id: data.id,
+};
 
-  
-  const resourcePayload = {
-    organization: data.organization,
-    slug,
-    parent_categories: derivedParents,
-    subcategories: data.subcategories || [],
-    tags: data.tags || [],
-    counties_served: data.counties_served || [],
-    phone: data.phone || null,
-    website: data.website || null,
-    address: data.address || null,
-    city: data.city || null,
-    state: data.state || null,
-    zip: data.zip || null,
-    description: data.description || null,
-    services: data.services || [],
-    eligibility: data.eligibility || null,
-    last_verified: new Date().toISOString().split("T")[0],
-    source_submission_id: data.id,
-  };
 
-  // Check if resource already exists for this submission
   const { data: existing } = await supabase
     .from("resources")
     .select("id")
@@ -56,6 +57,7 @@ export async function approveResource(data: any) {
 }
 
 
+
 /**
  * Update an existing approved resource
  */
@@ -70,6 +72,8 @@ function generateSlug(name: string) {
 }
 
 export async function updateResource(id: string, data: any) {
+  const supabase = getSupabase(); // 👈 add this
+
   console.log("Updating resource with ID:", id);
 
   // 1️⃣ Get existing resource
@@ -82,6 +86,10 @@ export async function updateResource(id: string, data: any) {
   if (fetchError || !existing) {
     return { error: fetchError || new Error("Resource not found") };
   }
+
+
+
+
 
   // 2️⃣ Determine if organization changed
   let newSlug = existing.slug;
@@ -140,6 +148,7 @@ export async function updateResource(id: string, data: any) {
 
 
 export async function deleteResource(id: string) {
+  const supabase = getSupabase(); // 👈 add this
   return await supabase
     .from("resources")
     .delete()

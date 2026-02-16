@@ -1,4 +1,4 @@
-import { supabase } from "../../lib/supabase";
+import { getSupabase } from "@/lib/supabase";
 import ResourceCard from "../../components/ResourceCard";
 import Container from "../../components/ui/Container";
 import Link from "next/link";
@@ -53,6 +53,8 @@ if (!isParentCategory && !isSubcategory) {
 let resources: any[] = [];
 let error: any = null;
 
+const supabase = getSupabase();
+
 if (isParentCategory) {
   const { data, error: queryError } = await supabase
     .from("resources")
@@ -72,6 +74,7 @@ if (isSubcategory) {
   resources = data || [];
   error = queryError;
 }
+
 
 if (error) {
   return (
