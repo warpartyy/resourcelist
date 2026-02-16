@@ -4,11 +4,11 @@ export default function HowItWorksPage() {
   return (
     <Container>
 
-      <h1 className="text-4xl font-semibold tracking-tight mb-6">
+      <h1 className="text-4xl font-semibold tracking-tight pt-8 mb-2">
         How It Works
       </h1>
 
-      <p className="text-zinc-400 max-w-3xl mb-10">
+      <p className="text-zinc-300 max-w-3xl mb-10">
         War Party Resources is built through shared knowledge and maintained
         with care. Every listing is reviewed before publication to ensure
         clarity, accuracy, and community relevance.
@@ -19,13 +19,41 @@ export default function HowItWorksPage() {
         {/* Community Contributions */}
         <section>
           <h2 className="text-xl font-semibold mb-3">
+            Curated with Field Experience
+          </h2>
+
+
+
+<p className="text-zinc-300 leading-relaxed max-w-3xl">
+  This directory is informed by professional experience working within
+  public health and community support systems.
+  In addition to community submissions, resources are actively identified
+  and added based on direct knowledge of service networks, referral pathways,
+  and regional providers.
+  Community input expands the directory. Professional experience helps shape
+  and review it.
+</p>
+
+
+
+        </section>
+
+        <div className="border-b border-zinc-800" />
+
+        {/* Community Contributions */}
+        <section>
+          <h2 className="text-xl font-semibold mb-3">
             Community Contributions
           </h2>
 
           <p className="text-zinc-300 leading-relaxed max-w-3xl">
-            Anyone can suggest a resource. Submissions may include service
-            details, contact information, eligibility criteria, and location.
-            Community input helps expand access to essential support.
+            Anyone can suggest a resource. Submissions may include service details, 
+            contact information, eligibility criteria, location, and any notes that 
+            help clarify how the service operates.If you’re familiar with a program 
+            in your area — whether it’s tribal, urban, regional, or grassroots — your 
+            input helps ensure others can find support that is relevant and accessible 
+            to them. Community knowledge strengthens this directory and helps expand 
+            access to essential care.
           </p>
         </section>
 

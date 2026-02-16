@@ -1,7 +1,6 @@
 import Container from "@/components/ui/Container";
 import Link from "next/link";
 
-
 export default function AboutPage() {
   return (
     <div className="py-14">
@@ -11,17 +10,20 @@ export default function AboutPage() {
           {/* Intro */}
           <section className="space-y-3">
 
-
-
             <h1 className="text-3xl md:text-4xl font-semibold leading-tight">
-              Access to support should never depend on insider knowledge.
+              About
             </h1>
 
             <p className="text-zinc-300 leading-relaxed">
-              War Party Resources is a community-informed directory built to
-              simplify how individuals and families find essential services.
-              While open to the public, it is intentionally centered on Native
-              communities.
+              War Party Resources grew out of firsthand experience working 
+              within public health and community support systems. Over time, 
+              it became clear how difficult it can be to navigate services — 
+              even for those familiar with the system. Information is often 
+              scattered, inconsistent, or difficult to verify. For individuals 
+              and families seeking support, that complexity can slow down access 
+              at the moment it’s needed most. This directory was created to make 
+              that process more straightforward. While publicly available, it is 
+              intentionally centered on Native individuals and families.
             </p>
           </section>
 
@@ -32,9 +34,13 @@ export default function AboutPage() {
             </h2>
 
             <p className="text-zinc-300 leading-relaxed">
-              Services are often fragmented, outdated, or difficult to access.
-              This platform brings clarity and organization into one place —
-              reducing barriers and making it easier to take the next step.
+              Accessing essential services shouldn’t require insider knowledge 
+              or repeated referrals just to find a starting point. This platform 
+              brings relevant resources into one place — organized clearly and 
+              reviewed with care — to help reduce confusion and make it easier 
+              to take the next step.
+
+
             </p>
           </section>
 
@@ -43,37 +49,44 @@ export default function AboutPage() {
 
   <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
     <h3 className="text-lg font-semibold mb-2">
-      Built for Community
+      How It’s Built
     </h3>
     <p className="text-zinc-300 text-sm leading-relaxed">
-      This directory grows through shared knowledge and lived experience.
-      Community members suggest resources, share what’s working, and help
-      ensure the information reflects real needs — not just formal listings.
-      It’s shaped by the people it serves.
+      This directory is shaped by direct experience within public health and 
+      community support systems, along with community contributions from across
+      different regions. Resources are identified through professional familiarity 
+      with service networks and referral pathways — and strengthened by people who 
+      know what is actually available in their communities. Anyone can suggest a 
+      resource. Every submission is reviewed before publication. Community knowledge 
+      expands it. Experience helps guide it.
     </p>
   </div>
 
   <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
     <h3 className="text-lg font-semibold mb-2">
-      Designed for Clarity
+      What It Prioritizes
     </h3>
     <p className="text-zinc-300 text-sm leading-relaxed">
-      Finding support shouldn’t feel confusing or overwhelming.
-      Services are organized in a way that feels simple, respectful,
-      and practical — helping individuals and families move forward
-      with confidence.
+      Clarity over complexity.
+      Access over bureaucracy.
+      Respect over gatekeeping.
+      
+      Information is organized to be practical, transparent, 
+      and easy to navigate — without unnecessary barriers or institutional language.
     </p>
   </div>
 
   <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
     <h3 className="text-lg font-semibold mb-2">
-      Maintained with Integrity
+      Ongoing Care
     </h3>
     <p className="text-zinc-300 text-sm leading-relaxed">
-      Every resource is reviewed before being published.
-      Information is updated with care so that what’s listed here
-      remains trustworthy, accurate, and aligned with the community’s
-      well-being.
+      Every listing is reviewed before it is published. Updates can be 
+      submitted when information changes. The directory evolves over time 
+      to remain accurate and relevant.
+      
+      This is not a campaign.
+      It’s infrastructure.
     </p>
   </div>
 
@@ -85,15 +98,7 @@ export default function AboutPage() {
     ← Back to Home
   </Link>
 </div>
-
-
-
 </section>
-
-
-
-
-
         </div>
       </Container>
     </div>
