@@ -7,8 +7,10 @@ export function getSupabase() {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+    // 🚫 Do NOT throw during build
     if (!supabaseUrl || !supabaseAnonKey) {
-      throw new Error("Supabase environment variables are missing.");
+      console.warn("Supabase env vars missing during build.");
+      return {} as any;
     }
 
     supabaseClient = createClient(
@@ -17,5 +19,5 @@ export function getSupabase() {
     );
   }
 
-  return supabaseClient as any; // 👈 this fixes the TS "never" issue
+  return supabaseClient as any;
 }
