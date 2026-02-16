@@ -55,6 +55,59 @@ export default function Header() {
     "/family-community-support",
   ].includes(pathname);
 
+const RESOURCE_NAV = [
+  {
+    label: "Health & Wellness",
+    href: "/health-wellness",
+    children: [
+      { label: "Mental Health Services", href: "/mental-health-services" },
+      { label: "Substance Use & Recovery", href: "/substance-use-recovery" },
+      { label: "General Healthcare Services", href: "/general-healthcare-services" },
+      { label: "Support Groups", href: "/support-groups" },
+    ],
+  },
+  {
+    label: "Essential Support",
+    href: "/essential-support",
+    children: [
+      { label: "Housing Support", href: "/housing-support" },
+      { label: "Food Assistance", href: "/food-assistance" },
+      { label: "Transportation Services", href: "/transportation-services" },
+      { label: "Utility & Rental Assistance", href: "/utility-rental-assistance" },
+    ],
+  },
+  {
+    label: "Work, Money & Legal",
+    href: "/work-money-legal",
+    children: [
+      { label: "Employment & Job Support", href: "/employment-job-support" },
+      { label: "Financial & Benefits Assistance", href: "/financial-benefits-assistance" },
+      { label: "Legal Assistance", href: "/legal-assistance" },
+    ],
+  },
+  {
+    label: "Safety & Crisis",
+    href: "/safety-crisis",
+    children: [
+      { label: "Domestic Violence & Safety", href: "/domestic-violence-safety" },
+      { label: "Crisis Services", href: "/crisis-services" },
+      { label: "Emergency Shelter", href: "/emergency-shelter" },
+    ],
+  },
+  {
+    label: "Family & Community Support",
+    href: "/family-community-support",
+    children: [
+      { label: "Youth Programs", href: "/youth-programs" },
+      { label: "Parenting & Family Support", href: "/parenting-family-support" },
+      { label: "Peer Support Services", href: "/peer-support-services" },
+      { label: "Community & Cultural Programs", href: "/community-cultural-programs" },
+    ],
+  },
+];
+
+
+
   return (
     <header
       className={`
@@ -136,7 +189,7 @@ export default function Header() {
 
             <div
               className={`
-                absolute right-0 mt-4 w-64 rounded-xl border border-zinc-800
+                absolute right-0 mt-4 w-80 rounded-xl border border-zinc-800
                 bg-black shadow-xl transition-all duration-200
                 ${
                   dropdownOpen
@@ -145,27 +198,46 @@ export default function Header() {
                 }
               `}
             >
-              <div className="flex flex-col p-2 text-sm">
-                {[
-                  ["Health & Wellness", "/health-wellness"],
-                  ["Essential Support", "/essential-support"],
-                  ["Work, Money & Legal", "/work-money-legal"],
-                  ["Safety & Crisis", "/safety-crisis"],
-                  ["Family & Community Support", "/family-community-support"],
-                ].map(([label, href]) => (
-                  <Link
-                    key={href}
-                    href={href}
-                    className={`px-3 py-2 rounded-md transition ${
-                      pathname === href
-                        ? "bg-zinc-900 text-white"
-                        : "text-zinc-400 hover:bg-zinc-900 hover:text-white"
-                    }`}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </div>
+
+
+<div className="flex flex-col p-3 text-sm w-80">
+  {RESOURCE_NAV.map((parent) => (
+    <div key={parent.href} className="mb-4">
+
+      <Link
+        href={parent.href}
+        className={`block px-3 py-2 rounded-md font-semibold transition ${
+          pathname === parent.href
+            ? "bg-zinc-900 text-white"
+            : "text-white hover:bg-zinc-900"
+        }`}
+      >
+        {parent.label}
+      </Link>
+
+      <div className="ml-4 mt-1 flex flex-col space-y-1">
+        {parent.children.map((child) => (
+          <Link
+            key={child.href}
+            href={child.href}
+            className={`px-3 py-1 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-white transition ${
+              pathname === child.href ? "text-white" : ""
+            }`}
+          >
+            {child.label}
+          </Link>
+        ))}
+      </div>
+
+    </div>
+  ))}
+</div>
+
+
+
+
+
+
             </div>
           </div>
 
@@ -215,36 +287,77 @@ export default function Header() {
               </button>
             </div>
 
-            {/* Navigation Links */}
-            <div className="flex flex-col px-6 py-8 overflow-y-auto">
-              {[
-                ["Health & Wellness", "/health-wellness"],
-                ["Essential Support", "/essential-support"],
-                ["Work, Money & Legal", "/work-money-legal"],
-                ["Safety & Crisis", "/safety-crisis"],
-                ["Family & Community Support", "/family-community-support"],
-                ["About", "/about"],
-                ["How It Works", "/how-it-works"],
-              ].map(([label, href]) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="py-4 border-b border-zinc-900 text-lg font-medium hover:text-white text-zinc-300 transition"
-                >
-                  {label}
-                </Link>
-              ))}
 
-              <Link
-                href="/suggest-resource"
-                onClick={() => setMobileMenuOpen(false)}
-                className="mt-8 bg-blue-600 hover:bg-blue-700 text-white text-center py-4 rounded-xl font-medium text-lg transition"
-              >
-                Suggest a Resource
-              </Link>
-            </div>
+            {/* Navigation Links */}
+<div className="flex flex-col px-6 py-8 overflow-y-auto space-y-6">
+
+  {RESOURCE_NAV.map((parent) => (
+    <div key={parent.href}>
+
+      {/* Parent */}
+      <Link
+        href={parent.href}
+        onClick={() => setMobileMenuOpen(false)}
+        className="block text-lg font-semibold py-3 text-white"
+      >
+        {parent.label}
+      </Link>
+
+      {/* Children */}
+      <div className="ml-4 flex flex-col space-y-2">
+        {parent.children.map((child) => (
+          <Link
+            key={child.href}
+            href={child.href}
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-zinc-400 hover:text-white transition"
+          >
+            {child.label}
+          </Link>
+        ))}
+      </div>
+
+    </div>
+  ))}
+
+  {/* Static Links */}
+  <Link
+    href="/about"
+    onClick={() => setMobileMenuOpen(false)}
+    className="text-lg font-medium pt-6 border-t border-zinc-900"
+  >
+    About
+  </Link>
+
+  <Link
+    href="/how-it-works"
+    onClick={() => setMobileMenuOpen(false)}
+    className="text-lg font-medium"
+  >
+    How It Works
+  </Link>
+
+  <Link
+    href="/suggest-resource"
+    onClick={() => setMobileMenuOpen(false)}
+    className="mt-6 bg-blue-600 hover:bg-blue-700 text-white text-center py-4 rounded-xl font-medium text-lg transition"
+  >
+    Suggest a Resource
+  </Link>
+
+</div>
+
+
+
+
+
+
           </div>
+
+
+
+
+
         </div>
       )}
     </header>
