@@ -31,18 +31,19 @@ export default function Home() {
       {/* Subtle text contrast helper */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/20 to-black/40 blur-2xl" />
 
+
       <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-3 text-white drop-shadow-lg">
-        War Party Resources
+        Support should not be hard to find.
       </h1>
-
+      
       <p className="text-base md:text-lg text-zinc-200 mb-2 drop-shadow-md">
-        Community-driven access to essential services.
+        A centralized directory of essential services, built to help Native individuals and 
+        families access care with clarity and respect.
       </p>
 
-      <p className="text-zinc-300 text-sm md:text-base drop-shadow-md">
-        Built to help people navigate support systems with clarity,
-        dignity, and direct access.
-      </p>
+
+
+
 
     </div>
   </div>
@@ -56,26 +57,27 @@ export default function Home() {
 <section className="bg-zinc-950 py-10 md:py-14 border-b border-zinc-900">
   <Container>
     <div className="max-w-2xl mx-auto text-center">
-
-
       <h2 className="text-2xl md:text-3xl font-semibold mb-3">
-        Built for Community
+        Community-Centered
       </h2>
 
-      <p className="text-zinc-400 leading-relaxed mb-4">
-        Navigating support systems shouldn’t feel overwhelming. Services are
-        often scattered, difficult to understand, or hard to access. War Party
-        Resources exists to bring clarity and connection into one place.
+      <p className="text-zinc-100 leading-relaxed mb-4">
+        Support systems can be scattered, confusing, and difficult to navigate. 
+        This directory exists to make things clearer.
       </p>
 
-      <p className="text-zinc-400 leading-relaxed">
-        While open to the public, this directory is intentionally centered on
-        Native individuals and families — honoring community knowledge,
-        strengthening access to culturally responsive services, and supporting
-        well-being with dignity and respect.
+      <p className="text-zinc-100 leading-relaxed">
+        While publicly accessible, it is intentionally centered on Native individuals and families — prioritizing culturally responsive services and practical access without unnecessary barriers.
+      </p>
+            <p className="text-zinc-100 leading-relaxed">
+        The goal is to make it easier to find help when it’s needed.
       </p>
 
     </div>
+
+
+
+
   </Container>
 </section>
 
@@ -190,19 +192,19 @@ export default function Home() {
       </Container>
 
 {/* Community Section */}
-<section className="bg-zinc-900 border-t border-zinc-800 py-2 md:py-10 text-center">
+<section className="bg-zinc-950 py-10 md:py-14 border-b border-zinc-900 text-center">
 
 
-  <Container>
+<Container>
     <div className="max-w-2xl mx-auto">
 
       <h2 className="text-2xl md:text-3xl font-semibold mb-3">
-        Built by the Community
+        Help Expand This Directory
       </h2>
 
       <p className="text-zinc-400 text-sm md:text-base mb-5">
         This directory grows through shared knowledge.
-        If you know of a resource that should be listed,
+        If you know of a service that should be included, 
         submit it for review and help expand access for others.
       </p>
 
