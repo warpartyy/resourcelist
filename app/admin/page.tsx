@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../lib/supabase";
+import { getSupabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import ResourceEditForm from "../../components/admin/ResourceEditForm";
 import SubmissionCard from "../../components/admin/SubmissionCard";
@@ -52,10 +52,13 @@ const [adminSection, setAdminSection] = useState<
 
 
 
-  const handleLogout = async () => {
+const handleLogout = async () => {
+  const supabase = getSupabase();
   await supabase.auth.signOut();
   router.push("/login");
 };
+
+
 
 
 
@@ -63,21 +66,23 @@ const [adminSection, setAdminSection] = useState<
     checkUser();
   }, []);
 
-  const checkUser = async () => {
-    const { data } = await supabase.auth.getSession();
+const checkUser = async () => {
+  const supabase = getSupabase();
+  const { data } = await supabase.auth.getSession();
 
-    if (!data.session) {
-      router.push("/login");
-      return;
-    }
+  if (!data.session) {
+    router.push("/login");
+    return;
+  }
 
   fetchData();
+};
 
-  };
 
 
 
 const fetchData = async () => {
+  const supabase = getSupabase(); // 👈 add this
   setLoading(true);
 
   if (adminSection === "resources") {
@@ -97,6 +102,7 @@ const fetchData = async () => {
 
   setLoading(false);
 };
+
 
 
 
