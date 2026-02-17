@@ -83,11 +83,13 @@ export default function SubcategorySection({
           ) : (
             <p className="text-sm text-zinc-500">
               We’re adding more resources in this area.{" "}
+              <br/>
+                Help expand access by{" "}
               <Link
                 href="/suggest-resource"
-                className="text-blue-400 hover:text-blue-300 underline underline-offset-4"
+                className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
               >
-                Suggest one →
+                suggesting one →
               </Link>
             </p>
           )}

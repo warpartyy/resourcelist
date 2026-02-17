@@ -100,13 +100,6 @@ const formattedDate = mostRecentVerification
     })
   : null;
 
-
-
-
-
-
-
-
 const displayTitle =
   PARENT_CATEGORIES.find((cat) => cat.value === category)?.label ||
   SUBCATEGORIES.find((sub) => sub.value === category)?.label ||
@@ -120,7 +113,7 @@ const displayTitle =
 <div className="mb-5">
 
   {/* Breadcrumb */}
-  <div className="text-sm text-zinc-500 mb-4 flex items-center flex-wrap gap-2">
+  <div className="text-sm text-zinc-500 pt-4 mb-4 flex items-center flex-wrap gap-2">
     <Link href="/" className="hover:text-white transition">
       Home
     </Link>
