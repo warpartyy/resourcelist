@@ -17,7 +17,7 @@ export default function SubcategorySection({
   sub,
   resources,
 }: Props) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="pt-1 pb-4 md:pt-2 md:pb-5 border-b border-zinc-800">
