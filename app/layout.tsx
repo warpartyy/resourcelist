@@ -34,9 +34,7 @@ export default function RootLayout({
       >
         <Header />
 
-<main className="flex-grow w-full pt-20">
-
-
+<main className="flex-grow w-full pt-[145px] md:pt-16">
   {children}
 </main>
 

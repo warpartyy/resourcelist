@@ -120,7 +120,11 @@ const RESOURCE_NAV = [
         }
       `}
     >
-      <div className="max-w-7xl mx-auto h-20 flex items-center justify-between px-4">
+
+
+      <div className="max-w-7xl mx-auto px-4">
+        <div className="h-20 flex items-center justify-between">
+
 
 
         {/* Logo */}
@@ -129,7 +133,7 @@ const RESOURCE_NAV = [
   className="flex items-center gap-3 text-white hover:text-zinc-300 transition"
 >
   <Image
-    src="/war-party-logo.png"   // 👈 change to your actual file name
+    src="/war-party-logo.png"
     alt="War Party Logo"
     width={36}
     height={36}
@@ -255,8 +259,34 @@ const RESOURCE_NAV = [
           >
             Suggest a Resource
           </Link>
+
+          <form action="/search">
+  <input
+    name="q"
+    placeholder="Search resources"
+    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1 text-sm"
+  />
+</form>
+
+
         </div>
       </div>
+        </div>
+
+
+    {/* 🔥 ADD THIS */}
+{/* Mobile Search Row */}
+<div className="md:hidden border-t border-zinc-900 px-4 py-3">
+  <form action="/search">
+    <input
+      type="text"
+      name="q"
+      placeholder="Search resources..."
+      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
+    />
+  </form>
+</div>
+
 
       {/* Mobile Overlay — ONLY mounted when open */}
       {mobileMenuOpen && (
@@ -289,7 +319,22 @@ const RESOURCE_NAV = [
 
 
             {/* Navigation Links */}
-<div className="flex flex-col px-6 py-8 overflow-y-auto space-y-6">
+<div className="flex flex-col px-4 py-2 overflow-y-auto space-y-6">
+
+{/* Mobile Search */}
+<form
+  action="/search"
+  className="mb-2"
+>
+  <input
+    type="text"
+    name="q"
+    placeholder="Search resources..."
+    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
+  />
+</form>
+
+
 
   {RESOURCE_NAV.map((parent) => (
     <div key={parent.href}>
@@ -298,13 +343,13 @@ const RESOURCE_NAV = [
       <Link
         href={parent.href}
         onClick={() => setMobileMenuOpen(false)}
-        className="block text-lg font-semibold py-3 text-white"
+        className="block text-lg font-semibold py-2 text-white"
       >
         {parent.label}
       </Link>
 
       {/* Children */}
-      <div className="ml-4 flex flex-col space-y-2">
+      <div className="ml-4 flex flex-col space-y-1">
         {parent.children.map((child) => (
           <Link
             key={child.href}

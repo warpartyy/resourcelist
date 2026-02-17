@@ -13,6 +13,7 @@ export default function SearchFilters() {
   const [county, setCounty] = useState(searchParams.get("county") || "");
   const [state, setState] = useState(searchParams.get("state") || "");
   const [tags, setTags] = useState(searchParams.get("tags") || "");
+  const [open, setOpen] = useState(false);
 
   const applyFilters = () => {
     const params = new URLSearchParams();
@@ -31,21 +32,41 @@ export default function SearchFilters() {
   };
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 shadow-xl space-y-6">
+  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-lg overflow-hidden">
 
-      <h2 className="text-xl font-semibold">
+    {/* Header (clickable on mobile) */}
+    <button
+      onClick={() => setOpen(!open)}
+      className="w-full px-4 py-4 flex justify-between items-center lg:cursor-default"
+    >
+      <h2 className="text-lg font-semibold">
         Filters
       </h2>
 
+      {/* Only show toggle text on mobile */}
+      <span className="text-sm text-zinc-400 lg:hidden">
+        {open ? "Hide" : "Show"}
+      </span>
+    </button>
+
+    {/* Collapsible Content */}
+    <div
+      className={`
+        px-4 pb-5 space-y-4
+        transition-all duration-300
+        ${open ? "block" : "hidden"}
+        lg:block
+      `}
+    >
       {/* Parent Category */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-2">
+        <label className="block text-xs text-zinc-400 mb-1">
           Parent Category
         </label>
         <select
           value={parent}
           onChange={(e) => setParent(e.target.value)}
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2"
+          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
         >
           <option value="">All</option>
           {PARENT_CATEGORIES.map((cat) => (
@@ -58,13 +79,13 @@ export default function SearchFilters() {
 
       {/* Subcategory */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-2">
+        <label className="block text-xs text-zinc-400 mb-1">
           Subcategory
         </label>
         <select
           value={sub}
           onChange={(e) => setSub(e.target.value)}
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2"
+          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
         >
           <option value="">All</option>
           {SUBCATEGORIES.map((subcat) => (
@@ -77,63 +98,62 @@ export default function SearchFilters() {
 
       {/* County */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-2">
+        <label className="block text-xs text-zinc-400 mb-1">
           County
         </label>
         <input
           type="text"
           value={county}
           onChange={(e) => setCounty(e.target.value)}
-          placeholder="e.g. Caddo"
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2"
+          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
         />
       </div>
 
       {/* State */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-2">
+        <label className="block text-xs text-zinc-400 mb-1">
           State
         </label>
         <input
           type="text"
           value={state}
           onChange={(e) => setState(e.target.value)}
-          placeholder="e.g. OK"
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2"
+          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
         />
       </div>
 
-      {/* Tags (comma separated for now) */}
+      {/* Tags */}
       <div>
-        <label className="block text-sm text-zinc-400 mb-2">
+        <label className="block text-xs text-zinc-400 mb-1">
           Tags
         </label>
         <input
           type="text"
           value={tags}
           onChange={(e) => setTags(e.target.value)}
-          placeholder="e.g. outpatient,detox"
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2"
+          placeholder="outpatient, detox"
+          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
         />
       </div>
 
       {/* Buttons */}
-      <div className="flex gap-3 pt-4">
+      <div className="flex gap-3 pt-2">
         <button
           onClick={applyFilters}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm transition"
         >
-          Apply Filters
+          Apply
         </button>
 
         <button
           onClick={clearFilters}
-          className="border border-zinc-700 text-zinc-300 px-4 py-2 rounded-lg hover:bg-zinc-800 transition"
+          className="border border-zinc-700 text-zinc-300 px-4 py-2 rounded-lg text-sm hover:bg-zinc-800 transition"
         >
           Clear
         </button>
       </div>
-
     </div>
-  );
+  </div>
+);
+
 }
