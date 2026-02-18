@@ -9,11 +9,11 @@ export default function Home() {
 
       <CrisisBanner />
 
-{/* ---------------- Hero Section ---------------- */}
+{/* ---------------- Hero Section ---------------- */} {/*
 <section className="relative w-full h-[38vh] min-h-[300px] md:h-[45vh] md:min-h-[380px] overflow-hidden">
 
 
-  {/* Background Image */}
+  {/* Background Image */} {/*
   <div
     className="absolute inset-0 bg-cover bg-center"
     style={{
@@ -21,14 +21,14 @@ export default function Home() {
     }}
   />
 
-  {/* Softer Overlay */}
+  {/* Softer Overlay */} {/*
   <div className="absolute inset-0 bg-black/40" />
 
-  {/* Content */}
+  {/* Content */}   {/*
   <div className="relative z-10 h-full flex items-center justify-center text-center px-6">
     <div className="max-w-3xl relative">
 
-      {/* Subtle text contrast helper */}
+      {/* Subtle text contrast helper */} {/*
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/20 to-black/40 blur-2xl" />
 
 
@@ -53,7 +53,7 @@ export default function Home() {
 
 
 
-{/* ---------------- Purpose Section ---------------- */}
+{/* ---------------- Purpose Section ---------------- */} {/*
 <section className="bg-zinc-950 py-10 md:py-14 border-b border-zinc-900">
   <Container>
     <div className="max-w-2xl mx-auto text-center">
