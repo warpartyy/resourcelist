@@ -30,19 +30,18 @@ export default function SubmissionsPanel({
   return (
     <>
       {/* Section Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold capitalize">
-          {section} Submissions
-        </h1>
-        <p className="text-zinc-400 text-sm mt-1">
-          {section === "pending" &&
-            "Review and approve new submissions."}
-          {section === "approved" &&
-            "Previously approved submissions."}
-          {section === "rejected" &&
-            "Submissions that were not approved."}
-        </p>
-      </div>
+{/* Section Header */}
+<div className="mb-4 mt-0">
+  <p className="text-zinc-200 text-base font-medium">
+    {section === "pending" &&
+      "Review and approve new submissions."}
+    {section === "approved" &&
+      "Previously approved submissions."}
+    {section === "rejected" &&
+      "Submissions that were not approved."}
+  </p>
+</div>
+
 
       {/* Empty State */}
       {submissions.length === 0 ? (

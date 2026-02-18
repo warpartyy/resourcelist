@@ -17,10 +17,24 @@ type AdminSection =
   | "approved"
   | "rejected";
 
+const SECTION_TITLES: Record<AdminSection, string> = {
+  pending: "Pending Suggestions",
+  resources: "Active Resources",
+  approved: "Approval History",
+  rejected: "Rejected Submissions",
+};
+
 type Props = {
   adminSection: AdminSection;
   setAdminSection: (section: AdminSection) => void;
   onLogout: () => void;
+
+  // counts passed from parent
+  pendingCount?: number;
+  resourceCount?: number;
+  approvedCount?: number;
+  rejectedCount?: number;
+
   children: React.ReactNode;
 };
 
@@ -28,6 +42,10 @@ export default function AdminLayout({
   adminSection,
   setAdminSection,
   onLogout,
+  pendingCount,
+  resourceCount,
+  approvedCount,
+  rejectedCount,
   children,
 }: Props) {
   const [collapsed, setCollapsed] = useState(false);
@@ -35,7 +53,8 @@ export default function AdminLayout({
   const navItem = (
     label: string,
     value: AdminSection,
-    Icon: any
+    Icon: any,
+    count?: number
   ) => {
     const isActive = adminSection === value;
 
@@ -43,20 +62,31 @@ export default function AdminLayout({
       <button
         onClick={() => setAdminSection(value)}
         className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg transition
-          ${isActive
-            ? "bg-blue-600 text-white"
-            : "hover:bg-zinc-800 text-zinc-300"}
-        `}
+          ${
+            isActive
+              ? "bg-blue-600 text-white"
+              : "hover:bg-zinc-800 text-zinc-300"
+          }`}
       >
         <Icon size={18} />
-        {!collapsed && <span>{label}</span>}
+
+        {!collapsed && (
+          <>
+            <span className="flex-1 text-left">{label}</span>
+
+            {count !== undefined && (
+              <span className="text-xs bg-zinc-700 px-2 py-0.5 rounded-full">
+                {count}
+              </span>
+            )}
+          </>
+        )}
       </button>
     );
   };
 
   return (
     <div className="min-h-screen flex bg-zinc-950 text-white">
-
       {/* Sidebar */}
       <div
         className={`${
@@ -66,43 +96,27 @@ export default function AdminLayout({
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           {!collapsed && (
-            <h2 className="text-lg font-semibold">
-              Admin
-            </h2>
+            <h2 className="text-lg font-semibold">Admin</h2>
           )}
+
           <button
             onClick={() => setCollapsed(!collapsed)}
             className="text-zinc-400 hover:text-white transition"
           >
-            {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+            {collapsed ? (
+              <ChevronRight size={18} />
+            ) : (
+              <ChevronLeft size={18} />
+            )}
           </button>
         </div>
 
-        {/* WORKFLOW */}
-        {!collapsed && (
-          <div className="text-xs uppercase text-zinc-500 mb-3">
-            Workflow
-          </div>
-        )}
-
-        <div className="space-y-2 mb-6">
-          {navItem("Pending Suggestions", "pending", Clock)}
-          {navItem("Active Resources", "resources", Database)}
-        </div>
-
-        {/* Divider */}
-        <div className="border-t border-zinc-800 my-4" />
-
-        {/* HISTORY */}
-        {!collapsed && (
-          <div className="text-xs uppercase text-zinc-500 mb-3">
-            History
-          </div>
-        )}
-
+        {/* Navigation */}
         <div className="space-y-2">
-          {navItem("Approval History", "approved", CheckCircle)}
-          {navItem("Rejected", "rejected", XCircle)}
+          {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
+          {navItem("Active Resources", "resources", Database, resourceCount)}
+          {navItem("Approval History", "approved", CheckCircle, approvedCount)}
+          {navItem("Rejected", "rejected", XCircle, rejectedCount)}
         </div>
 
         {/* Logout */}
@@ -118,8 +132,14 @@ export default function AdminLayout({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 p-10 overflow-y-auto">
-        {children}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-10 pt-10 pb-4 border-b border-zinc-800">
+          <h1 className="text-2xl font-semibold">
+            {SECTION_TITLES[adminSection]}
+          </h1>
+        </div>
+
+        <div className="p-10">{children}</div>
       </div>
     </div>
   );

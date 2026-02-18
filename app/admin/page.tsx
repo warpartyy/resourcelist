@@ -3,14 +3,16 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
-import ResourceEditForm from "../../components/admin/ResourceEditForm";
-import SubmissionCard from "../../components/admin/SubmissionCard";
 import SubmissionsPanel from "../../components/admin/SubmissionsPanel";
 import ResourcesPanel from "../../components/admin/ResourcesPanel";
 import AdminLayout from "../../components/admin/AdminLayout";
-import {getSubmissions, rejectSubmission, approveSubmissionRecord,} from "@/lib/services/submissionService";
-import {approveResource, updateResource,} from "@/lib/services/resourceService";
-
+import {
+  rejectSubmission,
+  approveSubmissionRecord,
+} from "@/lib/services/submissionService";
+import {
+  approveResource,
+} from "@/lib/services/resourceService";
 
 const CATEGORY_OPTIONS = [
   { label: "Mental Health", value: "mental-health" },
@@ -34,156 +36,186 @@ const COUNTY_OPTIONS = [
   "Kiowa",
   "Stephens",
   "Tillman",
-  // Add more as needed
 ];
-
-
 
 export default function AdminPage() {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Counts
+  const [counts, setCounts] = useState({
+    pending: 0,
+    approved: 0,
+    rejected: 0,
+    resources: 0,
+  });
+
+  // ✅ NEW: sort state (DB-level)
+  const [resourceSortOrder, setResourceSortOrder] =
+  useState<"default" | "newest" | "oldest">("default");
+
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedSubmission, setEditedSubmission] = useState<any>({});
-const [adminSection, setAdminSection] = useState<
-  "pending" | "approved" | "rejected" | "resources"
->("pending");
+  const [adminSection, setAdminSection] = useState<
+    "pending" | "approved" | "rejected" | "resources"
+  >("pending");
 
-
-
-const handleLogout = async () => {
-  const supabase = getSupabase();
-  await supabase.auth.signOut();
-  router.push("/login");
-};
-
-
-
-
+  const handleLogout = async () => {
+    const supabase = getSupabase();
+    await supabase.auth.signOut();
+    router.push("/login");
+  };
 
   useEffect(() => {
     checkUser();
   }, []);
 
-const checkUser = async () => {
-  const supabase = getSupabase();
-  const { data } = await supabase.auth.getSession();
+  const checkUser = async () => {
+    const supabase = getSupabase();
+    const { data } = await supabase.auth.getSession();
 
-  if (!data.session) {
-    router.push("/login");
-    return;
-  }
+    if (!data.session) {
+      router.push("/login");
+      return;
+    }
 
-  fetchData();
-};
+    await fetchCounts();
+    fetchData();
+  };
 
+  // Fetch counts
+  const fetchCounts = async () => {
+    const supabase = getSupabase();
 
-
-
-const fetchData = async () => {
-  const supabase = getSupabase(); // 👈 add this
-  setLoading(true);
-
-  if (adminSection === "resources") {
-    const { data } = await supabase
-      .from("resources")
-      .select("*");
-
-    setResources(data || []);
-  } else {
-    const { data } = await supabase
+    const { count: pending } = await supabase
       .from("resource_submissions")
-      .select("*")
-      .eq("status", adminSection);
+      .select("*", { count: "exact", head: true })
+      .eq("status", "pending");
 
-    setSubmissions(data || []);
+    const { count: approved } = await supabase
+      .from("resource_submissions")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "approved");
+
+    const { count: rejected } = await supabase
+      .from("resource_submissions")
+      .select("*", { count: "exact", head: true })
+      .eq("status", "rejected");
+
+    const { count: resources } = await supabase
+      .from("resources")
+      .select("*", { count: "exact", head: true });
+
+    setCounts({
+      pending: pending || 0,
+      approved: approved || 0,
+      rejected: rejected || 0,
+      resources: resources || 0,
+    });
+  };
+
+  // Fetch data (UPDATED for DB-level sorting)
+  const fetchData = async () => {
+    const supabase = getSupabase();
+    setLoading(true);
+
+if (adminSection === "resources") {
+  let query = supabase.from("resources").select("*");
+
+  if (resourceSortOrder === "oldest") {
+    query = query.order("last_verified", { ascending: true });
+  } else {
+    // default + newest both use descending
+    query = query.order("last_verified", { ascending: false });
   }
 
-  setLoading(false);
-};
+  const { data } = await query;
+  setResources(data || []);
+    } else {
+      const { data } = await supabase
+        .from("resource_submissions")
+        .select("*")
+        .eq("status", adminSection);
 
+      setSubmissions(data || []);
+    }
 
+    setLoading(false);
+  };
 
+  // ✅ UPDATED dependency
+  useEffect(() => {
+    fetchData();
+  }, [adminSection, resourceSortOrder]);
 
+  const approveSubmission = async (submission: any) => {
+    const finalData =
+      editingId === submission.id
+        ? editedSubmission
+        : submission;
 
+    const { error } = await approveResource(finalData);
 
+    if (error) {
+      alert("Save failed.");
+      return;
+    }
 
-useEffect(() => {
-  fetchData();
-}, [adminSection]);
+    await approveSubmissionRecord(submission.id);
 
+    setEditingId(null);
 
+    await fetchCounts();
+    fetchData();
+  };
 
-const approveSubmission = async (submission: any) => {
-  const finalData =
-    editingId === submission.id
-      ? editedSubmission
-      : submission;
+  const handleRejectSubmission = async (id: string) => {
+    const { error } = await rejectSubmission(id);
 
-  const { error } = await approveResource(finalData);
+    if (error) {
+      alert("Reject failed.");
+      return;
+    }
 
-  if (error) {
-    alert("Save failed.");
-    return;
-  }
+    await fetchCounts();
+    fetchData();
+  };
 
-  await approveSubmissionRecord(submission.id);
-
-  setEditingId(null);
-  fetchData();
-};
-
-
-
-
-
-const handleRejectSubmission = async (id: string) => {
-  const { error } = await rejectSubmission(id);
-
-  if (error) {
-    alert("Reject failed.");
-    return;
-  }
-
-  fetchData();
-};
-
-
-
-
-
-return (
-  <AdminLayout
-    adminSection={adminSection}
-    setAdminSection={setAdminSection}
-    onLogout={handleLogout}
-  >
-    {adminSection === "resources" ? (
-      <ResourcesPanel
-        resources={resources}
-        fetchData={fetchData}
-        CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-        COUNTY_OPTIONS={COUNTY_OPTIONS}
-      />
-    ) : ( 
-      <SubmissionsPanel
-        submissions={submissions}
-        section={adminSection}
-        editingId={editingId}
-        setEditingId={setEditingId}
-        editedSubmission={editedSubmission}
-        setEditedSubmission={setEditedSubmission}
-        CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-        COUNTY_OPTIONS={COUNTY_OPTIONS}
-        onApprove={approveSubmission}
-        onReject={handleRejectSubmission}
-/>
-
-
-
-
-    )}
-  </AdminLayout>
-);
+  return (
+    <AdminLayout
+      adminSection={adminSection}
+      setAdminSection={setAdminSection}
+      onLogout={handleLogout}
+      pendingCount={counts.pending}
+      resourceCount={counts.resources}
+      approvedCount={counts.approved}
+      rejectedCount={counts.rejected}
+    >
+      {adminSection === "resources" ? (
+        <ResourcesPanel
+          resources={resources}
+          fetchData={fetchData}
+          CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+          COUNTY_OPTIONS={COUNTY_OPTIONS}
+          sortOrder={resourceSortOrder}             // ✅ NEW
+          setSortOrder={setResourceSortOrder}       // ✅ NEW
+        />
+      ) : (
+        <SubmissionsPanel
+          submissions={submissions}
+          section={adminSection}
+          editingId={editingId}
+          setEditingId={setEditingId}
+          editedSubmission={editedSubmission}
+          setEditedSubmission={setEditedSubmission}
+          CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+          COUNTY_OPTIONS={COUNTY_OPTIONS}
+          onApprove={approveSubmission}
+          onReject={handleRejectSubmission}
+        />
+      )}
+    </AdminLayout>
+  );
 }
