@@ -110,13 +110,11 @@ const RESOURCE_NAV = [
 return (
   <header
     className={`
-      fixed top-0 left-0 right-0 z-[100] transition-all duration-300
-      ${
-        scrolled
-          ? "bg-black/90 border-b border-zinc-900 shadow-md"
-          : "bg-black border-b border-zinc-900"
-      }
-    `}
+      sticky top-0 z-[100] transition-all duration-300
+      bg-black border-b border-zinc-900
+      ${scrolled ? "shadow-md" : ""}
+      `}
+
   >
     <div className="max-w-7xl mx-auto px-4">
 
