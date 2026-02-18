@@ -107,44 +107,38 @@ const RESOURCE_NAV = [
 ];
 
 
+return (
+  <header
+    className={`
+      fixed top-0 left-0 right-0 z-[100] transition-all duration-300
+      ${
+        scrolled
+          ? "bg-black/90 border-b border-zinc-900 shadow-md"
+          : "bg-black border-b border-zinc-900"
+      }
+    `}
+  >
+    <div className="max-w-7xl mx-auto px-4">
 
-  return (
-    <header
-      className={`
-        fixed top-0 left-0 right-0 z-[100] transition-all duration-300
-        ${
-            scrolled
-  ? "bg-black/90 border-b border-zinc-900 shadow-md"
-
-            : "bg-black border-b border-zinc-900"
-        }
-      `}
-    >
-
-
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="h-20 flex items-center justify-between">
-
-
+      {/* Main Header Row */}
+      <div className="flex items-center justify-between h-16">
 
         {/* Logo */}
-<Link
-  href="/"
-  className="flex items-center gap-3 text-white hover:text-zinc-300 transition"
->
-  <Image
-    src="/war-party-logo.png"
-    alt="War Party Logo"
-    width={36}
-    height={36}
-    className="object-contain"
-  />
-
-  <span className="text-xl font-semibold tracking-tight">
-    Resources
-  </span>
-</Link>
-
+        <Link
+          href="/"
+          className="flex items-center gap-3 text-white hover:text-zinc-300 transition"
+        >
+          <Image
+            src="/war-party-logo.png"
+            alt="War Party Logo"
+            width={36}
+            height={36}
+            className="object-contain"
+          />
+          <span className="text-xl font-semibold tracking-tight">
+            Resources
+          </span>
+        </Link>
 
         {/* Mobile Hamburger */}
         <button
@@ -202,46 +196,38 @@ const RESOURCE_NAV = [
                 }
               `}
             >
+              <div className="flex flex-col p-3 text-sm w-80">
+                {RESOURCE_NAV.map((parent) => (
+                  <div key={parent.href} className="mb-4">
 
+                    <Link
+                      href={parent.href}
+                      className={`block px-3 py-2 rounded-md font-semibold transition ${
+                        pathname === parent.href
+                          ? "bg-zinc-900 text-white"
+                          : "text-white hover:bg-zinc-900"
+                      }`}
+                    >
+                      {parent.label}
+                    </Link>
 
-<div className="flex flex-col p-3 text-sm w-80">
-  {RESOURCE_NAV.map((parent) => (
-    <div key={parent.href} className="mb-4">
+                    <div className="ml-4 mt-1 flex flex-col space-y-1">
+                      {parent.children.map((child) => (
+                        <Link
+                          key={child.href}
+                          href={child.href}
+                          className={`px-3 py-1 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-white transition ${
+                            pathname === child.href ? "text-white" : ""
+                          }`}
+                        >
+                          {child.label}
+                        </Link>
+                      ))}
+                    </div>
 
-      <Link
-        href={parent.href}
-        className={`block px-3 py-2 rounded-md font-semibold transition ${
-          pathname === parent.href
-            ? "bg-zinc-900 text-white"
-            : "text-white hover:bg-zinc-900"
-        }`}
-      >
-        {parent.label}
-      </Link>
-
-      <div className="ml-4 mt-1 flex flex-col space-y-1">
-        {parent.children.map((child) => (
-          <Link
-            key={child.href}
-            href={child.href}
-            className={`px-3 py-1 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-white transition ${
-              pathname === child.href ? "text-white" : ""
-            }`}
-          >
-            {child.label}
-          </Link>
-        ))}
-      </div>
-
-    </div>
-  ))}
-</div>
-
-
-
-
-
-
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -261,150 +247,132 @@ const RESOURCE_NAV = [
           </Link>
 
           <form action="/search">
-  <input
-    name="q"
-    placeholder="Search resources"
-    className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1 text-sm"
-  />
-</form>
-
+            <input
+              name="q"
+              placeholder="Search resources"
+              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1 text-sm"
+            />
+          </form>
 
         </div>
       </div>
-        </div>
 
-
-    {/* 🔥 ADD THIS */}
-{/* Mobile Search Row */}
-<div className="md:hidden border-t border-zinc-900 px-4 py-3">
-  <form action="/search">
-    <input
-      type="text"
-      name="q"
-      placeholder="Search resources..."
-      className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
-    />
-  </form>
-</div>
-
-
-      {/* Mobile Overlay — ONLY mounted when open */}
-      {mobileMenuOpen && (
-        <div className="fixed inset-0 z-50 flex">
-
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setMobileMenuOpen(false)}
+      {/* Mobile Search Row */}
+      <div className="md:hidden border-t border-zinc-900 py-3">
+        <form action="/search">
+          <input
+            type="text"
+            name="q"
+            placeholder="Search resources..."
+            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
           />
-
-          {/* Sliding Panel */}
-          <div
-            className="relative ml-auto w-full max-w-sm h-full bg-zinc-950
-                       border-l border-zinc-900 shadow-2xl flex flex-col
-                       animate-slide-in"
-          >
-
-            {/* Top Bar */}
-            <div className="h-16 flex items-center justify-between px-6 border-b border-zinc-900">
-              <span className="text-lg font-medium">Menu</span>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-lg hover:bg-zinc-900 transition"
-                aria-label="Close menu"
-              >
-                <X size={24} />
-              </button>
-            </div>
-
-
-            {/* Navigation Links */}
-<div className="flex flex-col px-4 py-2 overflow-y-auto space-y-6">
-
-{/* Mobile Search */}
-<form
-  action="/search"
-  className="mb-2"
->
-  <input
-    type="text"
-    name="q"
-    placeholder="Search resources..."
-    className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
-  />
-</form>
-
-
-
-  {RESOURCE_NAV.map((parent) => (
-    <div key={parent.href}>
-
-      {/* Parent */}
-      <Link
-        href={parent.href}
-        onClick={() => setMobileMenuOpen(false)}
-        className="block text-lg font-semibold py-2 text-white"
-      >
-        {parent.label}
-      </Link>
-
-      {/* Children */}
-      <div className="ml-4 flex flex-col space-y-1">
-        {parent.children.map((child) => (
-          <Link
-            key={child.href}
-            href={child.href}
-            onClick={() => setMobileMenuOpen(false)}
-            className="text-zinc-400 hover:text-white transition"
-          >
-            {child.label}
-          </Link>
-        ))}
+        </form>
       </div>
 
     </div>
-  ))}
 
-  {/* Static Links */}
-  <Link
-    href="/about"
-    onClick={() => setMobileMenuOpen(false)}
-    className="text-lg font-medium pt-6 border-t border-zinc-900"
-  >
-    About
-  </Link>
+    {/* Mobile Overlay — ONLY mounted when open */}
+    {mobileMenuOpen && (
+      <div className="fixed inset-0 z-50 flex">
 
-  <Link
-    href="/how-it-works"
-    onClick={() => setMobileMenuOpen(false)}
-    className="text-lg font-medium"
-  >
-    How It Works
-  </Link>
+        {/* Backdrop */}
+        <div
+          className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+          onClick={() => setMobileMenuOpen(false)}
+        />
 
-  <Link
-    href="/suggest-resource"
-    onClick={() => setMobileMenuOpen(false)}
-    className="mt-6 bg-blue-600 hover:bg-blue-700 text-white text-center py-4 rounded-xl font-medium text-lg transition"
-  >
-    Suggest a Resource
-  </Link>
+        {/* Sliding Panel */}
+        <div
+          className="relative ml-auto w-full max-w-sm h-full bg-zinc-950
+                     border-l border-zinc-900 shadow-2xl flex flex-col
+                     animate-slide-in"
+        >
 
-</div>
+          {/* Top Bar */}
+          <div className="h-16 flex items-center justify-between px-6 border-b border-zinc-900">
+            <span className="text-lg font-medium">Menu</span>
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 rounded-lg hover:bg-zinc-900 transition"
+              aria-label="Close menu"
+            >
+              <X size={24} />
+            </button>
+          </div>
 
+          {/* Navigation Links */}
+          <div className="flex flex-col px-4 py-2 overflow-y-auto space-y-6">
 
+            {/* Mobile Search */}
+            <form action="/search" className="mb-2">
+              <input
+                type="text"
+                name="q"
+                placeholder="Search resources..."
+                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
+              />
+            </form>
 
+            {RESOURCE_NAV.map((parent) => (
+              <div key={parent.href}>
 
+                {/* Parent */}
+                <Link
+                  href={parent.href}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="block text-lg font-semibold py-2 text-white"
+                >
+                  {parent.label}
+                </Link>
 
+                {/* Children */}
+                <div className="ml-4 flex flex-col space-y-1">
+                  {parent.children.map((child) => (
+                    <Link
+                      key={child.href}
+                      href={child.href}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="text-zinc-400 hover:text-white transition"
+                    >
+                      {child.label}
+                    </Link>
+                  ))}
+                </div>
+
+              </div>
+            ))}
+
+            {/* Static Links */}
+            <Link
+              href="/about"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-lg font-medium pt-6 border-t border-zinc-900"
+            >
+              About
+            </Link>
+
+            <Link
+              href="/how-it-works"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-lg font-medium"
+            >
+              How It Works
+            </Link>
+
+            <Link
+              href="/suggest-resource"
+              onClick={() => setMobileMenuOpen(false)}
+              className="mt-6 bg-blue-600 hover:bg-blue-700 text-white text-center py-4 rounded-xl font-medium text-lg transition"
+            >
+              Suggest a Resource
+            </Link>
 
           </div>
 
-
-
-
-
         </div>
-      )}
-    </header>
-  );
+
+      </div>
+    )}
+  </header>
+);
 }
