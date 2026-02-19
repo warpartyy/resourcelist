@@ -2,7 +2,14 @@
 
 import { useState } from "react";
 import ResourceEditForm from "./ResourceEditForm";
-import { updateResource, deleteResource } from "@/lib/services/resourceService";
+import {
+  updateResource,
+  softDeleteResource,
+  restoreResource,
+  hardDeleteResource,
+} from "@/lib/services/resourceService";
+
+
 
 type Props = {
   resources: any[];
@@ -25,21 +32,7 @@ export default function ResourcesPanel({
   const [editedResource, setEditedResource] = useState<any>({});
   const [search, setSearch] = useState("");
 
-  const handleDelete = async (id: string) => {
-    const confirmDelete = confirm(
-      "Are you sure you want to delete this resource?"
-    );
-    if (!confirmDelete) return;
 
-    const { error } = await deleteResource(id);
-
-    if (error) {
-      alert("Delete failed.");
-      return;
-    }
-
-    fetchData();
-  };
 
   // ✅ Only filter (sorting is now DB-level)
   const filteredResources = resources.filter((resource) =>
@@ -123,13 +116,15 @@ export default function ResourcesPanel({
       </div>
 
       {filteredResources.map((resource) => {
-        const isEditing = editingId === resource.id;
+  const isEditing = editingId === resource.id;
+  const isDeleted = resource.status === "deleted";
 
-        return (
-          <div
-            key={resource.id}
-            className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl mb-6"
-          >
+  return (
+    <div
+      key={resource.id}
+      className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl mb-6"
+    >
+
             {isEditing ? (
               <ResourceEditForm
                 editedSubmission={editedResource}
@@ -224,24 +219,64 @@ export default function ResourcesPanel({
   </div>
 ) : (
   <div className="flex justify-end gap-3 pt-3 border-t border-zinc-800">
-    <button
-      onClick={() => {
-        setEditingId(resource.id);
-        setEditedResource(resource);
-      }}
-      className="px-3 py-1.5 rounded-md text-sm font-medium bg-zinc-800 hover:bg-zinc-700 transition"
-    >
-      Edit
-    </button>
+    {isDeleted ? (
+      <>
+        <button
+          onClick={async () => {
+            await restoreResource(resource.id);
+            fetchData();
+          }}
+          className="px-3 py-1.5 rounded-md text-sm bg-emerald-600 hover:bg-emerald-500 transition"
+        >
+          Restore
+        </button>
 
-    <button
-      onClick={() => handleDelete(resource.id)}
-      className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition"
-    >
-      Delete
-    </button>
+        <button
+          onClick={async () => {
+            const confirmDelete = confirm(
+              "Permanently delete this resource?"
+            );
+            if (!confirmDelete) return;
+
+            await hardDeleteResource(resource.id);
+            fetchData();
+          }}
+          className="px-3 py-1.5 rounded-md text-sm border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition"
+        >
+          Permanently Delete
+        </button>
+      </>
+    ) : (
+      <>
+        <button
+          onClick={() => {
+            setEditingId(resource.id);
+            setEditedResource(resource);
+          }}
+          className="px-3 py-1.5 rounded-md text-sm font-medium bg-zinc-800 hover:bg-zinc-700 transition"
+        >
+          Edit
+        </button>
+
+        <button
+          onClick={async () => {
+            const confirmDelete = confirm(
+              "Move this resource to Deleted?"
+            );
+            if (!confirmDelete) return;
+
+            await softDeleteResource(resource.id);
+            fetchData();
+          }}
+          className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition"
+        >
+          Delete
+        </button>
+      </>
+    )}
   </div>
 )}
+
 
           </div>
         );

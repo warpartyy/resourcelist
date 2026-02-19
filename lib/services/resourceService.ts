@@ -1,16 +1,24 @@
 import { getSupabase } from "@/lib/supabase";
 import { deriveParentCategories } from "./categoryService";
 
-/**
- * Approve a submission → insert or update resource
- */
+
+function generateSlug(name: string) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/['"]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-");
+}
+
+/** Approve a submission → insert or update resource */
 
 export async function approveResource(data: any) {
   const supabase = getSupabase(); // 👈 ADD THIS
 
-  const slug = data.organization
-    ?.toLowerCase()
-    .replace(/\s+/g, "-");
+  const slug = generateSlug(data.organization);
+
 
   const derivedParents = deriveParentCategories(
     data.subcategories || []
@@ -61,15 +69,7 @@ const resourcePayload = {
 /**
  * Update an existing approved resource
  */
-function generateSlug(name: string) {
-  return name
-    .toLowerCase()
-    .trim()
-    .replace(/['"]/g, "")
-    .replace(/[^a-z0-9\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-");
-}
+
 
 export async function updateResource(id: string, data: any) {
   const supabase = getSupabase(); // 👈 add this
@@ -147,11 +147,26 @@ export async function updateResource(id: string, data: any) {
 
 
 
-export async function deleteResource(id: string) {
-  const supabase = getSupabase(); // 👈 add this
+export async function softDeleteResource(id: string) {
+  const supabase = getSupabase();
+  return await supabase
+    .from("resources")
+    .update({ status: "deleted" })
+    .eq("id", id);
+}
+
+export async function restoreResource(id: string) {
+  const supabase = getSupabase();
+  return await supabase
+    .from("resources")
+    .update({ status: "active" })
+    .eq("id", id);
+}
+
+export async function hardDeleteResource(id: string) {
+  const supabase = getSupabase();
   return await supabase
     .from("resources")
     .delete()
     .eq("id", id);
 }
-

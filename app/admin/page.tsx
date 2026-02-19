@@ -1,18 +1,19 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { getSupabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import SubmissionsPanel from "../../components/admin/SubmissionsPanel";
 import ResourcesPanel from "../../components/admin/ResourcesPanel";
 import AdminLayout from "../../components/admin/AdminLayout";
+import {rejectSubmission, approveSubmissionRecord,} from "@/lib/services/submissionService";
+import {approveResource,} from "@/lib/services/resourceService";
 import {
-  rejectSubmission,
-  approveSubmissionRecord,
-} from "@/lib/services/submissionService";
-import {
-  approveResource,
-} from "@/lib/services/resourceService";
+  fetchSubmissionsByStatus,
+  filterApprovedSubmissions,
+  fetchAdminCounts,
+  fetchResourcesByStatus,   // ✅ add this
+} from "@/lib/services/adminService";
+
 
 const CATEGORY_OPTIONS = [
   { label: "Mental Health", value: "mental-health" },
@@ -45,11 +46,13 @@ export default function AdminPage() {
 
   // Counts
   const [counts, setCounts] = useState({
-    pending: 0,
-    approved: 0,
-    rejected: 0,
-    resources: 0,
-  });
+  pending: 0,
+  approved: 0,
+  rejected: 0,
+  resources: 0,
+  deleted: 0,
+});
+
 
   // ✅ NEW: sort state (DB-level)
   const [resourceSortOrder, setResourceSortOrder] =
@@ -59,8 +62,9 @@ export default function AdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedSubmission, setEditedSubmission] = useState<any>({});
   const [adminSection, setAdminSection] = useState<
-    "pending" | "approved" | "rejected" | "resources"
+    "pending" | "approved" | "rejected" | "resources" | "deleted"
   >("pending");
+
 
   const handleLogout = async () => {
     const supabase = getSupabase();
@@ -85,65 +89,35 @@ export default function AdminPage() {
     fetchData();
   };
 
-  // Fetch counts
-  const fetchCounts = async () => {
-    const supabase = getSupabase();
+ const fetchCounts = async () => {
+  const counts = await fetchAdminCounts();
+  setCounts(counts);
+};
 
-    const { count: pending } = await supabase
-      .from("resource_submissions")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "pending");
+const fetchData = async () => {
+  setLoading(true);
 
-    const { count: approved } = await supabase
-      .from("resource_submissions")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "approved");
+  if (adminSection === "resources") {
+    const data = await fetchResourcesByStatus("active");
+    setResources(data);
 
-    const { count: rejected } = await supabase
-      .from("resource_submissions")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "rejected");
+  } else if (adminSection === "deleted") {
+    const data = await fetchResourcesByStatus("deleted");
+    setResources(data);
 
-    const { count: resources } = await supabase
-      .from("resources")
-      .select("*", { count: "exact", head: true });
+  } else if (adminSection === "approved") {
+    const data = await filterApprovedSubmissions();
+    setSubmissions(data);
 
-    setCounts({
-      pending: pending || 0,
-      approved: approved || 0,
-      rejected: rejected || 0,
-      resources: resources || 0,
-    });
-  };
-
-  // Fetch data (UPDATED for DB-level sorting)
-  const fetchData = async () => {
-    const supabase = getSupabase();
-    setLoading(true);
-
-if (adminSection === "resources") {
-  let query = supabase.from("resources").select("*");
-
-  if (resourceSortOrder === "oldest") {
-    query = query.order("last_verified", { ascending: true });
   } else {
-    // default + newest both use descending
-    query = query.order("last_verified", { ascending: false });
+    const data = await fetchSubmissionsByStatus(adminSection);
+    setSubmissions(data);
   }
 
-  const { data } = await query;
-  setResources(data || []);
-    } else {
-      const { data } = await supabase
-        .from("resource_submissions")
-        .select("*")
-        .eq("status", adminSection);
+  setLoading(false);
+};
 
-      setSubmissions(data || []);
-    }
 
-    setLoading(false);
-  };
 
   // ✅ UPDATED dependency
   useEffect(() => {
@@ -192,30 +166,32 @@ if (adminSection === "resources") {
       resourceCount={counts.resources}
       approvedCount={counts.approved}
       rejectedCount={counts.rejected}
+      deletedCount={counts.deleted}
     >
-      {adminSection === "resources" ? (
-        <ResourcesPanel
-          resources={resources}
-          fetchData={fetchData}
-          CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-          COUNTY_OPTIONS={COUNTY_OPTIONS}
-          sortOrder={resourceSortOrder}             // ✅ NEW
-          setSortOrder={setResourceSortOrder}       // ✅ NEW
-        />
-      ) : (
-        <SubmissionsPanel
-          submissions={submissions}
-          section={adminSection}
-          editingId={editingId}
-          setEditingId={setEditingId}
-          editedSubmission={editedSubmission}
-          setEditedSubmission={setEditedSubmission}
-          CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-          COUNTY_OPTIONS={COUNTY_OPTIONS}
-          onApprove={approveSubmission}
-          onReject={handleRejectSubmission}
-        />
-      )}
+      {adminSection === "resources" || adminSection === "deleted" ? (
+  <ResourcesPanel
+    resources={resources}
+    fetchData={fetchData}
+    CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+    COUNTY_OPTIONS={COUNTY_OPTIONS}
+    sortOrder={resourceSortOrder}
+    setSortOrder={setResourceSortOrder}
+  />
+) : (
+  <SubmissionsPanel
+    submissions={submissions}
+    section={adminSection}
+    editingId={editingId}
+    setEditingId={setEditingId}
+    editedSubmission={editedSubmission}
+    setEditedSubmission={setEditedSubmission}
+    CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+    COUNTY_OPTIONS={COUNTY_OPTIONS}
+    onApprove={approveSubmission}
+    onReject={handleRejectSubmission}
+  />
+)}
+
     </AdminLayout>
   );
 }

@@ -1,5 +1,5 @@
 "use client";
-
+import { Trash } from "lucide-react";
 import { useState } from "react";
 import {
   Clock,
@@ -15,26 +15,26 @@ type AdminSection =
   | "pending"
   | "resources"
   | "approved"
-  | "rejected";
+  | "rejected"
+  | "deleted";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
   resources: "Active Resources",
   approved: "Approval History",
   rejected: "Rejected Submissions",
+  deleted: "Deleted Resources",
 };
 
 type Props = {
   adminSection: AdminSection;
   setAdminSection: (section: AdminSection) => void;
   onLogout: () => void;
-
-  // counts passed from parent
   pendingCount?: number;
   resourceCount?: number;
   approvedCount?: number;
   rejectedCount?: number;
-
+  deletedCount?: number;   // ✅ add this
   children: React.ReactNode;
 };
 
@@ -46,8 +46,10 @@ export default function AdminLayout({
   resourceCount,
   approvedCount,
   rejectedCount,
+  deletedCount,   // ✅ add this
   children,
 }: Props) {
+
   const [collapsed, setCollapsed] = useState(false);
 
   const navItem = (
@@ -72,7 +74,7 @@ export default function AdminLayout({
 
         {!collapsed && (
           <>
-            <span className="flex-1 text-left">{label}</span>
+          <span className="flex-1 text-left">{label}</span>
 
             {count !== undefined && (
               <span className="text-xs bg-zinc-700 px-2 py-0.5 rounded-full">
@@ -117,6 +119,8 @@ export default function AdminLayout({
           {navItem("Active Resources", "resources", Database, resourceCount)}
           {navItem("Approval History", "approved", CheckCircle, approvedCount)}
           {navItem("Rejected", "rejected", XCircle, rejectedCount)}
+          {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
+
         </div>
 
         {/* Logout */}

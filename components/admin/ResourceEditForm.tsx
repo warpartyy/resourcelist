@@ -281,13 +281,6 @@ className={`p-3 rounded-lg border transition text-left cursor-pointer ${
         placeholder="Eligibility"
         className="w-full bg-zinc-800 p-2 rounded mb-4"
       />
-
-      <button
-        onClick={onCancel}
-        className="bg-zinc-700 px-4 py-2 rounded-lg mb-4"
-      >
-        Cancel Edit
-      </button>
     </>
   );
 }

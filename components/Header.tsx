@@ -185,7 +185,7 @@ return (
 
             <div
               className={`
-                absolute right-0 mt-4 w-80 rounded-xl border border-zinc-800
+                fixed top-16 left-1/2 -translate-x-[320px] w-80 rounded-xl border border-zinc-800
                 bg-black shadow-xl transition-all duration-200
                 ${
                   dropdownOpen

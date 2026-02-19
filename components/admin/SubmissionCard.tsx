@@ -95,34 +95,63 @@ export default function SubmissionCard({
         </>
       )}
 
+
       {/* Actions */}
-      {!isEditing && (
-        <div className="flex justify-end gap-3 pt-2 border-t border-zinc-800">
-          <button
-            onClick={() => {
-              setEditingId(submission.id);
-              setEditedSubmission(submission);
-            }}
-            className="px-3 py-1.5 rounded-md text-sm font-medium bg-zinc-800 hover:bg-zinc-700 transition"
-          >
-            Edit
-          </button>
+<div className="flex justify-end gap-3 pt-2 border-t border-zinc-800">
 
-          <button
-            onClick={() => onApprove(submission)}
-            className="px-3 py-1.5 rounded-md text-sm font-medium bg-emerald-600 hover:bg-emerald-500 transition"
-          >
-            Approve
-          </button>
+  {!isEditing ? (
+    <>
+      <button
+        onClick={() => {
+          setEditingId(submission.id);
+          setEditedSubmission(submission);
+        }}
+        className="px-3 py-1.5 rounded-md text-sm font-medium bg-zinc-800 hover:bg-zinc-700 transition"
+      >
+        Edit
+      </button>
 
-          <button
-            onClick={() => onReject(submission.id)}
-            className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition"
-          >
-            Reject
-          </button>
-        </div>
-      )}
+      <button
+        onClick={() => onApprove(submission)}
+        className="px-3 py-1.5 rounded-md text-sm font-medium bg-emerald-600 hover:bg-emerald-500 transition"
+      >
+        Approve
+      </button>
+
+      <button
+        onClick={() => onReject(submission.id)}
+        className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition"
+      >
+        Reject
+      </button>
+    </>
+  ) : (
+    <>
+      {/* Save Changes */}
+      <button
+        onClick={() => onApprove(editedSubmission)}
+        className="px-3 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-500 transition"
+      >
+        Save Changes
+      </button>
+
+      {/* Approve after editing */}
+      <button
+        onClick={() => onApprove(editedSubmission)}
+        className="px-3 py-1.5 rounded-md text-sm font-medium bg-emerald-600 hover:bg-emerald-500 transition"
+      >
+        Approve
+      </button>
+
+      <button
+        onClick={() => setEditingId(null)}
+        className="px-3 py-1.5 rounded-md text-sm font-medium border border-zinc-600 text-zinc-300 hover:bg-zinc-800 transition"
+      >
+        Cancel
+      </button>
+    </>
+  )}
+</div>
     </div>
   );
 }

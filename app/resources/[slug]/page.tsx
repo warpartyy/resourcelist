@@ -75,23 +75,6 @@ export default async function ResourcePage({
 </p>
 
 
-<p>
-  {resource.phone ? (
-    <a
-      href={`tel:${resource.phone.replace(/[^0-9+]/g, "")}`}
-      className="text-blue-400 hover:underline"
-    >
-      📞 {resource.phone}
-    </a>
-  ) : (
-    <span className="text-zinc-500 italic">
-      Phone not provided
-    </span>
-  )}
-</p>
-
-
-
       {resource.website ? (
         <p>
           🌐{" "}
