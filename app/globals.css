@@ -1,30 +1,16 @@
 @import "tailwindcss";
 
-/* Force dark theme globally */
-:root {
-  --background: #000000;
-  --foreground: #ffffff;
-}
-
+/* Map Tailwind theme tokens to shared design system */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text-primary);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
 body {
-  background-color: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-
-.font-helvetica {
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-}
-
-.font-arial {
+  background: var(--color-bg);
+  color: var(--color-text-primary);
   font-family: Arial, Helvetica, sans-serif;
 }
 

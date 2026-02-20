@@ -9,81 +9,6 @@ export default function Home() {
 
       <CrisisBanner />
 
-{/* ---------------- Hero Section ---------------- */} {/*
-<section className="relative w-full h-[38vh] min-h-[300px] md:h-[45vh] md:min-h-[380px] overflow-hidden">
-
-
-  {/* Background Image */} {/*
-  <div
-    className="absolute inset-0 bg-cover bg-center"
-    style={{
-      backgroundImage: "url('/hero.jpg')",
-    }}
-  />
-
-  {/* Softer Overlay */} {/*
-  <div className="absolute inset-0 bg-black/40" />
-
-  {/* Content */}   {/*
-  <div className="relative z-10 h-full flex items-center justify-center text-center px-6">
-    <div className="max-w-3xl relative">
-
-      {/* Subtle text contrast helper */} {/*
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/40 via-black/20 to-black/40 blur-2xl" />
-
-
-      <h1 className="text-3xl md:text-5xl font-bold tracking-tight mb-3 text-white drop-shadow-lg">
-        Support should not be hard to find.
-      </h1>
-      
-      <p className="text-base md:text-lg text-zinc-200 mb-2 drop-shadow-md">
-        A centralized directory of essential services, built to help Native individuals and 
-        families access care with clarity and respect.
-      </p>
-
-
-
-
-
-    </div>
-  </div>
-
-</section>
-
-
-
-
-{/* ---------------- Purpose Section ---------------- */} {/*
-<section className="bg-zinc-950 py-10 md:py-14 border-b border-zinc-900">
-  <Container>
-    <div className="max-w-2xl mx-auto text-center">
-      <h2 className="text-2xl md:text-3xl font-semibold mb-3">
-        Community-Centered
-      </h2>
-
-      <p className="text-zinc-100 leading-relaxed mb-4">
-        Support systems can be scattered, confusing, and difficult to navigate. 
-        This directory exists to make things clearer.
-      </p>
-
-      <p className="text-zinc-100 leading-relaxed">
-        While publicly accessible, it is intentionally centered on Native individuals and families — prioritizing culturally responsive services and practical access without unnecessary barriers.
-      </p>
-            <p className="text-zinc-100 leading-relaxed">
-        The goal is to make it easier to find help when it’s needed.
-      </p>
-
-    </div>
-
-
-
-
-  </Container>
-</section>
-
-
-
-      {/* ---------------- Main Content ---------------- */}
       <Container>
 
 {/* Category Grid */}
@@ -162,14 +87,14 @@ export default function Home() {
 
           <div className="grid md:grid-cols-3 gap-6">
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 md:p-6">
+            <div className="card p-6">
               <h3 className="font-semibold mb-2">By Category</h3>
               <p className="text-sm text-zinc-400">
                 Explore services grouped by major areas of need.
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+            <div className="card p-6">
               <h3 className="font-semibold mb-2">By Service Type</h3>
               <p className="text-sm text-zinc-400">
                 Search for specific types of support like counseling,
@@ -177,7 +102,7 @@ export default function Home() {
               </p>
             </div>
 
-            <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-6">
+            <div className="card p-6">
               <h3 className="font-semibold mb-2">By Population</h3>
               <p className="text-sm text-zinc-400">
                 Find services tailored to youth, veterans, families,
