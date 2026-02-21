@@ -37,15 +37,15 @@ export default function Header() {
   const navLinkClass = (href: string) =>
     `text-sm transition ${
       pathname === href
-        ? "text-white font-medium"
-        : "text-zinc-400 hover:text-white"
+        ? "nav-link-active"
+        : "nav-link"
     }`;
 
   const navLinkBase =
-    "text-sm transition text-zinc-400 hover:text-white";
+    "text-sm transition nav-link";
 
   const navLinkActive =
-    "text-sm transition text-white font-medium";
+    "text-sm transition nav-link-active";
 
   const isCategoryRoute = [
     "/health-wellness",
@@ -108,14 +108,8 @@ const RESOURCE_NAV = [
 
 
 return (
-  <header
-    className={`
-      sticky top-0 z-[100] transition-all duration-300
-      bg-black border-b border-zinc-900
-      ${scrolled ? "shadow-md" : ""}
-      `}
+  <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
 
-  >
     <div className="max-w-7xl mx-auto px-4">
 
       {/* Main Header Row */}
@@ -124,7 +118,7 @@ return (
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-3 text-white hover:text-zinc-300 transition"
+          className="flex items-center gap-3 header-logo"
         >
           <Image
             src="/war-party-logo.png"
@@ -140,17 +134,17 @@ return (
 
         {/* Mobile Hamburger */}
         <button
-          onClick={() => setMobileMenuOpen(true)}
-          className="md:hidden p-2 rounded-lg hover:bg-zinc-900 transition"
-          aria-label="Open menu"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
+  onClick={() => setMobileMenuOpen(true)}
+  className="md:hidden menu-toggle"
+  aria-label="Open menu"
+>
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    className="hamburger-icon"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+  >
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
@@ -239,7 +233,7 @@ return (
 
           <Link
             href="/suggest-resource"
-            className="text-sm px-4 py-2 rounded-lg transition bg-blue-600 hover:bg-blue-700 text-white"
+            className="text-sm px-4 py-2 rounded-lg transition nav-button-primary"
           >
             Suggest a Resource
           </Link>
@@ -248,7 +242,7 @@ return (
             <input
               name="q"
               placeholder="Search resources"
-              className="bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-1 text-sm"
+              className="nav-search rounded-lg px-3 py-1 text-sm"
             />
           </form>
 
@@ -262,7 +256,7 @@ return (
             type="text"
             name="q"
             placeholder="Search resources..."
-            className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
+            className="w-full nav-search rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
           />
         </form>
       </div>
@@ -283,7 +277,7 @@ return (
         {/* Sliding Panel */}
         <div
           className="relative ml-auto w-full max-w-sm h-full bg-zinc-950
-                     border-l border-zinc-900 shadow-2xl flex flex-col
+                     mobile-panel shadow-2xl flex flex-col
                      animate-slide-in"
         >
 
@@ -331,7 +325,7 @@ return (
                       key={child.href}
                       href={child.href}
                       onClick={() => setMobileMenuOpen(false)}
-                      className="text-zinc-400 hover:text-white transition"
+                      className="nav-link transition"
                     >
                       {child.label}
                     </Link>

@@ -2,27 +2,27 @@ import Image from "next/image";
 
 export default function Footer() {
   return (
-    <footer className="bg-black border-t border-zinc-900 text-zinc-400">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <footer className="site-footer">
+      <div className="footer-inner">
 
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-8">
 
           {/* Left: Branding */}
           <div className="text-center md:text-left">
-            <p className="text-lg font-semibold text-white tracking-tight">
-              War Party Resources
+            <p className="footer-brand">
+              Motive For Movement
             </p>
 
-            <p className="text-sm mt-1">
+            <p className="footer-tagline">
               Community-driven access to essential services.
             </p>
 
-            <p className="mt-2 text-xs text-zinc-500">
-              © {new Date().getFullYear()} War Party
+            <p className="footer-meta">
+              © {new Date().getFullYear()} Motive For Movement
             </p>
           </div>
 
-          {/* Right: 988 Logo (desktop only) */}
+          {/* Right: 988 Logo */}
           <div className="hidden md:flex items-center justify-end">
             <Image
               src="/988-logo.png"
