@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import Image from "next/image";
+import "@mfm/ui/src/sections/header.css";
 
 export default function Header() {
   const pathname = usePathname();
@@ -147,10 +148,10 @@ return (
 
           {/* Resources Dropdown */}
           <div
-            className="relative"
-            onMouseEnter={() => setDropdownOpen(true)}
-            onMouseLeave={() => setDropdownOpen(false)}
-          >
+  className="nav-dropdown"
+  onMouseEnter={() => setDropdownOpen(true)}
+  onMouseLeave={() => setDropdownOpen(false)}
+>
             <button
               className={`flex items-center gap-1 ${
                 isCategoryRoute ? navLinkActive : navLinkBase
@@ -166,39 +167,30 @@ return (
             </button>
 
             <div
-              className={`
-                fixed top-16 left-1/2 -translate-x-[320px] w-80 rounded-xl border border-zinc-800
-                bg-black shadow-xl transition-all duration-200
-                ${
-                  dropdownOpen
-                    ? "opacity-100 translate-y-0 visible"
-                    : "opacity-0 -translate-y-2 invisible"
-                }
-              `}
+            className={`resource-dropdown ${dropdownOpen ? "dropdown-open" : "dropdown-closed"}`}
             >
+              
               <div className="flex flex-col p-3 text-sm w-80">
                 {RESOURCE_NAV.map((parent) => (
                   <div key={parent.href} className="mb-4">
 
                     <Link
-                      href={parent.href}
-                      className={`block px-3 py-2 rounded-md font-semibold transition ${
-                        pathname === parent.href
-                          ? "bg-zinc-900 text-white"
-                          : "text-white hover:bg-zinc-900"
-                      }`}
-                    >
-                      {parent.label}
-                    </Link>
+  href={parent.href}
+  className={`dropdown-parent ${
+    pathname === parent.href ? "dropdown-parent-active" : ""
+  }`}
+>
+  {parent.label}
+</Link>
 
-                    <div className="ml-4 mt-1 flex flex-col space-y-1">
+                  <div className="dropdown-children">
                       {parent.children.map((child) => (
                         <Link
                           key={child.href}
                           href={child.href}
-                          className={`px-3 py-1 rounded-md text-zinc-400 hover:bg-zinc-900 hover:text-white transition ${
-                            pathname === child.href ? "text-white" : ""
-                          }`}
+                          className={`dropdown-link ${
+                              pathname === child.href ? "dropdown-link-active" : ""
+                            }`}
                         >
                           {child.label}
                         </Link>
