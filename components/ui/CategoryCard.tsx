@@ -15,7 +15,7 @@ export default function CategoryCard({
   subcategories: Subcategory[];
 }) {
   return (
-    <div className="category-card">
+    <div className="card category-card">
   <Link href={href} className="category-title">
     {title}
     <span>→</span>

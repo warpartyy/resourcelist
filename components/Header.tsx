@@ -109,28 +109,16 @@ const RESOURCE_NAV = [
 
 return (
   <header className={`site-header ${scrolled ? "scrolled" : ""}`}>
-
-    <div className="max-w-7xl mx-auto px-4">
-
+    <div className="header-inner">
       {/* Main Header Row */}
       <div className="flex items-center justify-between h-16">
 
-        {/* Logo */}
-        <Link
-          href="/"
-          className="flex items-center gap-3 header-logo"
-        >
-          <Image
-            src="/war-party-logo.png"
-            alt="War Party Logo"
-            width={36}
-            height={36}
-            className="object-contain"
-          />
-          <span className="text-xl font-semibold tracking-tight">
-            Resources
-          </span>
-        </Link>
+
+        {/* Brand */}
+<Link href="/" className="header-brand">
+  Motive For Movement
+  <span className="brand-sub"> Resources</span>
+</Link>
 
         {/* Mobile Hamburger */}
         <button

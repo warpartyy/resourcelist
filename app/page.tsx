@@ -117,7 +117,7 @@ export default function Home() {
       </Container>
 
 {/* Community Section */}
-<section className="bg-zinc-950 py-10 md:py-14 border-b border-zinc-900 text-center">
+<section className="bg-surface py-10 md:py-14 border-b border-subtle text-center">
 
 
 <Container>
@@ -127,7 +127,7 @@ export default function Home() {
         Help Expand This Directory
       </h2>
 
-      <p className="text-zinc-400 text-sm md:text-base mb-5">
+      <p className="text-muted text-sm md:text-base mb-5">
         This directory grows through shared knowledge.
         If you know of a service that should be included, 
         submit it for review and help expand access for others.
@@ -135,7 +135,7 @@ export default function Home() {
 
       <Link
         href="/suggest-resource"
-        className="inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-lg transition shadow-md"
+        className="button button-primary"
       >
         Suggest a Resource
       </Link>
