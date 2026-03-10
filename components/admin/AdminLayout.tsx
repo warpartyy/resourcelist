@@ -46,7 +46,7 @@ export default function AdminLayout({
   resourceCount,
   approvedCount,
   rejectedCount,
-  deletedCount,   // ✅ add this
+  deletedCount,
   children,
 }: Props) {
 

@@ -122,8 +122,6 @@ if (response.error) {
   setSubmitted(true);
 }
 
-
-
     setLoading(false);
   };
 
@@ -134,7 +132,7 @@ if (submitted) {
         Submission Received
       </h1>
 
-      <p className="text-zinc-400 mb-6">
+      <p className="text-text-muted mb-6">
         Thank you for suggesting a resource.
         It will be reviewed before being published.
       </p>
@@ -144,7 +142,7 @@ if (submitted) {
           setSubmitted(false);
           setSelectedSubcategories([]);
         }}
-        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
+        className="bg-accent hover:brightness-110 text-text-primary px-6 py-3 rounded-lg transition"
       >
         Suggest Another Resource
       </button>
@@ -167,12 +165,12 @@ return (
 
 
       {/* ---------------- Basic Information ---------------- */}
-      <div className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 shadow-xl space-y-5">
+      <div className="bg-surface border border-border rounded-2xl p-6 shadow-xl space-y-5">
         <div>
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-text-primary">
             Basic Information
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-text-muted">
             Tell us the name of the organization.
           </p>
         </div>
@@ -185,7 +183,7 @@ return (
             className={`w-full rounded-lg p-3 border ${
               errors.organization
                 ? "border-red-500 bg-red-500/10"
-                : "border-zinc-800 bg-zinc-900"
+                : "border-border bg-bg text-text-primary"
             }`}
           />
           {errors.organization && (
@@ -198,12 +196,12 @@ return (
 
 
       {/* ---------------- Services & Categories ---------------- */}
-      <div className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 shadow-xl space-y-5">
+      <div className="bg-surface border border-border rounded-2xl p-6 shadow-xl space-y-5">
         <div>
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-text-primary">
             Services & Categories
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-text-muted">
             Select all service types that apply.
           </p>
         </div>
@@ -237,9 +235,9 @@ return (
                   }
                 }}
                 className={`p-3 rounded-lg border transition text-left ${
-                  isSelected
-                    ? "bg-blue-600 border-blue-400 text-white shadow-lg"
-                    : "bg-zinc-900 border-zinc-700 text-zinc-300 hover:border-blue-500"
+                  isSelected  
+                    ? "bg-accent border-accent text-white shadow-md"
+                    : "bg-bg border-border text-text-muted hover:border-accent"
                 }`}
               >
                 {sub.label}
@@ -251,12 +249,12 @@ return (
 
 
       {/* ---------------- Contact Information ---------------- */}
-      <div className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 shadow-xl space-y-5">
+      <div className="bg-surface border border-border rounded-2xl p-6 shadow-xl space-y-5">
         <div>
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-text-primary">
             Contact Information
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-text-muted">
             How can someone get in touch?
           </p>
         </div>
@@ -264,24 +262,24 @@ return (
         <input
           name="phone"
           placeholder="Phone"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
         />
 
         <input
           name="website"
           placeholder="Website"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
         />
       </div>
 
 
       {/* ---------------- Location (Optional) ---------------- */}
-      <div className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 shadow-xl space-y-5">
+      <div className="bg-surface border border-border rounded-2xl p-6 shadow-xl space-y-5">
         <div>
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-text-primary">
             Location (Optional)
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-text-muted">
             If known, provide the physical location.
           </p>
         </div>
@@ -289,38 +287,38 @@ return (
         <input
           name="address"
           placeholder="Street Address"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
         />
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <input
             name="city"
             placeholder="City"
-            className="bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+            className="bg-bg border border-border rounded-lg p-3 text-text-primary"
           />
 
           <input
             name="state"
             placeholder="State (e.g. OK)"
-            className="bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+            className="bg-bg border border-border rounded-lg p-3 text-text-primary"
           />
 
           <input
             name="zip"
             placeholder="ZIP Code"
-            className="bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+            className="bg-bg border border-border rounded-lg p-3 text-text-primary"
           />
         </div>
       </div>
 
 
       {/* ---------------- Additional Details ---------------- */}
-      <div className="bg-zinc-900/80 backdrop-blur-sm border border-zinc-800 rounded-2xl p-6 shadow-xl space-y-5">
+      <div className="bg-surface border border-border rounded-2xl p-6 shadow-xl space-y-5">
         <div>
-          <h2 className="text-xl font-semibold text-white">
+          <h2 className="text-xl font-semibold text-text-primary">
             Additional Details
           </h2>
-          <p className="text-sm text-zinc-400">
+          <p className="text-sm text-text-muted">
             Help others understand what this organization provides.
           </p>
         </div>
@@ -328,19 +326,19 @@ return (
         <textarea
           name="description"
           placeholder="Description"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
         />
 
         <input
           name="services"
           placeholder="Services (comma separated)"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
         />
 
         <input
           name="eligibility"
           placeholder="Eligibility"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
         />
       </div>
 
@@ -352,14 +350,14 @@ return (
     disabled={loading}
     className={`
       flex items-center justify-center gap-2
-      bg-blue-600 hover:bg-blue-700
-      disabled:bg-blue-600/60 disabled:cursor-not-allowed
-      text-white px-8 py-3 rounded-xl
+      bg-accent hover:brightness-110
+      disabled:bg-accent/60 disabled:cursor-not-allowed
+      text-text-primary px-8 py-3 rounded-xl
       transition shadow-lg font-medium
     `}
   >
     {loading && (
-      <span className="h-4 w-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+      <span className="h-4 w-4 border-2 border-text-muted/40 border-t-text-primary rounded-full animate-spin" />
     )}
     {loading ? "Submitting..." : "Submit for Review"}
   </button>
