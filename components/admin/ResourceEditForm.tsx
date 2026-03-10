@@ -18,7 +18,7 @@ export default function ResourceEditForm({
 }: Props) {
   return (
     <>
-      <div className="text-yellow-400 mb-2 font-semibold">
+      <div className="text-highlight mb-2 font-semibold">
         Editing Mode
       </div>
 
@@ -32,12 +32,12 @@ export default function ResourceEditForm({
           })
         }
         placeholder="Organization"
-        className="w-full bg-zinc-800 p-2 rounded mb-2"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
       
 {/* Subcategories */}
 <div className="mb-6">
-  <div className="mb-2 font-semibold text-sm text-zinc-400">
+  <div className="mb-2 font-semibold text-sm text-text-muted">
     Subcategories
   </div>
 
@@ -68,10 +68,19 @@ export default function ResourceEditForm({
             });
           }}
           className={`p-3 rounded-lg border transition text-left ${
-            isSelected
-              ? "bg-blue-600 border-blue-400 text-white shadow-lg"
-              : "bg-zinc-900 border-zinc-700 text-zinc-300 hover:border-blue-500"
-          }`}
+  isSelected
+    ? "shadow-md"
+    : "bg-bg border-border text-text-muted hover:border-accent"
+}`}
+style={
+  isSelected
+    ? {
+        background: "var(--color-accent)",
+        borderColor: "var(--color-accent)",
+        color: "white",
+      }
+    : undefined
+}
         >
           {sub.label}
         </button>
@@ -84,17 +93,17 @@ export default function ResourceEditForm({
 
 {/* Tags */}
 <div className="mb-6">
-  <div className="mb-3 font-semibold text-sm text-zinc-400">
+  <div className="mb-3 font-semibold text-sm text-text-muted">
     Tags
   </div>
 
   {Object.entries(TAG_GROUPS).map(([groupName, tags]) => (
     <div
   key={groupName}
-  className="mb-8 pb-6 border-b border-zinc-800 last:border-b-0"
+  className="mb-8 pb-6 border-b border-border last:border-b-0"
 >
 
-      <div className="capitalize text-xs text-zinc-500 mb-3">
+      <div className="capitalize text-xs text-text-subtle mb-3">
         {groupName}
       </div>
 
@@ -123,8 +132,8 @@ export default function ResourceEditForm({
               }}
 className={`p-3 rounded-lg border transition text-left cursor-pointer ${
   selected
-    ? "bg-blue-600 border-blue-400 text-white shadow-lg ring-2 ring-blue-400/40"
-    : "bg-zinc-900 border-zinc-700 text-zinc-300 hover:border-blue-500"
+  ? "bg-accent border-accent text-white shadow-md ring-2 ring-accent/30"
+  : "bg-bg border-border text-text-muted hover:border-accent"
 }`}
 
             >
@@ -142,7 +151,7 @@ className={`p-3 rounded-lg border transition text-left cursor-pointer ${
 
       {/* Counties */}
       <div className="mb-4">
-        <div className="mb-2 font-semibold text-sm text-zinc-400">
+        <div className="mb-2 font-semibold text-sm text-text-muted">
           Counties Served
         </div>
 
@@ -199,7 +208,7 @@ className={`p-3 rounded-lg border transition text-left cursor-pointer ${
           })
         }
         placeholder="Phone"
-        className="w-full bg-zinc-800 p-2 rounded mb-2"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
 
       {/* Website */}
@@ -212,7 +221,7 @@ className={`p-3 rounded-lg border transition text-left cursor-pointer ${
           })
         }
         placeholder="Website"
-        className="w-full bg-zinc-800 p-2 rounded mb-2"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
 
       {/* Application Link */}
@@ -225,7 +234,7 @@ className={`p-3 rounded-lg border transition text-left cursor-pointer ${
           })
         }
         placeholder="Application Link"
-        className="w-full bg-zinc-800 p-2 rounded mb-2"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
 
       {/* Address */}
@@ -238,7 +247,7 @@ className={`p-3 rounded-lg border transition text-left cursor-pointer ${
           })
         }
         placeholder="Address"
-        className="w-full bg-zinc-800 p-2 rounded mb-2"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
 
       {/* Description */}
@@ -251,7 +260,7 @@ className={`p-3 rounded-lg border transition text-left cursor-pointer ${
           })
         }
         placeholder="Description"
-        className="w-full bg-zinc-800 p-2 rounded mb-2"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
 
       {/* Services */}

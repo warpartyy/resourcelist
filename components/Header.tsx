@@ -213,9 +213,9 @@ return (
 
           <Link
             href="/suggest-resource"
-            className="text-sm px-4 py-2 rounded-lg transition nav-button-primary"
-          >
-            Suggest a Resource
+            className="button button-primary text-sm"
+            >
+              Suggest a Resource
           </Link>
 
           <form action="/search">

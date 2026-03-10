@@ -4,6 +4,7 @@ import { useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Container from "../../components/ui/Container";
+import "@mfm/ui/src/components/button.css";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -34,11 +35,14 @@ const handleLogin = async (e: any) => {
         Admin Login
       </h1>
 
-      <form onSubmit={handleLogin} className="space-y-6 max-w-md">
+      <form
+        onSubmit={handleLogin}
+        className="space-y-6 max-w-md bg-surface border border-border rounded-2xl p-6 shadow-md"
+      >
         <input
           type="email"
           placeholder="Email"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -46,14 +50,14 @@ const handleLogin = async (e: any) => {
         <input
           type="password"
           placeholder="Password"
-          className="w-full bg-zinc-900 border border-zinc-800 rounded-lg p-3"
+          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="bg-blue-600 px-6 py-3 rounded-lg">
-          Login
-        </button>
+        <button className="button button-primary w-full">
+  Login
+</button>
       </form>
     </Container>
   );

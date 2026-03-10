@@ -32,7 +32,7 @@ export default function SubmissionsPanel({
       {/* Section Header */}
 {/* Section Header */}
 <div className="mb-4 mt-0">
-  <p className="text-zinc-200 text-base font-medium">
+  <p className="text-text-primary text-base font-medium">
     {section === "pending" &&
       "Review and approve new submissions."}
     {section === "approved" &&
@@ -45,7 +45,7 @@ export default function SubmissionsPanel({
 
       {/* Empty State */}
       {submissions.length === 0 ? (
-        <div className="text-zinc-400">
+        <div className="text-text-muted">
           No {section} submissions.
         </div>
       ) : (

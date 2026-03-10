@@ -62,38 +62,45 @@ export default function AdminLayout({
 
     return (
       <button
-        onClick={() => setAdminSection(value)}
-        className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg transition
-          ${
-            isActive
-              ? "bg-blue-600 text-white"
-              : "hover:bg-zinc-800 text-zinc-300"
-          }`}
-      >
-        <Icon size={18} />
+  onClick={() => setAdminSection(value)}
+  className={`flex items-center gap-3 w-full pl-4 pr-3 py-2 rounded-lg transition relative
+    ${
+      isActive
+        ? "bg-bg text-text-primary"
+        : "hover:bg-bg text-text-muted"
+    }`}
+>
+  {isActive && (
+    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-accent" />
+  )}
 
-        {!collapsed && (
-          <>
-          <span className="flex-1 text-left">{label}</span>
+  <span className={isActive ? "text-accent" : "text-text-muted"}>
+    <Icon size={18} strokeWidth={2} />
+  </span>
 
-            {count !== undefined && (
-              <span className="text-xs bg-zinc-700 px-2 py-0.5 rounded-full">
-                {count}
-              </span>
-            )}
-          </>
-        )}
-      </button>
+  {!collapsed && (
+    <>
+      <span className="flex-1 text-left">{label}</span>
+
+      {count !== undefined && (
+        <span className="text-xs bg-bg border border-border px-2 py-0.5 rounded-full text-text-muted">
+          {count}
+        </span>
+      )}
+    </>
+  )}
+</button>
+
     );
   };
 
   return (
-    <div className="min-h-screen flex bg-zinc-950 text-white">
+    <div className="min-h-screen flex bg-bg text-text-primary">
       {/* Sidebar */}
       <div
         className={`${
           collapsed ? "w-20" : "w-64"
-        } bg-zinc-900 border-r border-zinc-800 p-4 flex flex-col transition-all duration-300`}
+        } bg-surface border-r border-border p-4 flex flex-col transition-all duration-300`}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -103,7 +110,7 @@ export default function AdminLayout({
 
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="text-zinc-400 hover:text-white transition"
+            className="text-text-muted hover:text-text-primary transition"
           >
             {collapsed ? (
               <ChevronRight size={18} />
@@ -127,7 +134,7 @@ export default function AdminLayout({
         <div className="mt-auto border-t border-zinc-800 pt-4">
           <button
             onClick={onLogout}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-zinc-800 text-zinc-300 transition"
+            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-bg text-text-muted transition"
           >
             <LogOut size={18} />
             {!collapsed && <span>Logout</span>}
@@ -137,7 +144,7 @@ export default function AdminLayout({
 
       {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="px-10 pt-10 pb-4 border-b border-zinc-800">
+        <div className="px-10 pt-10 pb-4 border-b border-border">
           <h1 className="text-2xl font-semibold">
             {SECTION_TITLES[adminSection]}
           </h1>

@@ -28,7 +28,7 @@ export default function SubmissionCard({
   const isEditing = editingId === submission.id;
 
   return (
-    <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl mb-6">
+    <div className="bg-surface border border-border p-6 rounded-xl mb-6 shadow-sm">
       {isEditing ? (
         <ResourceEditForm
           editedSubmission={editedSubmission}
@@ -46,7 +46,7 @@ export default function SubmissionCard({
                 {submission.organization}
               </h2>
 
-              <p className="text-zinc-400 text-sm mt-1 line-clamp-2">
+              <p className="text-text-muted text-sm mt-1 line-clamp-2">
                 {submission.description}
               </p>
             </div>
@@ -55,12 +55,12 @@ export default function SubmissionCard({
             {submission.status && (
               <span
               className={`text-xs px-2 py-1 rounded-full ${
-                submission.status === "pending"
-                ? "bg-yellow-600/20 text-yellow-400"
-                : submission.status === "approved"
-                ? "bg-emerald-600/20 text-emerald-400"
-                : "bg-red-600/20 text-red-400"
-    }`}
+  submission.status === "pending"
+    ? "bg-highlight/20 text-highlight"
+    : submission.status === "approved"
+    ? "bg-accent/15 text-accent"
+    : "bg-red-500/15 text-red-500"
+}`}
   >
     {submission.status.charAt(0).toUpperCase() +
       submission.status.slice(1)}
@@ -70,24 +70,24 @@ export default function SubmissionCard({
           </div>
 
           {/* Metadata Row */}
-          <div className="flex flex-wrap gap-6 text-sm text-zinc-400 mb-4">
+          <div className="flex flex-wrap gap-6 text-sm text-text-muted mb-4">
             {submission.counties_served?.length > 0 && (
               <span>
-                <span className="text-zinc-500">Counties:</span>{" "}
+                <span className="text-text-subtle">Counties:</span>{" "}
                 {submission.counties_served.join(", ")}
               </span>
             )}
 
             {submission.parent_categories?.length > 0 && (
               <span>
-                <span className="text-zinc-500">Category:</span>{" "}
+                <span className="text-text-subtle">Category:</span>{" "}
                 {submission.parent_categories.join(", ")}
               </span>
             )}
 
             {submission.created_at && (
               <span>
-                <span className="text-zinc-500">Submitted:</span>{" "}
+                <span className="text-text-subtle">Submitted:</span>{" "}
                 {new Date(submission.created_at).toLocaleDateString()}
               </span>
             )}
@@ -97,7 +97,7 @@ export default function SubmissionCard({
 
 
       {/* Actions */}
-<div className="flex justify-end gap-3 pt-2 border-t border-zinc-800">
+<div className="flex justify-end gap-3 pt-2 border-t border-border">
 
   {!isEditing ? (
     <>
@@ -106,21 +106,21 @@ export default function SubmissionCard({
           setEditingId(submission.id);
           setEditedSubmission(submission);
         }}
-        className="px-3 py-1.5 rounded-md text-sm font-medium bg-zinc-800 hover:bg-zinc-700 transition"
+        className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
       >
         Edit
       </button>
 
       <button
         onClick={() => onApprove(submission)}
-        className="px-3 py-1.5 rounded-md text-sm font-medium bg-emerald-600 hover:bg-emerald-500 transition"
+        className="button button-primary"
       >
         Approve
       </button>
 
       <button
         onClick={() => onReject(submission.id)}
-        className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition"
+        className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
       >
         Reject
       </button>
@@ -130,7 +130,7 @@ export default function SubmissionCard({
       {/* Save Changes */}
       <button
         onClick={() => onApprove(editedSubmission)}
-        className="px-3 py-1.5 rounded-md text-sm font-medium bg-blue-600 hover:bg-blue-500 transition"
+        className="button button-primary"
       >
         Save Changes
       </button>
@@ -138,20 +138,24 @@ export default function SubmissionCard({
       {/* Approve after editing */}
       <button
         onClick={() => onApprove(editedSubmission)}
-        className="px-3 py-1.5 rounded-md text-sm font-medium bg-emerald-600 hover:bg-emerald-500 transition"
+        className="button button-primary"
       >
         Approve
       </button>
 
       <button
         onClick={() => setEditingId(null)}
-        className="px-3 py-1.5 rounded-md text-sm font-medium border border-zinc-600 text-zinc-300 hover:bg-zinc-800 transition"
+        className="px-3 py-1.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg transition"
       >
         Cancel
       </button>
     </>
   )}
+
 </div>
+
+
+
     </div>
   );
 }

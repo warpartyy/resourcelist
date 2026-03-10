@@ -51,7 +51,7 @@ export default function ResourcesPanel({
             placeholder="Search by organization name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+            className="flex-1 px-4 py-2 rounded-lg bg-bg border border-border text-text-primary placeholder-text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
           />
 
           <select
@@ -61,13 +61,13 @@ export default function ResourcesPanel({
                 e.target.value as "default" | "newest" | "oldest"
               )
             }
-            className={`px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+            className={`px-4 py-2 rounded-lg bg-surface border border-border focus:outline-none focus:ring-2 focus:ring-blue-600 ${
               sortOrder === "default"
-                ? "text-zinc-500"
-                : "text-white"
+                ? "text-text-subtle"
+                : "text-text-primary"
             }`}
           >
-            <option value="default" className="text-zinc-500">
+            <option value="default" className="text-text-subtle">
               Sort
             </option>
             <option value="newest">Newest First</option>
@@ -75,7 +75,7 @@ export default function ResourcesPanel({
           </select>
         </div>
 
-        <div className="text-zinc-400">
+        <div className="text-text-muted">
           No matching resources found.
         </div>
       </>
@@ -91,7 +91,7 @@ export default function ResourcesPanel({
           placeholder="Search by organization name..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 text-white placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-blue-600"
+          className="flex-1 px-4 py-2 rounded-lg bg-bg border border-border text-text-primary placeholder-text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
         />
 
         <select
@@ -101,13 +101,13 @@ export default function ResourcesPanel({
               e.target.value as "default" | "newest" | "oldest"
             )
           }
-          className={`px-4 py-2 rounded-lg bg-zinc-900 border border-zinc-800 focus:outline-none focus:ring-2 focus:ring-blue-600 ${
+          className={`px-4 py-2 rounded-lg bg-surface border border-border focus:outline-none focus:ring-2 focus:ring-blue-600 ${
             sortOrder === "default"
-              ? "text-zinc-500"
-              : "text-white"
+              ? "text-text-subtle"
+              : "text-text-primary"
           }`}
         >
-          <option value="default" className="text-zinc-500">
+          <option value="default" className="text-text-subtle">
             Sort
           </option>
           <option value="newest">Newest First</option>
@@ -122,7 +122,7 @@ export default function ResourcesPanel({
   return (
     <div
       key={resource.id}
-      className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl mb-6"
+      className="bg-surface border border-border p-6 rounded-xl mb-6"
     >
 
             {isEditing ? (
@@ -142,21 +142,21 @@ export default function ResourcesPanel({
                       {resource.organization}
                     </h2>
 
-                    <p className="text-zinc-400 text-sm mt-1 line-clamp-2">
+                    <p className="text-text-muted text-sm mt-1 line-clamp-2">
                       {resource.description}
                     </p>
                   </div>
 
-                  <span className="text-xs px-2 py-1 rounded-full bg-emerald-600/20 text-emerald-400">
+                  <span className="text-xs px-2 py-1 rounded-full bg-accent/15 text-accent">
                     Active
                   </span>
                 </div>
 
                 {/* Metadata Row */}
-                <div className="flex flex-wrap gap-6 text-sm text-zinc-400 mb-4">
+                <div className="flex flex-wrap gap-6 text-sm text-text-muted mb-4">
                   {resource.counties_served?.length > 0 && (
                     <span>
-                      <span className="text-zinc-500">
+                      <span className="text-text-subtle">
                         Counties:
                       </span>{" "}
                       {resource.counties_served.join(", ")}
@@ -165,7 +165,7 @@ export default function ResourcesPanel({
 
                   {resource.parent_categories?.length > 0 && (
                     <span>
-                      <span className="text-zinc-500">
+                      <span className="text-text-subtle">
                         Category:
                       </span>{" "}
                       {resource.parent_categories.join(", ")}
@@ -174,7 +174,7 @@ export default function ResourcesPanel({
 
                   {resource.last_verified && (
                     <span>
-                      <span className="text-zinc-500">
+                      <span className="text-text-subtle">
                         Verified:
                       </span>{" "}
                       {new Date(
@@ -189,10 +189,10 @@ export default function ResourcesPanel({
 
             {/* Actions */}
 {isEditing ? (
-  <div className="flex justify-end gap-3 pt-3 border-t border-zinc-800">
+  <div className="flex justify-end gap-3 pt-3 border-t border-border">
     <button
       onClick={() => setEditingId(null)}
-      className="px-3 py-1.5 rounded-md text-sm font-medium bg-zinc-800 hover:bg-zinc-700 transition"
+      className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
     >
       Cancel
     </button>
@@ -212,13 +212,13 @@ export default function ResourcesPanel({
         setEditingId(null);
         fetchData();
       }}
-      className="px-3 py-1.5 rounded-md text-sm font-medium bg-emerald-600 hover:bg-emerald-500 transition"
+      className="px-3 py-1.5 rounded-md text-sm font-medium bg-accent hover:brightness-110 text-white transition"
     >
       Update
     </button>
   </div>
 ) : (
-  <div className="flex justify-end gap-3 pt-3 border-t border-zinc-800">
+  <div className="flex justify-end gap-3 pt-3 border-t border-border">
     {isDeleted ? (
       <>
         <button
@@ -226,7 +226,7 @@ export default function ResourcesPanel({
             await restoreResource(resource.id);
             fetchData();
           }}
-          className="px-3 py-1.5 rounded-md text-sm bg-emerald-600 hover:bg-emerald-500 transition"
+          className="px-3 py-1.5 rounded-md text-sm bg-accent hover:brightness-110 text-white transition"
         >
           Restore
         </button>
@@ -241,7 +241,7 @@ export default function ResourcesPanel({
             await hardDeleteResource(resource.id);
             fetchData();
           }}
-          className="px-3 py-1.5 rounded-md text-sm border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition"
+          className="px-3 py-1.5 rounded-md text-sm border border-red-500 text-red-500 hover:bg-red-500 hover:text-white hover:text-text-primary transition"
         >
           Permanently Delete
         </button>
@@ -253,7 +253,7 @@ export default function ResourcesPanel({
             setEditingId(resource.id);
             setEditedResource(resource);
           }}
-          className="px-3 py-1.5 rounded-md text-sm font-medium bg-zinc-800 hover:bg-zinc-700 transition"
+          className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
         >
           Edit
         </button>
@@ -268,7 +268,7 @@ export default function ResourcesPanel({
             await softDeleteResource(resource.id);
             fetchData();
           }}
-          className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-600 text-red-500 hover:bg-red-600 hover:text-white transition"
+          className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-500 text-red-500 hover:bg-red-500 hover:text-white hover:text-text-primary transition"
         >
           Delete
         </button>
