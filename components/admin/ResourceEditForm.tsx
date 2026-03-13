@@ -304,20 +304,6 @@ export default function ResourceEditForm({
         className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
 
-      {/* Services */}
-      <input
-        value={(editedSubmission.services || []).join(", ")}
-        onChange={(e) =>
-          setEditedSubmission({
-            ...editedSubmission,
-            services: e.target.value
-              .split(",")
-              .map((s: string) => s.trim()),
-          })
-        }
-        placeholder="Services (comma separated)"
-        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-4"
-      />
 
       {/* Eligibility */}
       <input

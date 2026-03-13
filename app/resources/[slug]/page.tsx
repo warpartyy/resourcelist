@@ -2,6 +2,7 @@ import { getSupabase } from "@/lib/supabase";
 import Container from "../../../components/ui/Container";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { TAG_GROUPS } from "@/lib/taxonomy";
 
 export default async function ResourcePage({
   params,
@@ -47,6 +48,10 @@ function formatWebsite(url?: string) {
   }
 }
 
+const serviceTags =
+  resource.tags?.filter((tag: string) =>
+    TAG_GROUPS.serviceType.includes(tag)
+  ) || [];
 
   return (
 <Container>
@@ -143,17 +148,22 @@ function formatWebsite(url?: string) {
       Services
     </h2>
 
-    {resource.services?.length > 0 ? (
-      <ul className="list-disc list-inside text-text-primary space-y-2">
-        {resource.services.map((service: string, i: number) => (
-          <li key={i}>{service}</li>
-        ))}
-      </ul>
-    ) : (
-      <p className="text-text-subtle italic">
-        Services information not yet available.
-      </p>
-    )}
+    {serviceTags.length > 0 ? (
+  <ul className="list-disc list-inside text-text-primary space-y-2">
+    {serviceTags.map((tag: string, i: number) => (
+      <li key={i}>
+        {tag
+          .split("-")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")}
+      </li>
+    ))}
+  </ul>
+) : (
+  <p className="text-text-subtle italic">
+    Services information not yet available.
+  </p>
+)}
 
   </div>
 
