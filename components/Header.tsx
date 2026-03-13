@@ -256,7 +256,7 @@ return (
 
         {/* Sliding Panel */}
         <div
-          className="relative ml-auto w-full max-w-sm h-full bg-zinc-950
+          className="relative ml-auto w-full max-w-sm h-full border-border
                      mobile-panel shadow-2xl flex flex-col
                      animate-slide-in"
         >
@@ -293,7 +293,7 @@ return (
                 <Link
                   href={parent.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block text-lg font-semibold py-2 text-white"
+                  className="block text-lg font-semibold py-2 text-text-primary"
                 >
                   {parent.label}
                 </Link>
@@ -335,7 +335,7 @@ return (
             <Link
               href="/suggest-resource"
               onClick={() => setMobileMenuOpen(false)}
-              className="mt-6 bg-blue-600 hover:bg-blue-700 text-white text-center py-4 rounded-xl font-medium text-lg transition"
+              className="mt-6 button button-primary text-white text-center py-4 rounded-xl font-medium text-lg transition"
             >
               Suggest a Resource
             </Link>

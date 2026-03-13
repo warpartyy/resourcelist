@@ -16,6 +16,21 @@ export default function ResourceEditForm({
   COUNTY_OPTIONS,
   onCancel,
 }: Props) {
+  const toggleArrayValue = (
+  field: string,
+  value: string
+) => {
+  const current = editedSubmission[field] || [];
+
+  const updated = current.includes(value)
+    ? current.filter((v: string) => v !== value)
+    : [...current, value];
+
+  setEditedSubmission({
+    ...editedSubmission,
+    [field]: updated,
+  });
+};
   return (
     <>
       <div className="text-highlight mb-2 font-semibold">
@@ -49,41 +64,24 @@ export default function ResourceEditForm({
 
       return (
         <button
-          key={sub.value}
-          type="button"
-          onClick={() => {
-            let updated = editedSubmission.subcategories || [];
-
-            if (isSelected) {
-              updated = updated.filter(
-                (s: string) => s !== sub.value
-              );
-            } else {
-              updated = [...updated, sub.value];
-            }
-
-            setEditedSubmission({
-              ...editedSubmission,
-              subcategories: updated,
-            });
-          }}
-          className={`p-3 rounded-lg border transition text-left ${
-  isSelected
-    ? "shadow-md"
-    : "bg-bg border-border text-text-muted hover:border-accent"
-}`}
-style={
-  isSelected
-    ? {
-        background: "var(--color-accent)",
-        borderColor: "var(--color-accent)",
-        color: "white",
-      }
-    : undefined
-}
-        >
-          {sub.label}
-        </button>
+  key={sub.value}
+  type="button"
+  onClick={() => toggleArrayValue("subcategories", sub.value)}
+  className={`p-3 rounded-lg border transition text-left ${
+    isSelected ? "shadow-md" : "bg-bg border-border text-text-muted hover:border-accent"
+  }`}
+  style={
+    isSelected
+      ? {
+          background: "var(--color-accent)",
+          borderColor: "var(--color-accent)",
+          color: "white",
+        }
+      : undefined
+  }
+>
+  {sub.label}
+</button>
       );
     })}
   </div>
@@ -114,31 +112,24 @@ style={
 
           return (
             <button
-              type="button"
-              key={tag}
-              onClick={() => {
-                let updated = editedSubmission.tags || [];
-
-                if (selected) {
-                  updated = updated.filter((t: string) => t !== tag);
-                } else {
-                  updated = [...updated, tag];
-                }
-
-                setEditedSubmission({
-                  ...editedSubmission,
-                  tags: updated,
-                });
-              }}
-className={`p-3 rounded-lg border transition text-left cursor-pointer ${
-  selected
-  ? "bg-accent border-accent text-white shadow-md ring-2 ring-accent/30"
-  : "bg-bg border-border text-text-muted hover:border-accent"
-}`}
-
-            >
-              {tag}
-            </button>
+  type="button"
+  key={tag}
+  onClick={() => toggleArrayValue("tags", tag)}
+  className={`p-3 rounded-lg border transition text-left cursor-pointer ${
+    selected ? "shadow-md" : "bg-bg border-border text-text-muted hover:border-accent"
+  }`}
+  style={
+    selected
+      ? {
+          background: "var(--color-accent)",
+          borderColor: "var(--color-accent)",
+          color: "white",
+        }
+      : undefined
+  }
+>
+  {tag}
+</button>
           );
         })}
       </div>
