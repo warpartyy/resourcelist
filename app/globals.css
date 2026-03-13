@@ -27,3 +27,10 @@ body {
 .animate-slide-in {
   animation: slide-in 0.25s ease-out;
 }
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

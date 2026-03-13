@@ -50,6 +50,106 @@ export default function ResourceEditForm({
         className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
       
+      
+      {/* Address */}
+<div className="mb-4">
+  <div className="mb-2 font-semibold text-sm text-text-muted">
+    Address
+  </div>
+
+  {/* Street Address */}
+  <input
+    value={editedSubmission.address || ""}
+    onChange={(e) =>
+      setEditedSubmission({
+        ...editedSubmission,
+        address: e.target.value,
+      })
+    }
+    placeholder="Street Address"
+    className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
+  />
+
+  {/* City / State / ZIP */}
+  <div className="grid grid-cols-3 gap-2">
+    <input
+      value={editedSubmission.city || ""}
+      onChange={(e) =>
+        setEditedSubmission({
+          ...editedSubmission,
+          city: e.target.value,
+        })
+      }
+      placeholder="City"
+      className="bg-bg border border-border rounded-lg p-3 text-text-primary"
+    />
+
+    <input
+      value={editedSubmission.state || "OK"}
+      onChange={(e) =>
+        setEditedSubmission({
+          ...editedSubmission,
+          state: e.target.value,
+        })
+      }
+      placeholder="State"
+      className="bg-bg border border-border rounded-lg p-3 text-text-primary"
+    />
+
+    <input
+      value={editedSubmission.zip || ""}
+      onChange={(e) =>
+        setEditedSubmission({
+          ...editedSubmission,
+          zip: e.target.value,
+        })
+      }
+      placeholder="ZIP"
+      className="bg-bg border border-border rounded-lg p-3 text-text-primary"
+    />
+  </div>
+</div>
+
+      {/* Phone */}
+      <input
+        value={editedSubmission.phone || ""}
+        onChange={(e) =>
+          setEditedSubmission({
+            ...editedSubmission,
+            phone: e.target.value,
+          })
+        }
+        placeholder="Phone"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
+      />
+
+      {/* Website */}
+      <input
+        value={editedSubmission.website || ""}
+        onChange={(e) =>
+          setEditedSubmission({
+            ...editedSubmission,
+            website: e.target.value,
+          })
+        }
+        placeholder="Website"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
+      />
+
+      {/* Application Link */}
+      <input
+        value={editedSubmission.application_link || ""}
+        onChange={(e) =>
+          setEditedSubmission({
+            ...editedSubmission,
+            application_link: e.target.value,
+          })
+        }
+        placeholder="Application Link"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
+      />
+
+
 {/* Subcategories */}
 <div className="mb-6">
   <div className="mb-2 font-semibold text-sm text-text-muted">
@@ -137,10 +237,7 @@ export default function ResourceEditForm({
   ))}
 </div>
 
-
-
-
-      {/* Counties */}
+      {/* Counties Served */}
       <div className="mb-4">
         <div className="mb-2 font-semibold text-sm text-text-muted">
           Counties Served
@@ -189,57 +286,10 @@ export default function ResourceEditForm({
       </div>
 
 
-      {/* Phone */}
-      <input
-        value={editedSubmission.phone || ""}
-        onChange={(e) =>
-          setEditedSubmission({
-            ...editedSubmission,
-            phone: e.target.value,
-          })
-        }
-        placeholder="Phone"
-        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
-      />
 
-      {/* Website */}
-      <input
-        value={editedSubmission.website || ""}
-        onChange={(e) =>
-          setEditedSubmission({
-            ...editedSubmission,
-            website: e.target.value,
-          })
-        }
-        placeholder="Website"
-        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
-      />
 
-      {/* Application Link */}
-      <input
-        value={editedSubmission.application_link || ""}
-        onChange={(e) =>
-          setEditedSubmission({
-            ...editedSubmission,
-            application_link: e.target.value,
-          })
-        }
-        placeholder="Application Link"
-        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
-      />
 
-      {/* Address */}
-      <input
-        value={editedSubmission.address || ""}
-        onChange={(e) =>
-          setEditedSubmission({
-            ...editedSubmission,
-            address: e.target.value,
-          })
-        }
-        placeholder="Address"
-        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
-      />
+
 
       {/* Description */}
       <textarea

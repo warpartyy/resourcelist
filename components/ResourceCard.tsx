@@ -5,16 +5,24 @@ type Resource = {
   id: string;
   slug: string;
   organization: string;
-  countiesServed: string[];
-  phone: string;
-  description: string;
-
-  // Optional structured fields
-  programType?: string;
-  programLength?: string;
-  housingType?: string;
-  bedCapacity?: number;
+  phone?: string;
+  website?: string;
+  city?: string;
+  state?: string;
+  description?: string;
 };
+
+function formatWebsite(url?: string) {
+  if (!url) return null;
+
+  const normalized = url.startsWith("http") ? url : `https://${url}`;
+
+  try {
+    return new URL(normalized).hostname.replace("www.", "");
+  } catch {
+    return url;
+  }
+}
 
 export default function ResourceCard({
   resource,
@@ -30,50 +38,43 @@ export default function ResourceCard({
           {resource.organization}
         </h2>
 
-        {/* Phone Preview */}
-        <p className="mt-3 text-sm text-text-muted">
-          📞 {resource.phone}
-        </p>
-        
-        {/* Counties Served */}
-        <p className="text-sm text-text-muted mt-1">
-          📍 {resource.countiesServed.join(", ")} County
-        </p>
-
-        {/* Short Description */}
-        <p className="mt-3 text-text-primary">
-          {resource.description}
-        </p>
-
-        {/* Optional: Program Type */}
-        {resource.programType && (
+        {/* Location */}
+        {resource.city && (
           <p className="mt-2 text-sm text-text-muted">
-            🏥 Type: {resource.programType}
+            📍 {resource.city}{resource.state ? `, ${resource.state}` : ""}
           </p>
         )}
 
-        {/* Optional: Program Length (important for inpatient) */}
-        {resource.programLength && (
+        {/* Phone */}
+        {resource.phone && (
           <p className="mt-1 text-sm text-text-muted">
-            ⏳ Length: {resource.programLength}
-          </p>
-        )}
-
-        {/* Optional: Housing Type */}
-        {resource.housingType && (
-          <p className="mt-1 text-sm text-text-muted">
-            🏠 Housing: {resource.housingType}
-          </p>
-        )}
-
-        {/* Optional: Bed Capacity */}
-        {resource.bedCapacity && (
-          <p className="mt-1 text-sm text-text-muted">
-            🛏 Beds Available: {resource.bedCapacity}
+            📞 {resource.phone}
           </p>
         )}
 
 
+
+
+        {/* Website */}
+        {resource.website && (
+  <a
+    href={resource.website.startsWith("http") ? resource.website : `https://${resource.website}`}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="mt-1 block text-sm text-text-muted hover:text-accent"
+  >
+    🌐 {formatWebsite(resource.website)}
+  </a>
+)}
+
+
+
+        {/* Description */}
+        {resource.description && (
+          <p className="mt-3 text-text-primary line-clamp-2">
+            {resource.description}
+          </p>
+        )}
 
         {/* CTA */}
         <p className="mt-4 text-accent underline">

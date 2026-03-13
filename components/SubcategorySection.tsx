@@ -4,13 +4,21 @@ import { useState } from "react";
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 
+type Resource = {
+  id: string;
+  slug: string;
+  organization: string;
+  city?: string;
+  state?: string;
+};
+
 type Props = {
   sub: {
     label: string;
     value: string;
     description?: string;
   };
-  resources: any[];
+  resources: Resource[];
 };
 
 export default function SubcategorySection({
@@ -20,17 +28,13 @@ export default function SubcategorySection({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="pt-1 pb-4 md:pt-2 md:pb-5 border-b border-border">
-
-
-
-
+    <div className="rounded-lg border border-border bg-surface mb-4">
 
       {/* Subcategory Header */}
       <div
-        className="flex items-center justify-between cursor-pointer"
-        onClick={() => setOpen(!open)}
-      >
+  className="flex items-center justify-between cursor-pointer px-4 py-4 hover:bg-surface-hover transition"
+  onClick={() => setOpen(!open)}
+>
         <div>
           <Link
             href={`/${sub.value}`}
@@ -57,33 +61,45 @@ export default function SubcategorySection({
 
       {/* Resource List */}
       {open && (
-        <div className="mt-4 space-y-3">
+        <div className="border-t border-border">
 
 
           {resources.length > 0 ? (
             resources.map((resource) => (
               <Link
-                key={resource.id}
-                href={`/resources/${resource.slug}`}
-                className="block px-4 py-3 rounded-lg hover:bg-surface transition border border-transparent hover:border-border"
-              >
+  key={resource.id}
+  href={`/resources/${resource.slug}`}
+  className="
+  group
+  flex items-center justify-between
+  px-4 py-3
+  border-b border-border last:border-b-0
+  hover:bg-surface-hover
+  transition-colors
+"
+>
+  <div>
+  <div className="font-medium text-text-primary">
+    {resource.organization}
+  </div>
 
+  {resource.city && (
+    <div className="text-sm text-text-muted mt-1">
+      {resource.city}, {resource.state}
+    </div>
+  )}
+</div>
 
+<span className="text-text-muted transition-transform group-hover:translate-x-1">
+  →
+</span>
 
-                
-                <div className="font-medium text-text-primary">
-                  {resource.organization}
-                </div>
-
-                <div className="text-sm text-text-muted mt-1">
-                  {resource.counties_served?.join(", ")}
-                </div>
-              </Link>
+</Link>
             ))
           ) : (
-            <p className="text-sm text-text-subtle">
-              We’re adding more resources in this area.{" "}
-              <br/>
+            <div className="px-4 py-4 text-sm text-text-subtle">
+              We’re adding more resources in this area.
+              <br />
                 Help expand access by{" "}
               <Link
                 href="/suggest-resource"
@@ -91,7 +107,7 @@ export default function SubcategorySection({
               >
                 suggesting one →
               </Link>
-            </p>
+            </div>
           )}
 
         </div>
