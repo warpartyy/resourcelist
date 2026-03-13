@@ -35,6 +35,19 @@ export default async function ResourcePage({
         .join(" ")
     : null;
 
+function formatWebsite(url?: string) {
+  if (!url) return null;
+
+  const normalized = url.startsWith("http") ? url : `https://${url}`;
+
+  try {
+    return new URL(normalized).hostname.replace("www.", "");
+  } catch {
+    return url;
+  }
+}
+
+
   return (
 <Container>
 
@@ -76,17 +89,22 @@ export default async function ResourcePage({
 
 
       {resource.website ? (
-        <p>
-          🌐{" "}
-          <a
-            href={resource.website}
-            target="_blank"
-            className="text-accent hover:underline"
-          >
-            {resource.website}
-          </a>
-        </p>
-      ) : (
+  <p>
+    🌐{" "}
+    <a
+      href={
+        resource.website.startsWith("http")
+          ? resource.website
+          : `https://${resource.website}`
+      }
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-accent hover:underline"
+    >
+      {formatWebsite(resource.website)}
+    </a>
+  </p>
+) : (
         <p className="text-text-subtle italic">
           Website not available
         </p>

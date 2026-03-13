@@ -12,7 +12,14 @@ type Resource = {
   description?: string;
 };
 
-function formatWebsite(url?: string) {
+
+
+export default function ResourceCard({
+  resource,
+}: {
+  resource: Resource;
+}) {
+  function formatWebsite(url?: string) {
   if (!url) return null;
 
   const normalized = url.startsWith("http") ? url : `https://${url}`;
@@ -23,12 +30,6 @@ function formatWebsite(url?: string) {
     return url;
   }
 }
-
-export default function ResourceCard({
-  resource,
-}: {
-  resource: Resource;
-}) {
   return (
     <Link href={`/resources/${resource.slug}`}>
       <Card>
