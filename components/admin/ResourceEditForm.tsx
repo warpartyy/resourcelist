@@ -266,7 +266,7 @@ export default function ResourceEditForm({
           })
         }
         placeholder="Services (comma separated)"
-        className="w-full bg-zinc-800 p-2 rounded mb-4"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-4"
       />
 
       {/* Eligibility */}
@@ -279,7 +279,7 @@ export default function ResourceEditForm({
           })
         }
         placeholder="Eligibility"
-        className="w-full bg-zinc-800 p-2 rounded mb-4"
+        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-4"
       />
     </>
   );
