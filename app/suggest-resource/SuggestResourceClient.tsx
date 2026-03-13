@@ -222,26 +222,35 @@ return (
             const isSelected = selectedSubcategories.includes(sub.value);
 
             return (
+
+              
               <button
-                type="button"
-                key={sub.value}
-                onClick={() => {
-                  if (isSelected) {
-                    setSelectedSubcategories((prev) =>
-                      prev.filter((val) => val !== sub.value)
-                    );
-                  } else {
-                    setSelectedSubcategories((prev) => [...prev, sub.value]);
-                  }
-                }}
-                className={`p-3 rounded-lg border transition text-left ${
-                  isSelected  
-                    ? "bg-accent border-accent text-white shadow-md"
-                    : "bg-bg border-border text-text-muted hover:border-accent"
-                }`}
-              >
-                {sub.label}
-              </button>
+  type="button"
+  key={sub.value}
+  onClick={() => {
+    if (isSelected) {
+      setSelectedSubcategories((prev) =>
+        prev.filter((val) => val !== sub.value)
+      );
+    } else {
+      setSelectedSubcategories((prev) => [...prev, sub.value]);
+    }
+  }}
+  className={`p-3 rounded-lg border transition text-left ${
+    isSelected ? "shadow-md" : "bg-bg border-border text-text-muted hover:border-accent"
+  }`}
+  style={
+    isSelected
+      ? {
+          background: "var(--color-accent)",
+          borderColor: "var(--color-accent)",
+          color: "white",
+        }
+      : undefined
+  }
+>
+  {sub.label}
+</button>
             );
           })}
         </div>
@@ -348,13 +357,7 @@ return (
   <button
     type="submit"
     disabled={loading}
-    className={`
-      flex items-center justify-center gap-2
-      bg-accent hover:brightness-110
-      disabled:bg-accent/60 disabled:cursor-not-allowed
-      text-text-primary px-8 py-3 rounded-xl
-      transition shadow-lg font-medium
-    `}
+    className="button button-primary flex items-center gap-2"
   >
     {loading && (
       <span className="h-4 w-4 border-2 border-text-muted/40 border-t-text-primary rounded-full animate-spin" />

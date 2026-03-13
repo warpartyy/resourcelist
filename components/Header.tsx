@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, X } from "lucide-react";
 import Image from "next/image";
 import "@mfm/ui/src/sections/header.css";
+import ResourceDropdown from "./navigation/ResourceDropdown";
 
 export default function Header() {
   const pathname = usePathname();
@@ -147,61 +148,12 @@ return (
         <div className="hidden md:flex items-center space-x-8">
 
           {/* Resources Dropdown */}
-          <div
-  className="nav-dropdown"
-  onMouseEnter={() => setDropdownOpen(true)}
-  onMouseLeave={() => setDropdownOpen(false)}
->
-            <button
-              className={`flex items-center gap-1 ${
-                isCategoryRoute ? navLinkActive : navLinkBase
-              }`}
-            >
-              Resources
-              <ChevronDown
-                size={16}
-                className={`transition-transform duration-200 ${
-                  dropdownOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-
-            <div
-            className={`resource-dropdown ${dropdownOpen ? "dropdown-open" : "dropdown-closed"}`}
-            >
-              
-              <div className="flex flex-col p-3 text-sm w-80">
-                {RESOURCE_NAV.map((parent) => (
-                  <div key={parent.href} className="mb-4">
-
-                    <Link
-  href={parent.href}
-  className={`dropdown-parent ${
-    pathname === parent.href ? "dropdown-parent-active" : ""
-  }`}
->
-  {parent.label}
-</Link>
-
-                  <div className="dropdown-children">
-                      {parent.children.map((child) => (
-                        <Link
-                          key={child.href}
-                          href={child.href}
-                          className={`dropdown-link ${
-                              pathname === child.href ? "dropdown-link-active" : ""
-                            }`}
-                        >
-                          {child.label}
-                        </Link>
-                      ))}
-                    </div>
-
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+          <ResourceDropdown
+            pathname={pathname}
+            dropdownOpen={dropdownOpen}
+            setDropdownOpen={setDropdownOpen}
+            RESOURCE_NAV={RESOURCE_NAV}
+          />
 
           <Link href="/about" className={navLinkClass("/about")}>
             About
@@ -230,16 +182,18 @@ return (
       </div>
 
       {/* Mobile Search Row */}
-      <div className="md:hidden border-t border-zinc-900 py-3">
-        <form action="/search">
-          <input
-            type="text"
-            name="q"
-            placeholder="Search resources..."
-            className="w-full nav-search rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
-          />
-        </form>
-      </div>
+      {pathname === "/" && (
+  <div className="md:hidden border-t border-border py-3">
+    <form action="/search">
+      <input
+        type="text"
+        name="q"
+        placeholder="Search resources..."
+        className="w-full bg-bg border border-border rounded-lg px-4 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent"
+      />
+    </form>
+  </div>
+)}
 
     </div>
 
@@ -282,7 +236,7 @@ return (
                 type="text"
                 name="q"
                 placeholder="Search resources..."
-                className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-blue-500"
+                className="w-full bg-bg border border-border rounded-lg px-4 py-2 text-sm text-text-primary placeholder:text-text-muted focus:outline-none focus:border-accent"
               />
             </form>
 

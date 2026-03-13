@@ -15,13 +15,10 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-
 export const metadata: Metadata = {
-  title: "War Party Resources",
+  title: "Resource List",
   description: "Community-driven resource directory connecting people to essential services.",
 };
-
-
 
 export default function RootLayout({
   children,
@@ -31,22 +28,15 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-  className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-zinc-950 text-white overflow-x-hidden`}
->
-  <div className="min-h-screen flex flex-col">
-
-    <Header />
-
-    <main className="flex-grow w-full pb-60">
-      {children}
-    </main>
-
-    <Footer />
-
-  </div>
-</body>
-
-
+         className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-zinc-950 text-white overflow-x-hidden`}>
+        <div className="min-h-screen flex flex-col">
+          <Header />
+            <main className="flex-grow w-full">
+              {children}
+            </main>
+          <Footer />
+        </div>
+      </body>
     </html>
   );
 }

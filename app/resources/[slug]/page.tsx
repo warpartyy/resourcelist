@@ -43,7 +43,7 @@ export default async function ResourcePage({
     <div className="mb-4">
       <Link
         href={`/${primaryCategory}`}
-        className="text-sm text-blue-400 hover:underline"
+        className="text-sm text-accent hover:underline"
       >
         ← Back to {displayCategory}
       </Link>
@@ -57,18 +57,18 @@ export default async function ResourcePage({
       {resource.organization}
     </h1>
 
-    <div className="space-y-2 text-sm text-zinc-400">
+    <div className="space-y-2 text-sm text-text-muted">
 
 <p>
   {resource.phone ? (
     <a
       href={`tel:${resource.phone.replace(/[^0-9+]/g, "")}`}
-      className="text-blue-400 hover:underline"
+      className="text-accent hover:underline"
     >
       📞 {resource.phone}
     </a>
   ) : (
-    <span className="text-zinc-500 italic">
+    <span className="text-text-subtle italic">
       Phone not provided
     </span>
   )}
@@ -81,13 +81,13 @@ export default async function ResourcePage({
           <a
             href={resource.website}
             target="_blank"
-            className="text-blue-400 hover:underline"
+            className="text-accent hover:underline"
           >
             {resource.website}
           </a>
         </p>
       ) : (
-        <p className="text-zinc-500 italic">
+        <p className="text-text-subtle italic">
           Website not available
         </p>
       )}
@@ -95,12 +95,12 @@ export default async function ResourcePage({
     </div>
   </div>
 
-  <div className="border-b border-zinc-800 mb-8" />
+  <div className="border-b border-border mb-8" />
 
   {/* ---------------- Description ---------------- */}
   <div className="mb-6 md:mb-10 max-w-3xl">
 
-    <div className="text-zinc-300 leading-relaxed space-y-4">
+    <div className="text-text-primary leading-relaxed space-y-4">
       {resource.description ? (
         resource.description.split("\n").map(
           (paragraph: string, index: number) => (
@@ -108,7 +108,7 @@ export default async function ResourcePage({
           )
         )
       ) : (
-        <p className="text-zinc-500 italic">
+        <p className="text-text-subtle italic">
           Description not yet provided.
         </p>
       )}
@@ -116,7 +116,7 @@ export default async function ResourcePage({
 
   </div>
 
-  <div className="border-b border-zinc-800 mb-8" />
+  <div className="border-b border-border mb-8" />
 
   {/* ---------------- Services ---------------- */}
   <div className="mb-4 md:mb-8">
@@ -126,13 +126,13 @@ export default async function ResourcePage({
     </h2>
 
     {resource.services?.length > 0 ? (
-      <ul className="list-disc list-inside text-zinc-300 space-y-2">
+      <ul className="list-disc list-inside text-text-primary space-y-2">
         {resource.services.map((service: string, i: number) => (
           <li key={i}>{service}</li>
         ))}
       </ul>
     ) : (
-      <p className="text-zinc-500 italic">
+      <p className="text-text-subtle italic">
         Services information not yet available.
       </p>
     )}
@@ -146,9 +146,9 @@ export default async function ResourcePage({
       Eligibility
     </h2>
 
-    <p className="text-zinc-300 leading-relaxed">
+    <p className="text-text-primary leading-relaxed">
       {resource.eligibility || (
-        <span className="text-zinc-500 italic">
+        <span className="text-text-subtle italic">
           Eligibility details not yet provided.
         </span>
       )}
@@ -157,7 +157,7 @@ export default async function ResourcePage({
   </div>
 
 
-<div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col md:flex-row md:items-center md:justify-between text-xs text-zinc-600 gap-3">
+<div className="mt-6 pt-4 border-t border-border flex flex-col md:flex-row md:items-center md:justify-between text-xs text-text-muted gap-3">
 
   <p>
     See outdated or missing information?{" "}
