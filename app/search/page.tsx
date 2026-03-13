@@ -134,11 +134,11 @@ if (parent) {
               ))}
             </div>
           ) : (
-            <div className="bg-zinc-900 border border-zinc-800 p-6 rounded-xl">
+            <div className="bg-surface border border-border p-6 rounded-xl">
               <h2 className="text-lg font-semibold mb-2">
                 No Resources Found
               </h2>
-              <p className="text-zinc-400">
+              <p className="text-text-muted">
                 Try adjusting your filters.
               </p>
             </div>

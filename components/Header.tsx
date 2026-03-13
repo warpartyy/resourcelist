@@ -216,11 +216,11 @@ return (
         >
 
           {/* Top Bar */}
-          <div className="h-16 flex items-center justify-between px-6 border-b border-zinc-900">
+          <div className="h-16 flex items-center justify-between px-6 border-b border-border">
             <span className="text-lg font-medium">Menu</span>
             <button
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-lg hover:bg-zinc-900 transition"
+              className="p-2 rounded-lg hover:bg-surface transition"
               aria-label="Close menu"
             >
               <X size={24} />
@@ -273,7 +273,7 @@ return (
             <Link
               href="/about"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-lg font-medium pt-6 border-t border-zinc-900"
+              className="text-lg font-medium pt-6 border-t border-border"
             >
               About
             </Link>

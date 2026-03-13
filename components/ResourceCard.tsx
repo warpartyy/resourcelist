@@ -30,6 +30,11 @@ export default function ResourceCard({
           {resource.organization}
         </h2>
 
+        {/* Phone Preview */}
+        <p className="mt-3 text-sm text-text-muted">
+          📞 {resource.phone}
+        </p>
+        
         {/* Counties Served */}
         <p className="text-sm text-text-muted mt-1">
           📍 {resource.countiesServed.join(", ")} County
@@ -68,10 +73,7 @@ export default function ResourceCard({
           </p>
         )}
 
-        {/* Phone Preview */}
-        <p className="mt-3 text-sm text-text-muted">
-          📞 {resource.phone}
-        </p>
+
 
         {/* CTA */}
         <p className="mt-4 text-accent underline">

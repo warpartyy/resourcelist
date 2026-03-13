@@ -89,14 +89,14 @@ export default function Home() {
 
             <div className="card p-6">
               <h3 className="font-semibold mb-2">By Category</h3>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-text-muted">
                 Explore services grouped by major areas of need.
               </p>
             </div>
 
             <div className="card p-6">
               <h3 className="font-semibold mb-2">By Service Type</h3>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-text-muted">
                 Search for specific types of support like counseling,
                 residential treatment, or financial aid.
               </p>
@@ -104,7 +104,7 @@ export default function Home() {
 
             <div className="card p-6">
               <h3 className="font-semibold mb-2">By Population</h3>
-              <p className="text-sm text-zinc-400">
+              <p className="text-sm text-text-muted">
                 Find services tailored to youth, veterans, families,
                 tribal members, and more.
               </p>

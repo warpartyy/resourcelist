@@ -131,7 +131,7 @@ export default function AdminLayout({
         </div>
 
         {/* Logout */}
-        <div className="mt-auto border-t border-zinc-800 pt-4">
+        <div className="mt-auto border-t border-border pt-4">
           <button
             onClick={onLogout}
             className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-bg text-text-muted transition"

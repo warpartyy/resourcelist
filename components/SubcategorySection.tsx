@@ -20,7 +20,7 @@ export default function SubcategorySection({
   const [open, setOpen] = useState(false);
 
   return (
-    <div className="pt-1 pb-4 md:pt-2 md:pb-5 border-b border-zinc-800">
+    <div className="pt-1 pb-4 md:pt-2 md:pb-5 border-b border-border">
 
 
 
@@ -41,7 +41,7 @@ export default function SubcategorySection({
           </Link>
 
           {sub.description && (
-            <p className="text-sm text-zinc-500 mt-2 max-w-2xl">
+            <p className="text-sm text-text-subtle mt-2 max-w-2xl">
               {sub.description}
             </p>
           )}
@@ -51,7 +51,7 @@ export default function SubcategorySection({
           size={18}
           className={`transition-transform duration-200 ${
             open ? "rotate-180" : ""
-          } text-zinc-500`}
+          } text-text-subtle`}
         />
       </div>
 
@@ -65,23 +65,23 @@ export default function SubcategorySection({
               <Link
                 key={resource.id}
                 href={`/resources/${resource.slug}`}
-                className="block px-4 py-3 rounded-lg hover:bg-zinc-900 transition border border-transparent hover:border-zinc-800"
+                className="block px-4 py-3 rounded-lg hover:bg-surface transition border border-transparent hover:border-border"
               >
 
 
 
                 
-                <div className="font-medium text-white">
+                <div className="font-medium text-text-primary">
                   {resource.organization}
                 </div>
 
-                <div className="text-sm text-zinc-400 mt-1">
+                <div className="text-sm text-text-muted mt-1">
                   {resource.counties_served?.join(", ")}
                 </div>
               </Link>
             ))
           ) : (
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-text-subtle">
               We’re adding more resources in this area.{" "}
               <br/>
                 Help expand access by{" "}

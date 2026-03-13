@@ -32,7 +32,7 @@ export default function SearchFilters() {
   };
 
   return (
-  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl shadow-lg overflow-hidden">
+  <div className="bg-surface border border-border rounded-2xl shadow-lg overflow-hidden">
 
     {/* Header (clickable on mobile) */}
     <button
@@ -44,7 +44,7 @@ export default function SearchFilters() {
       </h2>
 
       {/* Only show toggle text on mobile */}
-      <span className="text-sm text-zinc-400 lg:hidden">
+      <span className="text-sm text-text-muted lg:hidden">
         {open ? "Hide" : "Show"}
       </span>
     </button>
@@ -60,13 +60,13 @@ export default function SearchFilters() {
     >
       {/* Parent Category */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">
+        <label className="block text-xs text-text-muted mb-1">
           Parent Category
         </label>
         <select
           value={parent}
           onChange={(e) => setParent(e.target.value)}
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
+          className="w-full bg-bg border border-border rounded-lg p-2 text-sm"
         >
           <option value="">All</option>
           {PARENT_CATEGORIES.map((cat) => (
@@ -79,13 +79,13 @@ export default function SearchFilters() {
 
       {/* Subcategory */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">
+        <label className="block text-xs text-text-muted mb-1">
           Subcategory
         </label>
         <select
           value={sub}
           onChange={(e) => setSub(e.target.value)}
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
+          className="w-full bg-bg border border-border rounded-lg p-2 text-sm"
         >
           <option value="">All</option>
           {SUBCATEGORIES.map((subcat) => (
@@ -98,33 +98,33 @@ export default function SearchFilters() {
 
       {/* County */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">
+        <label className="block text-xs text-text-muted mb-1">
           County
         </label>
         <input
           type="text"
           value={county}
           onChange={(e) => setCounty(e.target.value)}
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
+          className="w-full bg-bg border border-border rounded-lg p-2 text-sm"
         />
       </div>
 
       {/* State */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">
+        <label className="block text-xs text-text-muted mb-1">
           State
         </label>
         <input
           type="text"
           value={state}
           onChange={(e) => setState(e.target.value)}
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
+          className="w-full bg-bg border border-border rounded-lg p-2 text-sm"
         />
       </div>
 
       {/* Tags */}
       <div>
-        <label className="block text-xs text-zinc-400 mb-1">
+        <label className="block text-xs text-text-muted mb-1">
           Tags
         </label>
         <input
@@ -132,7 +132,7 @@ export default function SearchFilters() {
           value={tags}
           onChange={(e) => setTags(e.target.value)}
           placeholder="outpatient, detox"
-          className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm"
+          className="w-full bg-bg border border-border rounded-lg p-2 text-sm"
         />
       </div>
 
@@ -147,7 +147,7 @@ export default function SearchFilters() {
 
         <button
           onClick={clearFilters}
-          className="border border-zinc-700 text-zinc-300 px-4 py-2 rounded-lg text-sm hover:bg-zinc-800 transition"
+          className="border border-border text-text-primary px-4 py-2 rounded-lg text-sm hover:bg-surface transition"
         >
           Clear
         </button>

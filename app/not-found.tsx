@@ -11,7 +11,7 @@ export default function NotFound() {
           That page isn’t here yet.
         </h1>
 
-        <p className="text-zinc-400 max-w-md mb-8 leading-relaxed">
+        <p className="text-text-muted max-w-md mb-8 leading-relaxed">
           It may still be in progress, recently updated,
           or the link may not be correct.
           We’re continuously building and expanding this directory.
@@ -21,21 +21,21 @@ export default function NotFound() {
 
           <Link
             href="/"
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition"
+            className="bg-blue-600 hover:bg-blue-700 text-text-primary px-6 py-3 rounded-lg transition"
           >
             Back to Home
           </Link>
 
           <Link
             href="/suggest-resource"
-            className="border border-zinc-700 hover:bg-zinc-800 px-6 py-3 rounded-lg transition"
+            className="border border-border hover:bg-bg px-6 py-3 rounded-lg transition"
           >
             Suggest a Resource
           </Link>
 
         </div>
 
-        <p className="text-xs text-zinc-600 mt-10 max-w-sm">
+        <p className="text-xs text-text-subtle mt-10 max-w-sm">
           If you were looking for a specific service,
           you can help grow this directory by sharing what’s missing.
         </p>

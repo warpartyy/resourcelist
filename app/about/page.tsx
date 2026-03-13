@@ -14,7 +14,7 @@ export default function AboutPage() {
               About
             </h1>
 
-            <p className="text-zinc-300 leading-relaxed">
+            <p className="text-text-primary leading-relaxed">
               War Party Resources grew out of firsthand experience working 
               within public health and community support systems. Over time, 
               it became clear how difficult it can be to navigate services — 
@@ -33,7 +33,7 @@ export default function AboutPage() {
               Why It Exists
             </h2>
 
-            <p className="text-zinc-300 leading-relaxed">
+            <p className="text-text-primary leading-relaxed">
               Accessing essential services shouldn’t require insider knowledge 
               or repeated referrals just to find a starting point. This platform 
               brings relevant resources into one place — organized clearly and 
@@ -47,11 +47,11 @@ export default function AboutPage() {
 {/* Values - Community & Warm */}
 <section className="space-y-6">
 
-  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+  <div className="bg-surface border border-border rounded-xl p-5">
     <h3 className="text-lg font-semibold mb-2">
       How It’s Built
     </h3>
-    <p className="text-zinc-300 text-sm leading-relaxed">
+    <p className="text-text-primary text-sm leading-relaxed">
       This directory is shaped by direct experience within public health and 
       community support systems, along with community contributions from across
       different regions. Resources are identified through professional familiarity 
@@ -62,11 +62,11 @@ export default function AboutPage() {
     </p>
   </div>
 
-  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+  <div className="bg-surface border border-border rounded-xl p-5">
     <h3 className="text-lg font-semibold mb-2">
       What It Prioritizes
     </h3>
-    <p className="text-zinc-300 text-sm leading-relaxed">
+    <p className="text-text-primary text-sm leading-relaxed">
       Clarity over complexity.
       Access over bureaucracy.
       Respect over gatekeeping.
@@ -76,11 +76,11 @@ export default function AboutPage() {
     </p>
   </div>
 
-  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5">
+  <div className="bg-surface border border-border rounded-xl p-5">
     <h3 className="text-lg font-semibold mb-2">
       Ongoing Care
     </h3>
-    <p className="text-zinc-300 text-sm leading-relaxed">
+    <p className="text-text-primary text-sm leading-relaxed">
       Every listing is reviewed before it is published. Updates can be 
       submitted when information changes. The directory evolves over time 
       to remain accurate and relevant.
@@ -90,10 +90,10 @@ export default function AboutPage() {
     </p>
   </div>
 
-<div className="pt-6 border-t border-zinc-800 text-center">
+<div className="pt-6 border-t border-border text-center">
   <Link
     href="/"
-    className="text-sm text-zinc-400 hover:text-white transition"
+    className="text-sm text-text-muted hover:text-text-primary transition"
   >
     ← Back to Home
   </Link>

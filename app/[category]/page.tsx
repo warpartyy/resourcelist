@@ -113,8 +113,8 @@ const displayTitle =
 <div className="mb-5">
 
   {/* Breadcrumb */}
-  <div className="text-sm text-zinc-500 pt-4 mb-4 flex items-center flex-wrap gap-2">
-    <Link href="/" className="hover:text-white transition">
+  <div className="text-sm text-text-subtle pt-4 mb-4 flex items-center flex-wrap gap-2">
+    <Link href="/" className="hover:text-text-primary transition">
       Home
     </Link>
 
@@ -124,7 +124,7 @@ const displayTitle =
       <>
         <Link
           href={`/${parentSlug}`}
-          className="hover:text-white transition"
+          className="hover:text-text-primary transition"
         >
           {parentLabel}
         </Link>
@@ -133,7 +133,7 @@ const displayTitle =
       </>
     )}
 
-    <span className="text-zinc-300">
+    <span className="text-text-primary">
       {currentLabel}
     </span>
   </div>
@@ -145,14 +145,14 @@ const displayTitle =
 
   {/* Parent Description */}
   {isParentCategory && parentDescription && (
-    <p className="text-zinc-400 max-w-2xl leading-relaxed">
+    <p className="text-text-muted max-w-2xl leading-relaxed">
       {parentDescription}
     </p>
   )}
 
   {/* Subcategory Description */}
   {isSubcategory && (
-    <p className="text-zinc-400 max-w-2xl leading-relaxed">
+    <p className="text-text-muted max-w-2xl leading-relaxed">
       {
         SUBCATEGORIES.find((sub) => sub.value === category)
           ?.description
@@ -163,7 +163,7 @@ const displayTitle =
 </div>
 
 {isParentCategory && (
-  <div className="text-sm text-zinc-500 mt-4">
+  <div className="text-sm text-text-subtle mt-4">
     {resourceCount > 0 ? (
       <>
         Showing {resourceCount}{" "}
@@ -178,7 +178,7 @@ const displayTitle =
 
 
 {/* Divider */}
-<div className="relative left-1/2 right-1/2 -mx-[48vw] w-[96vw] border-b border-zinc-800 mb-2 md:mb-4" />
+<div className="relative left-1/2 right-1/2 -mx-[48vw] w-[96vw] border-b border-border mb-2 md:mb-4" />
 
 
 
@@ -190,6 +190,9 @@ const displayTitle =
           {resources
             ?.filter((r) =>
               r.subcategories?.includes(category)
+            )
+            .sort((a, b) =>
+             a.organization.localeCompare(b.organization)
             )
             .map((resource: any) => (
               <ResourceCard
@@ -204,12 +207,12 @@ const displayTitle =
           {resources?.filter((r) =>
             r.subcategories?.includes(category)
           ).length === 0 && (
-            <div className="bg-zinc-900 border border-zinc-800 p-8 rounded-2xl text-center max-w-2xl mx-auto">
+            <div className="bg-bg border border-border p-8 rounded-2xl text-center max-w-2xl mx-auto">
               <h2 className="text-xl font-semibold mb-3">
                 We’re Adding More Resources
               </h2>
 
-              <p className="text-zinc-300 mb-4">
+              <p className="text-text-primary mb-4">
                 This section is growing. Help expand access by
                 suggesting a resource.
               </p>
@@ -229,26 +232,27 @@ const displayTitle =
       {isParentCategory && (
         <div className="space-y-2 md:space-y-3">
 
-          {SUBCATEGORIES.filter(
-            (sub) =>
-              SUBCATEGORY_PARENT_MAP[sub.value] === category
-          ).map((sub) => {
-            const filteredResources = resources?.filter((r) =>
-              r.subcategories?.includes(sub.value)
-            );
+          {SUBCATEGORIES
+            .filter(
+              (sub) =>
+                SUBCATEGORY_PARENT_MAP[sub.value] === category
+            )
+            .sort((a, b) => a.label.localeCompare(b.label))
+            .map((sub) => {
+              const filteredResources = resources?.filter((r) =>
+                r.subcategories?.includes(sub.value)
+              );
 
-            return (
-              <SubcategorySection
-  key={sub.value}
-  sub={sub}
-  resources={filteredResources || []}
-/>
+              return (
+                <SubcategorySection
+                  key={sub.value}
+                  sub={sub}
+                  resources={filteredResources || []}
+                 />
+              );
+            })}
 
 
-
-
-            );
-          })}
         </div>
       )}
     </Container>

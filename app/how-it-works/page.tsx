@@ -38,7 +38,7 @@ export default function HowItWorksPage() {
 
         </section>
 
-        <div className="border-b border-zinc-800" />
+        <div className="border-b border-border" />
 
         {/* Community Contributions */}
         <section>
@@ -57,7 +57,7 @@ export default function HowItWorksPage() {
           </p>
         </section>
 
-        <div className="border-b border-zinc-800" />
+        <div className="border-b border-border" />
 
         {/* Review & Verification */}
         <section>
@@ -73,7 +73,7 @@ export default function HowItWorksPage() {
           </p>
         </section>
 
-        <div className="border-b border-zinc-800" />
+        <div className="border-b border-border" />
 
         {/* Ongoing Updates */}
         <section>
@@ -88,7 +88,7 @@ export default function HowItWorksPage() {
           </p>
         </section>
 
-        <div className="border-b border-zinc-800" />
+        <div className="border-b border-border" />
 
         {/* Commitment */}
         <section>
