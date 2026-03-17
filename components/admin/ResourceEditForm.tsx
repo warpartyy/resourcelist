@@ -285,12 +285,6 @@ export default function ResourceEditForm({
         </div>
       </div>
 
-
-
-
-
-
-
       {/* Description */}
       <textarea
         value={editedSubmission.description || ""}

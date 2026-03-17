@@ -93,6 +93,53 @@ const serviceTags =
 </p>
 
 
+{/* Address */}
+{resource.address || resource.city || resource.state || resource.zip ? (
+  <p>
+    📍{" "}
+    <a
+      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+        [resource.address, resource.city, resource.state, resource.zip]
+          .filter(Boolean)
+          .join(" ")
+      )}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-accent hover:underline"
+    >
+      <span className="text-text-primary">
+        {resource.address && `${resource.address} `}
+        {[resource.city, resource.state, resource.zip]
+          .filter(Boolean)
+          .join(", ")}
+      </span>
+    </a>
+  </p>
+) : (
+  <p className="text-text-subtle italic">
+    Address not provided
+  </p>
+)}
+
+{/* Application Link */}
+{resource.application_link && (
+  <p>
+    📝{" "}
+    <a
+      href={
+        resource.application_link.startsWith("http")
+          ? resource.application_link
+          : `https://${resource.application_link}`
+      }
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-accent hover:underline"
+    >
+      Apply Here
+    </a>
+  </p>
+)}
+
       {resource.website ? (
   <p>
     🌐{" "}
@@ -119,6 +166,11 @@ const serviceTags =
   </div>
 
   <div className="border-b border-border mb-8" />
+
+
+
+
+
 
   {/* ---------------- Description ---------------- */}
   <div className="mb-6 md:mb-10 max-w-3xl">

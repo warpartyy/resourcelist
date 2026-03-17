@@ -12,8 +12,6 @@ type Resource = {
   description?: string;
 };
 
-
-
 export default function ResourceCard({
   resource,
 }: {
