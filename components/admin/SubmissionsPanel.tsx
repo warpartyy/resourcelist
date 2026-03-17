@@ -11,6 +11,7 @@ type Props = {
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
+  onSave: (submission: any) => void;
   onApprove: (submission: any) => void;
   onReject: (id: string) => void;
 };
@@ -24,12 +25,12 @@ export default function SubmissionsPanel({
   setEditedSubmission,
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
+  onSave,
   onApprove,
   onReject,
 }: Props) {
   return (
     <>
-      {/* Section Header */}
 {/* Section Header */}
 <div className="mb-4 mt-0">
   <p className="text-text-primary text-base font-medium">
@@ -59,6 +60,7 @@ export default function SubmissionsPanel({
             setEditedSubmission={setEditedSubmission}
             CATEGORY_OPTIONS={CATEGORY_OPTIONS}
             COUNTY_OPTIONS={COUNTY_OPTIONS}
+            onSave={onSave}
             onApprove={onApprove}
             onReject={onReject}
           />

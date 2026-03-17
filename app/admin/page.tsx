@@ -7,6 +7,7 @@ import ResourcesPanel from "../../components/admin/ResourcesPanel";
 import AdminLayout from "../../components/admin/AdminLayout";
 import {rejectSubmission, approveSubmissionRecord,} from "@/lib/services/submissionService";
 import {approveResource,} from "@/lib/services/resourceService";
+import { updateSubmissionRecord } from "@/lib/services/submissionService";
 import {
   fetchSubmissionsByStatus,
   filterApprovedSubmissions,
@@ -25,18 +26,83 @@ const CATEGORY_OPTIONS = [
 ];
 
 const COUNTY_OPTIONS = [
-  "Adair",
-  "Beckham",
-  "Caddo",
-  "Canadian",
-  "Cleveland",
-  "Comanche",
-  "Cotton",
-  "Grady",
-  "Jackson",
-  "Kiowa",
-  "Stephens",
-  "Tillman",
+	"Adair",
+	"Alfalfa",
+	"Atoka",
+	"Beaver",
+	"Beckham",
+	"Blaine",
+	"Bryan",
+	"Caddo",
+	"Canadian",
+	"Carter",
+	"Cherokee",
+	"Choctaw",
+	"Cimarron",
+	"Cleveland",
+	"Coal",
+	"Comanche",
+	"Cotton",
+	"Craig",
+	"Creek",
+	"Custer",
+	"Delaware",
+	"Dewey",
+	"Ellis",
+	"Garfield",
+	"Garvin",
+	"Grady",
+	"Grant",
+	"Greer",
+	"Harmon",
+	"Harper",
+	"Haskell",
+	"Hughes",
+	"Jackson",
+	"Jefferson",
+	"Johnston",
+	"Kay",
+	"Kingfisher",
+	"Kiowa",
+	"Latimer",
+	"LeFlore",
+	"Lincoln",
+	"Logan",
+	"Love",
+	"Major",
+	"Marshall",
+	"Mayes",
+	"McClain",
+	"McCurtain",
+	"McIntosh",
+	"Murray",
+	"Muskogee",
+	"Noble",
+	"Nowata",
+	"Okfuskee",
+	"Oklahoma",
+	"Okmulgee",
+	"Osage",
+	"Ottawa",
+	"Pawnee",
+	"Payne",
+	"Pittsburg",
+	"Pontotoc",
+	"Pottawatomie",
+	"Pushmataha",
+	"Roger Mills",
+	"Rogers",
+	"Seminole",
+	"Sequoyah",
+	"Stephens",
+	"Texas",
+	"Tillman",
+	"Tulsa",
+	"Wagoner",
+	"Washington",
+	"Washita",
+	"Woods",
+	"Woodward",
 ];
 
 export default function AdminPage() {
@@ -145,6 +211,28 @@ const fetchData = async () => {
     fetchData();
   };
 
+  const saveSubmission = async (submission: any) => {
+  const finalData =
+    editingId === submission.id
+      ? editedSubmission
+      : submission;
+
+  const { error } = await updateSubmissionRecord(
+    submission.id,
+    finalData
+  );
+
+  if (error) {
+    alert("Save failed.");
+    return;
+  }
+
+  setEditingId(null);
+
+  await fetchCounts();
+  fetchData();
+};
+
   const handleRejectSubmission = async (id: string) => {
     const { error } = await rejectSubmission(id);
 
@@ -187,6 +275,7 @@ const fetchData = async () => {
     setEditedSubmission={setEditedSubmission}
     CATEGORY_OPTIONS={CATEGORY_OPTIONS}
     COUNTY_OPTIONS={COUNTY_OPTIONS}
+    onSave={saveSubmission}  
     onApprove={approveSubmission}
     onReject={handleRejectSubmission}
   />

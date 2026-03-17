@@ -10,6 +10,7 @@ type Props = {
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
+  onSave: (submission: any) => void;
   onApprove: (submission: any) => void;
   onReject: (id: string) => void;
 };
@@ -22,6 +23,7 @@ export default function SubmissionCard({
   setEditedSubmission,
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
+  onSave,
   onApprove,
   onReject,
 }: Props) {
@@ -129,8 +131,8 @@ export default function SubmissionCard({
     <>
       {/* Save Changes */}
       <button
-        onClick={() => onApprove(editedSubmission)}
-        className="button button-primary"
+        onClick={() => onSave(editedSubmission)}
+        className="button button-secondary"
       >
         Save Changes
       </button>
@@ -153,9 +155,6 @@ export default function SubmissionCard({
   )}
 
 </div>
-
-
-
     </div>
   );
 }

@@ -9,8 +9,6 @@ export async function getSubmissions(status: string) {
     .eq("status", status);
 }
 
-
-
 export async function rejectSubmission(id: string) {
   const supabase = getSupabase();
   return await supabase
@@ -24,5 +22,18 @@ export async function approveSubmissionRecord(id: string) {
   return await supabase
     .from("resource_submissions")
     .update({ status: "approved" })
+    .eq("id", id);
+}
+
+/* 👇 ADD THIS */
+export async function updateSubmissionRecord(
+  id: string,
+  updates: any
+) {
+  const supabase = getSupabase();
+
+  return await supabase
+    .from("resource_submissions")
+    .update(updates)
     .eq("id", id);
 }
