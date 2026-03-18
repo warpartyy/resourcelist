@@ -1,3 +1,22 @@
+/**
+ * ========================================
+ * RESOURCES PANEL (ADMIN) Already approved.
+ * ========================================
+ * 
+ * Handles:
+ * - Displaying resources
+ * - Editing resources
+ * - Soft delete / restore / hard delete
+ * 
+ * Key Actions:
+ * - Update → updateResource()
+ * - Delete → softDeleteResource()
+ * 
+ * Notes:
+ * - Uses ResourceEditForm for editing
+ * - Filtering is client-side
+ * ========================================
+ */
 "use client";
 
 import { useState } from "react";
@@ -16,8 +35,8 @@ type Props = {
   fetchData: () => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
-  sortOrder: "default" | "newest" | "oldest";
-  setSortOrder: (value: "default" | "newest" | "oldest") => void;
+  sortOrder: "az" | "za" | "newest" | "oldest";
+  setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
 };
 
 export default function ResourcesPanel({
@@ -34,53 +53,30 @@ export default function ResourcesPanel({
 
 
 
-  // ✅ Only filter (sorting is now DB-level)
-  const filteredResources = resources.filter((resource) =>
+  // Sort A-Z
+const filteredResources = resources
+  .filter((resource) =>
     resource.organization
       ?.toLowerCase()
       .includes(search.toLowerCase())
-  );
+  )
+  .sort((a, b) => {
+    const nameA = a.organization || "";
+    const nameB = b.organization || "";
 
-  if (filteredResources.length === 0) {
-    return (
-      <>
-        {/* Search + Sort Bar */}
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Search by organization name..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="flex-1 px-4 py-2 rounded-lg bg-bg border border-border text-text-primary placeholder-text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
-          />
+    if (sortOrder === "az") return nameA.localeCompare(nameB);
+    if (sortOrder === "za") return nameB.localeCompare(nameA);
 
-          <select
-            value={sortOrder}
-            onChange={(e) =>
-              setSortOrder(
-                e.target.value as "default" | "newest" | "oldest"
-              )
-            }
-            className={`px-4 py-2 rounded-lg bg-surface border border-border focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-              sortOrder === "default"
-                ? "text-text-subtle"
-                : "text-text-primary"
-            }`}
-          >
-            <option value="default" className="text-text-subtle">
-              Sort
-            </option>
-            <option value="newest">Newest First</option>
-            <option value="oldest">Oldest First</option>
-          </select>
-        </div>
+    if (sortOrder === "newest") {
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    }
 
-        <div className="text-text-muted">
-          No matching resources found.
-        </div>
-      </>
-    );
-  }
+    if (sortOrder === "oldest") {
+      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+    }
+
+    return 0;
+  });
 
   return (
     <>
@@ -98,32 +94,36 @@ export default function ResourcesPanel({
           value={sortOrder}
           onChange={(e) =>
             setSortOrder(
-              e.target.value as "default" | "newest" | "oldest"
+              e.target.value as "az" | "za" | "newest" | "oldest"
             )
           }
           className={`px-4 py-2 rounded-lg bg-surface border border-border focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-            sortOrder === "default"
+            sortOrder === "az"
               ? "text-text-subtle"
               : "text-text-primary"
           }`}
         >
-          <option value="default" className="text-text-subtle">
-            Sort
-          </option>
+          <option value="az">A–Z</option>
+          <option value="za">Z–A</option>
           <option value="newest">Newest First</option>
           <option value="oldest">Oldest First</option>
         </select>
       </div>
 
-      {filteredResources.map((resource) => {
-  const isEditing = editingId === resource.id;
-  const isDeleted = resource.status === "deleted";
-
-  return (
-    <div
-      key={resource.id}
-      className="bg-surface border border-border p-6 rounded-xl mb-6"
-    >
+      {filteredResources.length === 0 ? (
+  <div className="text-text-muted">
+    No matching resources found.
+  </div>
+) : (
+  filteredResources.map((resource) => {
+          const isEditing = editingId === resource.id;
+          const isDeleted = resource.status === "deleted";
+          
+          return (
+            <div
+              key={resource.id}
+              className="bg-surface border border-border p-6 rounded-xl mb-6"
+            >
 
             {isEditing ? (
               <ResourceEditForm
@@ -154,14 +154,17 @@ export default function ResourcesPanel({
 
                 {/* Metadata Row */}
                 <div className="flex flex-wrap gap-6 text-sm text-text-muted mb-4">
-                  {resource.counties_served?.length > 0 && (
+                  {resource.address && (
                     <span>
                       <span className="text-text-subtle">
-                        Counties:
-                      </span>{" "}
-                      {resource.counties_served.join(", ")}
-                    </span>
-                  )}
+                        Address:
+                        </span>{" "}
+                        {resource.address}
+                        {resource.city && `, ${resource.city}`}
+                        {resource.state && `, ${resource.state}`}
+                        {resource.zip && ` ${resource.zip}`}
+                        </span>
+                    )}
 
                   {resource.parent_categories?.length > 0 && (
                     <span>
@@ -212,7 +215,7 @@ export default function ResourcesPanel({
         setEditingId(null);
         fetchData();
       }}
-      className="px-3 py-1.5 rounded-md text-sm font-medium bg-accent hover:brightness-110 text-white transition"
+      className="button button-secondary"
     >
       Update
     </button>
@@ -226,7 +229,7 @@ export default function ResourcesPanel({
             await restoreResource(resource.id);
             fetchData();
           }}
-          className="px-3 py-1.5 rounded-md text-sm bg-accent hover:brightness-110 text-white transition"
+          className="button button-secondary"
         >
           Restore
         </button>
@@ -280,7 +283,8 @@ export default function ResourcesPanel({
 
           </div>
         );
-      })}
-    </>
+      })
+    )}
+  </>
   );
 }

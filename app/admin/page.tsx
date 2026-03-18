@@ -122,7 +122,7 @@ export default function AdminPage() {
 
   // ✅ NEW: sort state (DB-level)
   const [resourceSortOrder, setResourceSortOrder] =
-  useState<"default" | "newest" | "oldest">("default");
+  useState<"az" | "za" | "newest" | "oldest">("az");
 
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);

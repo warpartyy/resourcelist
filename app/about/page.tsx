@@ -15,7 +15,7 @@ export default function AboutPage() {
             </h1>
 
             <p className="text-text-primary leading-relaxed">
-              War Party Resources grew out of firsthand experience working 
+              This directory grew out of firsthand experience working 
               within public health and community support systems. Over time, 
               it became clear how difficult it can be to navigate services — 
               even for those familiar with the system. Information is often 

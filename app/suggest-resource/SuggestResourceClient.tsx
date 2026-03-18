@@ -13,17 +13,19 @@ export default function SuggestResourcePage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
-  const [errors, setErrors] = useState<{ organization?: string; subcategories?: string;}>({});
+  const [errors, setErrors] = useState<{ organization?: string; subcategories?: string; email?: string;}>({});
 
   const searchParams = useSearchParams();
   const existingSlug = searchParams.get("resource");
 
   const organizationRef = useRef<HTMLInputElement | null>(null);
   const subcategoryRef = useRef<HTMLDivElement | null>(null);
+  const emailRef = useRef<HTMLInputElement | null>(null);
 
 const fieldRefs: Record<string, React.RefObject<HTMLElement>> = {
   organization: organizationRef as React.RefObject<HTMLElement>,
   subcategories: subcategoryRef as React.RefObject<HTMLElement>,
+  email: emailRef as React.RefObject<HTMLElement>,
 };
 
 
@@ -39,6 +41,7 @@ const organizationName = formData.get("organization")?.toString().trim();
 let newErrors: {
   organization?: string;
   subcategories?: string;
+  email?: string;
 } = {};
 
 if (!organizationName) {
@@ -49,6 +52,11 @@ if (!selectedSubcategories.length) {
   newErrors.subcategories = "Please select at least one service type.";
 }
 
+const email = formData.get("email")?.toString();
+
+if (email && !email.includes("@")) {
+  newErrors.email = "Please enter a valid email.";
+}
 
 if (Object.keys(newErrors).length > 0) {
   setErrors(newErrors);
@@ -71,10 +79,7 @@ if (Object.keys(newErrors).length > 0) {
   return;
 }
 
-
-
 setErrors({});
-
 
 const newSubmission = {
   organization: organizationName,
@@ -84,12 +89,12 @@ const newSubmission = {
     ? formData.get("counties")!.toString().split(",").map((c) => c.trim())
     : [],
   phone: formData.get("phone")?.toString() || null,
+  email: formData.get("email")?.toString() || null,
   website: formData.get("website")?.toString() || null,
-address: formData.get("address")?.toString() || null,
-city: formData.get("city")?.toString() || null,
-state: formData.get("state")?.toString() || null,
-zip: formData.get("zip")?.toString() || null,
-
+  address: formData.get("address")?.toString() || null,
+  city: formData.get("city")?.toString() || null,
+  state: formData.get("state")?.toString() || null,
+  zip: formData.get("zip")?.toString() || null,
   description: formData.get("description")?.toString() || null,
   services: formData.get("services")
     ? formData.get("services")!.toString().split(",").map((s) => s.trim())
@@ -225,37 +230,36 @@ return (
 
               
               <button
-  type="button"
-  key={sub.value}
-  onClick={() => {
-    if (isSelected) {
+              type="button"
+              key={sub.value}
+              onClick={() => {
+                if (isSelected) {
       setSelectedSubcategories((prev) =>
         prev.filter((val) => val !== sub.value)
       );
-    } else {
-      setSelectedSubcategories((prev) => [...prev, sub.value]);
-    }
-  }}
-  className={`p-3 rounded-lg border transition text-left ${
-    isSelected ? "shadow-md" : "bg-bg border-border text-text-muted hover:border-accent"
-  }`}
-  style={
-    isSelected
-      ? {
-          background: "var(--color-accent)",
-          borderColor: "var(--color-accent)",
-          color: "white",
-        }
-      : undefined
-  }
->
-  {sub.label}
-</button>
+                } else {
+                  setSelectedSubcategories((prev) => [...prev, sub.value]);
+                }
+              }}
+              className={`p-3 rounded-lg border transition text-left ${
+                isSelected ? "shadow-md" : "bg-bg border-border text-text-muted hover:border-accent"
+              }`}
+              style={
+                isSelected
+                  ? {
+                      background: "var(--color-accent)",
+                      borderColor: "var(--color-accent)",
+                      color: "white",
+                    }
+                  : undefined
+              }
+            >
+              {sub.label}
+            </button>
             );
           })}
         </div>
       </div>
-
 
       {/* ---------------- Contact Information ---------------- */}
       <div className="bg-surface border border-border rounded-2xl p-6 shadow-xl space-y-5">
@@ -273,6 +277,23 @@ return (
           placeholder="Phone"
           className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
         />
+
+        <input
+          ref={emailRef}
+          name="email"
+          placeholder="Email"
+          className={`w-full rounded-lg p-3 border ${
+          errors.email
+              ? "border-red-500 bg-red-500/10"
+              : "border-border bg-bg text-text-primary"
+          }`}
+        />
+
+        {errors.email && (
+          <p className="text-red-400 text-sm mt-1">
+            {errors.email}
+          </p> 
+        )}
 
         <input
           name="website"

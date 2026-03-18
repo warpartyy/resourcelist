@@ -25,7 +25,6 @@ export async function approveSubmissionRecord(id: string) {
     .eq("id", id);
 }
 
-/* 👇 ADD THIS */
 export async function updateSubmissionRecord(
   id: string,
   updates: any

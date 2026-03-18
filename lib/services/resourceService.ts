@@ -72,7 +72,7 @@ const resourcePayload = {
 
 
 export async function updateResource(id: string, data: any) {
-  const supabase = getSupabase(); // 👈 add this
+  const supabase = getSupabase();
 
   console.log("Updating resource with ID:", id);
 
@@ -86,10 +86,6 @@ export async function updateResource(id: string, data: any) {
   if (fetchError || !existing) {
     return { error: fetchError || new Error("Resource not found") };
   }
-
-
-
-
 
   // 2️⃣ Determine if organization changed
   let newSlug = existing.slug;
@@ -124,6 +120,7 @@ export async function updateResource(id: string, data: any) {
       tags: data.tags || [],
       counties_served: data.counties_served || [],
       phone: data.phone || null,
+      email: data.email || null,
       website: data.website || null,
       application_link: data.application_link || null,
       address: data.address || null,
@@ -143,8 +140,6 @@ export async function updateResource(id: string, data: any) {
 
   return result;
 }
-
-
 
 
 export async function softDeleteResource(id: string) {

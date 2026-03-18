@@ -123,6 +123,20 @@ export default function ResourceEditForm({
         className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
       />
 
+{/* Email */}
+<input
+  type="email"
+  value={editedSubmission.email || ""}
+  onChange={(e) =>
+    setEditedSubmission({
+      ...editedSubmission,
+      email: e.target.value,
+    })
+  }
+  placeholder="Email"
+  className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
+/>
+
       {/* Website */}
       <input
         value={editedSubmission.website || ""}
