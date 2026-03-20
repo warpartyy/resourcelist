@@ -8,11 +8,13 @@ type Subcategory = {
 export default function CategoryCard({
   href,
   title,
+  description,
   subcategories,
 }: {
   href: string;
   title: string;
-  subcategories: Subcategory[];
+  description?: string;
+  subcategories?: Subcategory[];
 }) {
   return (
     <div className="card category-card">
@@ -21,10 +23,15 @@ export default function CategoryCard({
     <span>→</span>
   </Link>
 
-  <div className="category-divider" />
+{description && (
+  <p className="text-sm text-text-muted mt-2">
+    {description}
+  </p>
+)}
 
+  <div className="category-divider" />
   <ul className="subcategory-list">
-    {subcategories.map((sub) => (
+    {subcategories?.map((sub) => (
       <li key={sub.href} className="subcategory-item">
         <span className="subcategory-bullet" />
         <Link href={sub.href} className="subcategory-link">
@@ -33,6 +40,8 @@ export default function CategoryCard({
       </li>
     ))}
   </ul>
+
+  
 </div>
   );
 }

@@ -29,6 +29,12 @@ export const PARENT_CATEGORIES = [
     description:
       "Programs that strengthen families, build connection, and support community wellbeing.",
   },
+    {
+    label: "Tribal Programs",
+    value: "tribal-programs",
+    description:
+      "Services and programs specifically designed for and delivered by tribal communities.",
+  },
 ];
 
 

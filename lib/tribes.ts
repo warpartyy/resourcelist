@@ -1,0 +1,17 @@
+export const TRIBES = [
+  "Apache Tribe of Oklahoma",
+  "Fort Sill Apache Tribe",
+  "Comanche Nation",
+  "Cherokee Nation",
+  "Chickasaw Nation",
+  "Choctaw Nation",
+  "Muscogee (Creek) Nation",
+  "Osage Nation",
+  "Ponca Tribe",
+  "Kiowa Tribe",
+  "Otoe-Missouria Tribe",
+  "Delaware Nation",
+  "Caddo Nation of Oklahoma",
+  "Sac and Fox Nation",
+  "Wichita & Affiliated Tribes",
+];
