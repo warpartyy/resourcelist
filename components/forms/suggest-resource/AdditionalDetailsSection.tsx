@@ -21,13 +21,6 @@ export default function AdditionalDetailsSection() {
         className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
       />
 
-      {/* Services */}
-      <input
-        name="services"
-        placeholder="Services (comma separated)"
-        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
-      />
-
       {/* Eligibility */}
       <input
         name="eligibility"

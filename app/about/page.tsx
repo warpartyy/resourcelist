@@ -44,28 +44,27 @@ export default function AboutPage() {
             </p>
           </section>
 
-{/* Values - Community & Warm */}
-<section className="space-y-6">
+          {/* Values - Community & Warm */}
+          {/* Intro */}
+          <section className="space-y-3">
+            <h2 className="text-xl font-semibold">
+              How It’s Built
+            </h2>
+            
+            <p className="text-text-primary leading-relaxed">
+              This directory is shaped by direct experience within public health and 
+              community support systems, along with community contributions from across
+              different regions. Resources are identified through professional familiarity 
+              with service networks and referral pathways — and strengthened by people who 
+              know what is actually available in their communities. Anyone can suggest a 
+              resource. Every submission is reviewed before publication. Community knowledge 
+              expands it. Experience helps guide it.
+            </p>
+          </section>
 
-  <div className="bg-surface border border-border rounded-xl p-5">
-    <h3 className="text-lg font-semibold mb-2">
-      How It’s Built
-    </h3>
-    <p className="text-text-primary text-sm leading-relaxed">
-      This directory is shaped by direct experience within public health and 
-      community support systems, along with community contributions from across
-      different regions. Resources are identified through professional familiarity 
-      with service networks and referral pathways — and strengthened by people who 
-      know what is actually available in their communities. Anyone can suggest a 
-      resource. Every submission is reviewed before publication. Community knowledge 
-      expands it. Experience helps guide it.
-    </p>
-  </div>
-
-  <div className="bg-surface border border-border rounded-xl p-5">
-    <h3 className="text-lg font-semibold mb-2">
+    <h2 className="text-lg font-semibold mb-2">
       What It Prioritizes
-    </h3>
+    </h2>
     <p className="text-text-primary text-sm leading-relaxed">
       Clarity over complexity.
       Access over bureaucracy.
@@ -74,12 +73,10 @@ export default function AboutPage() {
       Information is organized to be practical, transparent, 
       and easy to navigate — without unnecessary barriers or institutional language.
     </p>
-  </div>
 
-  <div className="bg-surface border border-border rounded-xl p-5">
-    <h3 className="text-lg font-semibold mb-2">
+    <h2 className="text-lg font-semibold mb-2">
       Ongoing Care
-    </h3>
+    </h2>
     <p className="text-text-primary text-sm leading-relaxed">
       Every listing is reviewed before it is published. Updates can be 
       submitted when information changes. The directory evolves over time 
@@ -88,7 +85,6 @@ export default function AboutPage() {
       This is not a campaign.
       It’s infrastructure.
     </p>
-  </div>
 
 <div className="pt-6 border-t border-border text-center">
   <Link
@@ -98,7 +94,6 @@ export default function AboutPage() {
     ← Back to Home
   </Link>
 </div>
-</section>
         </div>
       </Container>
     </div>
