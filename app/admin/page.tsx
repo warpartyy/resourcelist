@@ -2,14 +2,11 @@
 import { useEffect, useState } from "react";
 import { getSupabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
-import SubmissionsPanel from "../../components/admin/SubmissionsPanel";
-import ResourcesPanel from "../../components/admin/ResourcesPanel";
 import AdminLayout from "../../components/admin/AdminLayout";
+import AdminTabs from "@/components/admin/tabs/AdminTabs";
 
 import {
-  fetchSubmissionsByStatus,
   fetchAdminCounts,
-  fetchResourcesByStatus,
 } from "@/lib/services/adminService";
 import { COUNTY_OPTIONS_BY_STATE } from "@/lib/geography/counties";
 
@@ -25,8 +22,6 @@ const CATEGORY_OPTIONS = [
 const COUNTY_OPTIONS = COUNTY_OPTIONS_BY_STATE["OK"] ?? [];
 
 export default function AdminPage() {
-  const [submissions, setSubmissions] = useState<any[]>([]);
-  const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Counts
@@ -83,18 +78,6 @@ const [counts, setCounts] = useState({
 
 const fetchData = async () => {
   setLoading(true);
-
-  if (adminSection === "resources") {
-    const data = await fetchResourcesByStatus("approved");
-    setResources(data);
-  } else if (adminSection === "deleted") {
-    const data = await fetchResourcesByStatus("deleted");
-    setResources(data);
-  } else {
-    const data = await fetchSubmissionsByStatus(adminSection);
-    setSubmissions(data);
-  }
-
   setLoading(false);
 };
 
@@ -104,37 +87,27 @@ const fetchData = async () => {
   }, [adminSection, resourceSortOrder]);
 
   return (
-    <AdminLayout
+  <AdminLayout
+    adminSection={adminSection}
+    setAdminSection={setAdminSection}
+    onLogout={handleLogout}
+    pendingCount={counts.pending}
+    resourceCount={counts.resources}
+    rejectedCount={counts.rejected}
+    deletedCount={counts.deleted}
+  >
+    <AdminTabs
       adminSection={adminSection}
-      setAdminSection={setAdminSection}
-      onLogout={handleLogout}
-      pendingCount={counts.pending}
-      resourceCount={counts.resources}
-      rejectedCount={counts.rejected}
-      deletedCount={counts.deleted}
-    >
-      {adminSection === "resources" || adminSection === "deleted" ? (
-  <ResourcesPanel
-    resources={resources}
-    fetchData={fetchData}
-    CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-    COUNTY_OPTIONS={COUNTY_OPTIONS}
-    sortOrder={resourceSortOrder}
-    setSortOrder={setResourceSortOrder}
-  />
-) : (
-<SubmissionsPanel
-  submissions={submissions}
-  section={adminSection}
-  editingId={editingId}
-  setEditingId={setEditingId}
-  editedSubmission={editedSubmission}
-  setEditedSubmission={setEditedSubmission}
-  CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-  COUNTY_OPTIONS={COUNTY_OPTIONS}
-  onSuccess={refreshAll}
-/>
-)}
-    </AdminLayout>
-  );
+      editingId={editingId}
+      setEditingId={setEditingId}
+      editedSubmission={editedSubmission}
+      setEditedSubmission={setEditedSubmission}
+      CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+      COUNTY_OPTIONS={COUNTY_OPTIONS}
+      onSuccess={refreshAll}
+      sortOrder={resourceSortOrder}
+      setSortOrder={setResourceSortOrder}
+    />
+  </AdminLayout>
+);
 }

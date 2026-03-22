@@ -37,12 +37,14 @@ export default function RestoreButton({
   };
 
   return (
-    <button
-  onClick={handleRestore}
-  disabled={isLoading}
-  className={`button button-success${isLoading ? " button-disabled" : ""}`}
->
-  {isLoading ? "Restoring..." : "Restore"}
-</button>
-  );
+  <button
+    onClick={handleRestore}
+    disabled={isLoading}
+    className={`button button-success ${
+      isLoading ? "button-disabled" : ""
+    }`}
+  >
+    {isLoading ? "Restoring..." : "Restore"}
+  </button>
+);
 }

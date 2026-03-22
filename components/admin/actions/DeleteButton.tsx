@@ -66,15 +66,17 @@ export default function DeleteButton({
     <button
       onClick={handleDelete}
       disabled={isLoading}
-      className={`button button-danger ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+      className={`button button-danger ${
+        isLoading ? "button-disabled" : ""
+      }`}
     >
       {isLoading
         ? variant === "hard"
           ? "Deleting permanently..."
           : "Deleting..."
         : variant === "hard"
-          ? "Delete Permanently"
-          : "Delete"}
+        ? "Delete Permanently"
+        : "Delete"}
     </button>
-  );
+    );
 }

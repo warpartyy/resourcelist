@@ -56,12 +56,14 @@ const handleReject = async () => {
 };
 
   return (
-    <button
-      onClick={handleReject}
-      disabled={isLoading}
-      className={`button button-danger${isLoading ? " button-disabled" : ""}`}
-    >
-      {isLoading ? "Rejecting..." : "Reject"}
-    </button>
-  );
+  <button
+    onClick={handleReject}
+    disabled={isLoading}
+    className={`button button-danger ${
+      isLoading ? "button-disabled" : ""
+    }`}
+  >
+    {isLoading ? "Rejecting..." : "Reject"}
+  </button>
+);
 }

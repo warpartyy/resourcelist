@@ -58,12 +58,14 @@ export default function ApproveButton({
   };
 
   return (
-    <button
-      onClick={handleApprove}
-      disabled={isLoading}
-      className={`button button-success ${isLoading ? "button-disabled" : ""}`}
-    >
-      {isLoading ? "Approving..." : "Approve"}
-    </button>
-  );
+  <button
+    onClick={handleApprove}
+    disabled={isLoading}
+    className={`button button-success ${
+      isLoading ? "button-disabled" : ""
+    }`}
+  >
+    {isLoading ? "Approving..." : "Approve"}
+  </button>
+);
 }

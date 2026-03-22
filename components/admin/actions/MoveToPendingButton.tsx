@@ -37,12 +37,14 @@ const { error } = await moveResourceToPending(submission.id);
   };
 
   return (
-    <button
-      onClick={handleMoveToPending}
-      disabled={isLoading}
-      className={`button button-secondary${isLoading ? " button-disabled" : ""}`}
-    >
-      {isLoading ? "Moving..." : "Move to Pending"}
-    </button>
-  );
+  <button
+    onClick={handleMoveToPending}
+    disabled={isLoading}
+    className={`button button-secondary ${
+      isLoading ? "button-disabled" : ""
+    }`}
+  >
+    {isLoading ? "Moving..." : "Move to Pending"}
+  </button>
+);
 }

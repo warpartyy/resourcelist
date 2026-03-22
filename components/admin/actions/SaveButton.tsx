@@ -51,12 +51,14 @@ export default function SaveButton({
   };
 
   return (
-<button
-  onClick={handleSave}
-  disabled={isLoading}
-  className={`button button-primary${isLoading ? " button-disabled" : ""}`}
->
-  {isLoading ? "Saving..." : "Save"}
-</button>
-  );
+  <button
+    onClick={handleSave}
+    disabled={isLoading}
+    className={`button button-primary ${
+      isLoading ? "button-disabled" : ""
+    }`}
+  >
+    {isLoading ? "Saving..." : "Save"}
+  </button>
+);
 }
