@@ -40,7 +40,7 @@ const { error } = await moveResourceToPending(submission.id);
     <button
       onClick={handleMoveToPending}
       disabled={isLoading}
-      className={`button button-secondary ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+      className={`button button-secondary${isLoading ? " button-disabled" : ""}`}
     >
       {isLoading ? "Moving..." : "Move to Pending"}
     </button>

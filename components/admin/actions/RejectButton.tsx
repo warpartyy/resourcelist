@@ -18,43 +18,48 @@ export default function RejectButton({
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleReject = async () => {
-    if (isLoading) return;
+ 
+ 
+const handleReject = async () => {
+  if (isLoading) return;
 
-    setIsLoading(true);
+  const confirmReject = confirm(confirmMessage);
+  if (!confirmReject) return;
 
-    try {
-      const supabase = getSupabase();
+  setIsLoading(true);
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+  try {
+    const supabase = getSupabase();
 
-      const { error } = await updateResource(resource.id, {
-  status: "rejected",
-  last_edited_by: user?.id,
-  last_edited_email: user?.email,
-  last_edited_name: user?.user_metadata?.display_name ?? null,
-});
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      if (error) {
-        console.error(error);
-        toast.error("Reject failed.");
-        return;
-      }
+    const { error } = await updateResource(resource.id, {
+      status: "rejected",
+      last_edited_by: user?.id,
+      last_edited_email: user?.email,
+      last_edited_name: user?.user_metadata?.display_name ?? null,
+    });
 
-      toast.success("Moved to rejected");
-      onSuccess?.();
-    } finally {
-      setIsLoading(false);
+    if (error) {
+      console.error(error);
+      toast.error("Reject failed.");
+      return;
     }
-  };
+
+    toast.success("Moved to rejected");
+    onSuccess?.();
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   return (
     <button
       onClick={handleReject}
       disabled={isLoading}
-      className={`button button-secondary ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+      className={`button button-danger${isLoading ? " button-disabled" : ""}`}
     >
       {isLoading ? "Rejecting..." : "Reject"}
     </button>

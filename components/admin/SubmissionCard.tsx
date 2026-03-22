@@ -37,6 +37,39 @@ function formatAdminTimestamp(value?: string | null) {
   }).format(new Date(value));
 }
 
+function getMissingFields(submission: any): string[] {
+  const missing: string[] = [];
+
+  const isEmptyString = (value: unknown) =>
+    typeof value !== "string" || value.trim() === "";
+
+  const isEmptyArray = (value: unknown) =>
+    !Array.isArray(value) || value.length === 0;
+
+  if (isEmptyString(submission.organization)) missing.push("Organization");
+  if (isEmptyArray(submission.subcategories)) missing.push("Subcategories");
+  if (isEmptyArray(submission.counties_served)) missing.push("Counties served");
+
+  if (isEmptyString(submission.phone)) missing.push("Phone");
+  if (isEmptyString(submission.email)) missing.push("Email");
+  if (isEmptyString(submission.website)) missing.push("Website");
+
+  if (isEmptyString(submission.address)) missing.push("Address");
+  if (isEmptyString(submission.city)) missing.push("City");
+  if (isEmptyString(submission.state)) missing.push("State");
+  if (isEmptyString(submission.zip)) missing.push("ZIP");
+
+  if (isEmptyString(submission.description)) missing.push("Description");
+  if (isEmptyArray(submission.services)) missing.push("Services");
+  if (isEmptyString(submission.eligibility)) missing.push("Eligibility");
+
+  if (submission.is_tribal && isEmptyString(submission.tribe)) {
+    missing.push("Tribe");
+  }
+
+  return missing;
+}
+
 export default function SubmissionCard({
   submission,
   section,
@@ -50,6 +83,8 @@ export default function SubmissionCard({
 }: Props) {
   const isEditing =
   section === "pending" && editingId === submission.id;
+
+  const missingFields = getMissingFields(submission);
 
  return (
   <div className="bg-surface border border-border p-6 rounded-xl mb-6 shadow-sm">
@@ -230,29 +265,36 @@ export default function SubmissionCard({
             </span>
           )}
         </div>
-{/* Admin Notes */}
-{submission.admin_notes && (
-<div className="mt-4 p-3 bg-bg border border-border rounded-md">
-  <div className="text-xs text-text-subtle mb-1">
-    Admin Notes
-  </div>
 
-  {submission.admin_notes ? (
+        {/* Missing Fields (Admin helper) */}
+{section === "pending" && missingFields.length > 0 && (
+  <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
+    <div className="text-xs font-medium text-amber-700">
+      Missing information
+    </div>
+    <div className="text-xs text-amber-800 mt-1">
+      {missingFields.join(" • ")}
+    </div>
+  </div>
+)}
+
+{/* Admin Notes */}
+{submission.admin_notes?.trim() && (
+  <div className="mt-4 p-3 bg-bg border border-border rounded-md">
+    <div className="text-xs text-text-subtle mb-1">
+      Admin Notes
+    </div>
+
     <div className="text-sm text-text-muted">
       {submission.admin_notes}
     </div>
-  ) : (
-    <div className="text-sm text-text-muted italic">
-      No notes yet
-    </div>
-  )}
 
-  {(submission.last_edited_email || submission.last_edited_at) && (
-  <div className="text-xs text-text-subtle mt-2">
-    Last edited by {getEditorDisplayName(submission)} on{" "}
-    {formatAdminTimestamp(submission.last_edited_at)}
-  </div>
-)}
+    {submission.last_edited_at && (
+      <div className="text-xs text-text-subtle mt-2">
+        Last edited by {getEditorDisplayName(submission)} on{" "}
+        {formatAdminTimestamp(submission.last_edited_at)}
+      </div>
+    )}
   </div>
 )}
         

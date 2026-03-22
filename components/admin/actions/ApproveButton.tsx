@@ -38,7 +38,7 @@ export default function ApproveButton({
           : resource;
 
       const { error } = await updateResource(resource.id, {
-  status: "rejected",
+  status: "approved",
   last_edited_by: user?.id,
   last_edited_email: user?.email,
   last_edited_name: user?.user_metadata?.display_name ?? null,
@@ -61,7 +61,7 @@ export default function ApproveButton({
     <button
       onClick={handleApprove}
       disabled={isLoading}
-      className={`button button-primary ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+      className={`button button-success ${isLoading ? "button-disabled" : ""}`}
     >
       {isLoading ? "Approving..." : "Approve"}
     </button>

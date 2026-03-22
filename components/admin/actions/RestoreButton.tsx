@@ -18,9 +18,6 @@ export default function RestoreButton({
   const handleRestore = async () => {
     if (isLoading) return;
 
-    const confirmRestore = confirm("Restore this resource?");
-    if (!confirmRestore) return;
-
     setIsLoading(true);
 
     try {
@@ -41,11 +38,11 @@ export default function RestoreButton({
 
   return (
     <button
-      onClick={handleRestore}
-      disabled={isLoading}
-      className={`button button-secondary ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
-    >
-      {isLoading ? "Restoring..." : "Restore"}
-    </button>
+  onClick={handleRestore}
+  disabled={isLoading}
+  className={`button button-success${isLoading ? " button-disabled" : ""}`}
+>
+  {isLoading ? "Restoring..." : "Restore"}
+</button>
   );
 }

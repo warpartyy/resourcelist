@@ -83,12 +83,12 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="min-h-screen flex bg-bg text-text-primary">
+    <div className="h-screen flex overflow-hiddenbg-bg text-text-primary">
       {/* Sidebar */}
       <div
         className={`${
-          collapsed ? "w-20" : "w-64"
-        } bg-surface border-r border-border p-4 flex flex-col transition-all duration-300`}
+        collapsed ? "w-20" : "w-64"
+        } h-full bg-surface border-r border-border p-4 flex flex-col transition-all duration-300`}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -130,15 +130,21 @@ export default function AdminLayout({
       </div>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="px-10 pt-10 pb-4 border-b border-border">
-          <h1 className="text-2xl font-semibold">
-            {SECTION_TITLES[adminSection]}
-          </h1>
-        </div>
+<div className="flex-1 h-full flex flex-col bg-bg">
+  <div className="shrink-0 border-b border-border bg-bg shadow-sm">
+    <div className="px-10 pt-8 pb-4">
+      <h1 className="text-2xl font-semibold">
+        {SECTION_TITLES[adminSection]}
+      </h1>
+    </div>
+  </div>
 
-        <div className="p-10">{children}</div>
-      </div>
+  <div className="flex-1 overflow-y-auto">
+    <div className="px-10 pt-6 pb-10">
+      {children}
+    </div>
+  </div>
+</div>
     </div>
   );
-}
+} 
