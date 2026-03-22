@@ -11,9 +11,7 @@ type Props = {
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
-  onSave: (submission: any) => void;
-  onApprove: (submission: any) => void;
-  onReject: (id: string) => void;
+  onSuccess: () => void;
 };
 
 export default function SubmissionsPanel({
@@ -25,26 +23,21 @@ export default function SubmissionsPanel({
   setEditedSubmission,
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
-  onSave,
-  onApprove,
-  onReject,
+  onSuccess,
 }: Props) {
   return (
     <>
-{/* Section Header */}
-<div className="mb-4 mt-0">
-  <p className="text-text-primary text-base font-medium">
-    {section === "pending" &&
-      "Review and approve new submissions."}
-    {section === "approved" &&
-      "Previously approved submissions."}
-    {section === "rejected" &&
-      "Submissions that were not approved."}
-  </p>
-</div>
+      <div className="mb-4 mt-0">
+        <p className="text-text-primary text-base font-medium">
+          {section === "pending" &&
+            "Review and approve new submissions."}
+          {section === "approved" &&
+            "Previously approved submissions."}
+          {section === "rejected" &&
+            "Submissions that were not approved."}
+        </p>
+      </div>
 
-
-      {/* Empty State */}
       {submissions.length === 0 ? (
         <div className="text-text-muted">
           No {section} submissions.
@@ -54,16 +47,14 @@ export default function SubmissionsPanel({
           <SubmissionCard
             key={submission.id}
             submission={submission}
-            editingId={editingId}
-            setEditingId={setEditingId}
-            editedSubmission={editedSubmission}
-            setEditedSubmission={setEditedSubmission}
-            CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-            COUNTY_OPTIONS={COUNTY_OPTIONS}
-            onSave={onSave}
-            onApprove={onApprove}
-            onReject={onReject}
-          />
+  editingId={editingId}
+  setEditingId={setEditingId}
+  editedSubmission={editedSubmission}
+  setEditedSubmission={setEditedSubmission}
+  CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+  COUNTY_OPTIONS={COUNTY_OPTIONS}
+  onSuccess={onSuccess}
+/>
         ))
       )}
     </>

@@ -6,7 +6,7 @@ import SubmissionsPanel from "../../components/admin/SubmissionsPanel";
 import ResourcesPanel from "../../components/admin/ResourcesPanel";
 import AdminLayout from "../../components/admin/AdminLayout";
 import {rejectSubmission, approveSubmissionRecord,} from "@/lib/services/submissionService";
-import {approveResource,} from "@/lib/services/resourceService";
+import {updateResource} from "@/lib/services/resourceService";
 import { updateSubmissionRecord } from "@/lib/services/submissionService";
 import {
   fetchSubmissionsByStatus,
@@ -14,6 +14,8 @@ import {
   fetchAdminCounts,
   fetchResourcesByStatus,
 } from "@/lib/services/adminService";
+import { COUNTY_OPTIONS_BY_STATE } from "@/lib/geography/counties";
+
 
 
 const CATEGORY_OPTIONS = [
@@ -25,85 +27,7 @@ const CATEGORY_OPTIONS = [
   { label: "Employment Services", value: "employment-services" },
 ];
 
-const COUNTY_OPTIONS = [
-	"Adair",
-	"Alfalfa",
-	"Atoka",
-	"Beaver",
-	"Beckham",
-	"Blaine",
-	"Bryan",
-	"Caddo",
-	"Canadian",
-	"Carter",
-	"Cherokee",
-	"Choctaw",
-	"Cimarron",
-	"Cleveland",
-	"Coal",
-	"Comanche",
-	"Cotton",
-	"Craig",
-	"Creek",
-	"Custer",
-	"Delaware",
-	"Dewey",
-	"Ellis",
-	"Garfield",
-	"Garvin",
-	"Grady",
-	"Grant",
-	"Greer",
-	"Harmon",
-	"Harper",
-	"Haskell",
-	"Hughes",
-	"Jackson",
-	"Jefferson",
-	"Johnston",
-	"Kay",
-	"Kingfisher",
-	"Kiowa",
-	"Latimer",
-	"LeFlore",
-	"Lincoln",
-	"Logan",
-	"Love",
-	"Major",
-	"Marshall",
-	"Mayes",
-	"McClain",
-	"McCurtain",
-	"McIntosh",
-	"Murray",
-	"Muskogee",
-	"Noble",
-	"Nowata",
-	"Okfuskee",
-	"Oklahoma",
-	"Okmulgee",
-	"Osage",
-	"Ottawa",
-	"Pawnee",
-	"Payne",
-	"Pittsburg",
-	"Pontotoc",
-	"Pottawatomie",
-	"Pushmataha",
-	"Roger Mills",
-	"Rogers",
-	"Seminole",
-	"Sequoyah",
-	"Stephens",
-	"Texas",
-	"Tillman",
-	"Tulsa",
-	"Wagoner",
-	"Washington",
-	"Washita",
-	"Woods",
-	"Woodward",
-];
+const COUNTY_OPTIONS = COUNTY_OPTIONS_BY_STATE["OK"] ?? [];
 
 export default function AdminPage() {
   const [submissions, setSubmissions] = useState<any[]>([]);
@@ -119,8 +43,6 @@ export default function AdminPage() {
   deleted: 0,
 });
 
-
-  // ✅ NEW: sort state (DB-level)
   const [resourceSortOrder, setResourceSortOrder] =
   useState<"az" | "za" | "newest" | "oldest">("az");
 
@@ -155,6 +77,11 @@ export default function AdminPage() {
     fetchData();
   };
 
+  const refreshAll = async () => {
+  await fetchCounts();
+  await fetchData();
+};
+
  const fetchCounts = async () => {
   const counts = await fetchAdminCounts();
   setCounts(counts);
@@ -164,7 +91,7 @@ const fetchData = async () => {
   setLoading(true);
 
   if (adminSection === "resources") {
-    const data = await fetchResourcesByStatus("active");
+    const data = await fetchResourcesByStatus("approved");
     setResources(data);
 
   } else if (adminSection === "deleted") {
@@ -190,60 +117,7 @@ const fetchData = async () => {
     fetchData();
   }, [adminSection, resourceSortOrder]);
 
-  const approveSubmission = async (submission: any) => {
-    const finalData =
-      editingId === submission.id
-        ? editedSubmission
-        : submission;
 
-    const { error } = await approveResource(finalData);
-
-    if (error) {
-      alert("Save failed.");
-      return;
-    }
-
-    await approveSubmissionRecord(submission.id);
-
-    setEditingId(null);
-
-    await fetchCounts();
-    fetchData();
-  };
-
-  const saveSubmission = async (submission: any) => {
-  const finalData =
-    editingId === submission.id
-      ? editedSubmission
-      : submission;
-
-  const { error } = await updateSubmissionRecord(
-    submission.id,
-    finalData
-  );
-
-  if (error) {
-    alert("Save failed.");
-    return;
-  }
-
-  setEditingId(null);
-
-  await fetchCounts();
-  fetchData();
-};
-
-  const handleRejectSubmission = async (id: string) => {
-    const { error } = await rejectSubmission(id);
-
-    if (error) {
-      alert("Reject failed.");
-      return;
-    }
-
-    await fetchCounts();
-    fetchData();
-  };
 
   return (
     <AdminLayout
@@ -266,19 +140,17 @@ const fetchData = async () => {
     setSortOrder={setResourceSortOrder}
   />
 ) : (
-  <SubmissionsPanel
-    submissions={submissions}
-    section={adminSection}
-    editingId={editingId}
-    setEditingId={setEditingId}
-    editedSubmission={editedSubmission}
-    setEditedSubmission={setEditedSubmission}
-    CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-    COUNTY_OPTIONS={COUNTY_OPTIONS}
-    onSave={saveSubmission}  
-    onApprove={approveSubmission}
-    onReject={handleRejectSubmission}
-  />
+<SubmissionsPanel
+  submissions={submissions}
+  section={adminSection}
+  editingId={editingId}
+  setEditingId={setEditingId}
+  editedSubmission={editedSubmission}
+  setEditedSubmission={setEditedSubmission}
+  CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+  COUNTY_OPTIONS={COUNTY_OPTIONS}
+  onSuccess={refreshAll}
+/>
 )}
 
     </AdminLayout>

@@ -7,7 +7,7 @@ export async function fetchSubmissionsByStatus(status: string) {
   const supabase = getSupabase();
 
   const { data } = await supabase
-    .from("resource_submissions")
+    .from("resources")
     .select("*")
     .eq("status", status);
 
@@ -28,34 +28,15 @@ export async function fetchResourcesByStatus(status: string) {
   return data || [];
 }
 
-
-/**
- * Filter approved submissions to only ones
- * that still have an existing resource
- */
 export async function filterApprovedSubmissions() {
   const supabase = getSupabase();
 
-  const { data: approvedSubs } = await supabase
-    .from("resource_submissions")
-    .select("id, *")
+  const { data } = await supabase
+    .from("resources")
+    .select("*")
     .eq("status", "approved");
 
-  const { data: existingResources } = await supabase
-  .from("resources")
-  .select("source_submission_id")
-  .eq("status", "active");
-
-
-  const existingIds = new Set(
-    (existingResources || []).map(
-      (r: any) => r.source_submission_id
-    )
-  );
-
-  return (approvedSubs || []).filter((sub: any) =>
-    existingIds.has(sub.id)
-  );
+  return data || [];
 }
 
 /**
@@ -66,13 +47,13 @@ export async function fetchAdminCounts() {
 
   // Pending submissions
   const { count: pending } = await supabase
-    .from("resource_submissions")
+    .from("resources")
     .select("*", { count: "exact", head: true })
     .eq("status", "pending");
 
   // Rejected submissions
   const { count: rejected } = await supabase
-    .from("resource_submissions")
+    .from("resources")
     .select("*", { count: "exact", head: true })
     .eq("status", "rejected");
 

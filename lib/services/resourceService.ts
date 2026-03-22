@@ -12,64 +12,9 @@ function generateSlug(name: string) {
     .replace(/-+/g, "-");
 }
 
-/** Approve a submission → insert or update resource */
-
-export async function approveResource(data: any) {
-  const supabase = getSupabase(); // 👈 ADD THIS
-
-  const slug = generateSlug(data.organization);
-
-
-  const derivedParents = deriveParentCategories(
-    data.subcategories || []
-  );
-
-const resourcePayload = {
-  organization: data.organization,
-  slug,
-  parent_categories: derivedParents,
-  subcategories: data.subcategories || [],
-  tags: data.tags || [],
-  counties_served: data.counties_served || [],
-  phone: data.phone || null,
-  website: data.website || null,
-  application_link: data.application_link || null,
-  address: data.address || null,
-  city: data.city || null,
-  state: data.state || null,
-  zip: data.zip || null,
-  description: data.description || null,
-  services: data.services || [],
-  eligibility: data.eligibility || null,
-  last_verified: new Date().toISOString().split("T")[0],
-  source_submission_id: data.id,
-};
-
-
-  const { data: existing } = await supabase
-    .from("resources")
-    .select("id")
-    .eq("source_submission_id", data.id)
-    .maybeSingle();
-
-  if (existing) {
-    return await supabase
-      .from("resources")
-      .update(resourcePayload)
-      .eq("id", existing.id);
-  }
-
-  return await supabase
-    .from("resources")
-    .insert([resourcePayload]);
-}
-
-
-
 /**
  * Update an existing approved resource
  */
-
 
 export async function updateResource(id: string, data: any) {
   const supabase = getSupabase();
@@ -87,13 +32,14 @@ export async function updateResource(id: string, data: any) {
     return { error: fetchError || new Error("Resource not found") };
   }
 
-  // 2️⃣ Determine if organization changed
+  // ✅ SAFE organization fallback
+  const orgName = data.organization ?? existing.organization;
+
   let newSlug = existing.slug;
 
-  if (existing.organization !== data.organization) {
-    newSlug = generateSlug(data.organization);
+  if (existing.organization !== orgName) {
+    newSlug = generateSlug(orgName);
 
-    // 3️⃣ Check for slug conflict
     const { data: slugConflict } = await supabase
       .from("resources")
       .select("id")
@@ -114,23 +60,32 @@ export async function updateResource(id: string, data: any) {
   const result = await supabase
     .from("resources")
     .update({
-      organization: data.organization,
+      organization: orgName,
       slug: newSlug,
-      subcategories: data.subcategories || [],
-      tags: data.tags || [],
-      counties_served: data.counties_served || [],
-      phone: data.phone || null,
-      email: data.email || null,
-      website: data.website || null,
-      application_link: data.application_link || null,
-      address: data.address || null,
-      city: data.city || null,
-      state: data.state || null,
-      zip: data.zip || null,
-      description: data.description || null,
-      services: data.services || [],
-      eligibility: data.eligibility || null,
+
+      status: data.status ?? undefined,
+
+      subcategories: data.subcategories ?? [],
+      tags: data.tags ?? [],
+      counties_served: data.counties_served ?? [],
+      phone: data.phone ?? null,
+      email: data.email ?? null,
+      website: data.website ?? null,
+      application_link: data.application_link ?? null,
+      address: data.address ?? null,
+      city: data.city ?? null,
+      state: data.state ?? null,
+      zip: data.zip ?? null,
+      description: data.description ?? null,
+      services: data.services ?? [],
+      eligibility: data.eligibility ?? null,
       parent_categories: derivedParents,
+
+      admin_notes: data.admin_notes ?? null,
+      last_edited_by: data.last_edited_by ?? null,
+      last_edited_email: data.last_edited_email ?? null,
+      last_edited_at: data.last_edited_at ?? null,
+
       last_verified: new Date().toISOString().split("T")[0],
     })
     .eq("id", id)
@@ -154,7 +109,7 @@ export async function restoreResource(id: string) {
   const supabase = getSupabase();
   return await supabase
     .from("resources")
-    .update({ status: "active" })
+    .update({ status: "approved" })
     .eq("id", id);
 }
 

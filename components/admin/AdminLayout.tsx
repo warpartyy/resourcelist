@@ -1,15 +1,7 @@
 "use client";
 import { Trash } from "lucide-react";
 import { useState } from "react";
-import {
-  Clock,
-  Database,
-  CheckCircle,
-  XCircle,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-} from "lucide-react";
+import {Clock, Database, CheckCircle, XCircle, LogOut, ChevronLeft, ChevronRight,} from "lucide-react";
 
 type AdminSection =
   | "pending"

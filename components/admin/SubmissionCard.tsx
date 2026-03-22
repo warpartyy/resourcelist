@@ -1,6 +1,9 @@
 "use client";
 
 import ResourceEditForm from "./ResourceEditForm";
+import ApproveSubmissionButton from "./actions/ApproveSubmissionButton";
+import RejectSubmissionButton from "./actions/RejectSubmissionButton";
+import SaveSubmissionButton from "./actions/SaveSubmissionButton";
 
 type Props = {
   submission: any;
@@ -10,9 +13,7 @@ type Props = {
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
-  onSave: (submission: any) => void;
-  onApprove: (submission: any) => void;
-  onReject: (id: string) => void;
+  onSuccess: () => void;
 };
 
 export default function SubmissionCard({
@@ -23,9 +24,7 @@ export default function SubmissionCard({
   setEditedSubmission,
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
-  onSave,
-  onApprove,
-  onReject,
+  onSuccess,
 }: Props) {
   const isEditing = editingId === submission.id;
 
@@ -47,54 +46,60 @@ export default function SubmissionCard({
         {/* Buttons */}
         <div className="flex gap-2">
           {!isEditing ? (
-            <>
-              <button
-                onClick={() => {
-                  setEditingId(submission.id);
-                  setEditedSubmission(submission);
-                }}
-                className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
-              >
-                Edit
-              </button>
+<>
+  <button
+    onClick={() => {
+      setEditingId(submission.id);
+      setEditedSubmission(submission);
+    }}
+    className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
+  >
+    Edit
+  </button>
 
-              <button
-                onClick={() => onApprove(submission)}
-                className="button button-primary"
-              >
-                Approve
-              </button>
+  <ApproveSubmissionButton
+    submission={submission}
+    onSuccess={() => {
+      setEditingId(null);
+      onSuccess();
+    }}
+  />
 
-              <button
-                onClick={() => onReject(submission.id)}
-                className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-500 text-red-500 hover:bg-red-500 hover:text-white transition"
-              >
-                Reject
-              </button>
-            </>
+  <RejectSubmissionButton
+    submission={submission}
+    onSuccess={() => {
+      onSuccess();
+    }}
+  />
+</>
           ) : (
-            <>
-              <button
-                onClick={() => onSave(editedSubmission)}
-                className="button button-secondary"
-              >
-                Save
-              </button>
+<>
+  <SaveSubmissionButton
+    submissionId={submission.id}
+    editedSubmission={editedSubmission}
+    onSuccess={() => {
+      setEditingId(null);
+      onSuccess();
+    }}
+  />
 
-              <button
-                onClick={() => onApprove(editedSubmission)}
-                className="button button-primary"
-              >
-                Approve
-              </button>
+  <ApproveSubmissionButton
+    submission={submission}
+    editedSubmission={editedSubmission}
+    isEditing={true}
+    onSuccess={() => {
+      setEditingId(null);
+      onSuccess();
+    }}
+  />
 
-              <button
-                onClick={() => setEditingId(null)}
-                className="px-3 py-1.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg transition"
-              >
-                Cancel
-              </button>
-            </>
+  <button
+    onClick={() => setEditingId(null)}
+    className="px-3 py-1.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg transition"
+  >
+    Cancel
+  </button>
+</>
           )}
         </div>
       </div>
@@ -168,6 +173,32 @@ export default function SubmissionCard({
             </span>
           )}
         </div>
+{/* Admin Notes */}
+{submission.admin_notes && (
+<div className="mt-4 p-3 bg-bg border border-border rounded-md">
+  <div className="text-xs text-text-subtle mb-1">
+    Admin Notes
+  </div>
+
+  {submission.admin_notes ? (
+    <div className="text-sm text-text-muted">
+      {submission.admin_notes}
+    </div>
+  ) : (
+    <div className="text-sm text-text-muted italic">
+      No notes yet
+    </div>
+  )}
+
+  {submission.last_edited_email && (
+    <div className="text-xs text-text-subtle mt-2">
+      Last edited by {submission.last_edited_email} on{" "}
+      {new Date(submission.last_edited_at).toLocaleString()}
+    </div>
+    )}
+  </div>
+)}
+        
       </>
     )}
   </div>

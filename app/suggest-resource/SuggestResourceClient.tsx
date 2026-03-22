@@ -13,6 +13,15 @@ import {
   AdditionalDetailsSection,
 } from "@/components/forms/suggest-resource";
 
+function generateSlug(name: string) {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, "") // remove special chars
+    .replace(/\s+/g, "-")         // spaces → hyphens
+    .replace(/-+/g, "-");         // collapse multiple hyphens
+}
+
 export default function SuggestResourcePage() {
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -43,6 +52,7 @@ const fieldRefs: Record<string, React.RefObject<HTMLElement>> = {
 
     const formData = new FormData(e.target);
 const organizationName = formData.get("organization")?.toString().trim();
+const slug = generateSlug(organizationName || "");
 
 let newErrors: {
   organization?: string;
@@ -88,6 +98,7 @@ if (Object.keys(newErrors).length > 0) {
 setErrors({});
 
 const newSubmission = {
+  slug,
   organization: organizationName,
   subcategories: selectedSubcategories,
   tags: [],
@@ -114,22 +125,15 @@ const newSubmission = {
   status: "pending",
 };
 
-
-
 console.log("Submitting:", newSubmission);
 
 const supabase = getSupabase();
 
 const response = await supabase
-  .from("resource_submissions")
+  .from("resources")
   .insert([newSubmission]);
 
-
-
 console.log("Full response:", JSON.stringify(response, null, 2));
-
-
-
 
 if (response.error) {
   console.error("Submission error:", JSON.stringify(response.error, null, 2));

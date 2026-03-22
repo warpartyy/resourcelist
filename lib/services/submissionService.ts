@@ -4,7 +4,7 @@ export async function getSubmissions(status: string) {
   const supabase = getSupabase();
 
   return await supabase
-    .from("resource_submissions")
+    .from("resources")
     .select("*")
     .eq("status", status);
 }
@@ -12,7 +12,7 @@ export async function getSubmissions(status: string) {
 export async function rejectSubmission(id: string) {
   const supabase = getSupabase();
   return await supabase
-    .from("resource_submissions")
+    .from("resources")
     .update({ status: "rejected" })
     .eq("id", id);
 }
@@ -20,7 +20,7 @@ export async function rejectSubmission(id: string) {
 export async function approveSubmissionRecord(id: string) {
   const supabase = getSupabase();
   return await supabase
-    .from("resource_submissions")
+    .from("resources")
     .update({ status: "approved" })
     .eq("id", id);
 }
@@ -32,7 +32,8 @@ export async function updateSubmissionRecord(
   const supabase = getSupabase();
 
   return await supabase
-    .from("resource_submissions")
-    .update(updates)
-    .eq("id", id);
+  .from("resources")
+  .select("*")
+  .eq("status", status)
+  .order("id", { ascending: false });
 }

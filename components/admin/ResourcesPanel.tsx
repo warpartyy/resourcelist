@@ -1,22 +1,3 @@
-/**
- * ========================================
- * RESOURCES PANEL (ADMIN) Already approved.
- * ========================================
- * 
- * Handles:
- * - Displaying resources
- * - Editing resources
- * - Soft delete / restore / hard delete
- * 
- * Key Actions:
- * - Update → updateResource()
- * - Delete → softDeleteResource()
- * 
- * Notes:
- * - Uses ResourceEditForm for editing
- * - Filtering is client-side
- * ========================================
- */
 "use client";
 
 import { useState } from "react";
@@ -27,8 +8,11 @@ import {
   restoreResource,
   hardDeleteResource,
 } from "@/lib/services/resourceService";
-
-
+import AdminActionButtons from "./AdminActionButtons";
+import ApproveButton from "./actions/ApproveButton";
+import RejectButton from "./actions/RejectButton";
+import DeleteButton from "./actions/DeleteButton";
+import RestoreButton from "./actions/RestoreButton";
 
 type Props = {
   resources: any[];
@@ -68,12 +52,12 @@ const filteredResources = resources
     if (sortOrder === "za") return nameB.localeCompare(nameA);
 
     if (sortOrder === "newest") {
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-    }
+  return new Date(b.submitted_at || 0).getTime() - new Date(a.submitted_at || 0).getTime();
+}
 
-    if (sortOrder === "oldest") {
-      return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
-    }
+if (sortOrder === "oldest") {
+  return new Date(a.submitted_at || 0).getTime() - new Date(b.submitted_at || 0).getTime();
+}
 
     return 0;
   });
@@ -147,9 +131,17 @@ const filteredResources = resources
                     </p>
                   </div>
 
-                  <span className="text-xs px-2 py-1 rounded-full bg-accent/15 text-accent">
-                    Active
-                  </span>
+                  <span className={`text-xs px-2 py-1 rounded-full ${
+  resource.status === "approved" || resource.status === "active"
+    ? "bg-green-100 text-green-700"
+    : resource.status === "rejected"
+    ? "bg-yellow-100 text-yellow-700"
+    : resource.status === "deleted"
+    ? "bg-red-100 text-red-700"
+    : "bg-gray-100 text-gray-600"
+}`}>
+  {resource.status === "active" ? "Approved" : resource.status}
+</span>
                 </div>
 
                 {/* Metadata Row */}
@@ -221,66 +213,59 @@ const filteredResources = resources
     </button>
   </div>
 ) : (
-  <div className="flex justify-end gap-3 pt-3 border-t border-border">
-    {isDeleted ? (
-      <>
-        <button
-          onClick={async () => {
-            await restoreResource(resource.id);
-            fetchData();
-          }}
-          className="button button-secondary"
-        >
-          Restore
-        </button>
 
-        <button
-          onClick={async () => {
-            const confirmDelete = confirm(
-              "Permanently delete this resource?"
-            );
-            if (!confirmDelete) return;
+  <div className="flex justify-between items-center pt-3 border-t border-border">
 
-            await hardDeleteResource(resource.id);
-            fetchData();
-          }}
-          className="px-3 py-1.5 rounded-md text-sm border border-red-500 text-red-500 hover:bg-red-500 hover:text-white hover:text-text-primary transition"
-        >
-          Permanently Delete
-        </button>
-      </>
-    ) : (
-      <>
-        <button
-          onClick={() => {
-            setEditingId(resource.id);
-            setEditedResource(resource);
-          }}
-          className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
-        >
-          Edit
-        </button>
+  {/* Left side: Edit */}
+  <button
+    onClick={() => {
+      setEditingId(resource.id);
+      setEditedResource(resource);
+    }}
+    className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
+  >
+    Edit
+  </button>
 
-        <button
-          onClick={async () => {
-            const confirmDelete = confirm(
-              "Move this resource to Deleted?"
-            );
-            if (!confirmDelete) return;
+  {/* Right side: Actions */}
+  <div className="flex gap-2">
 
-            await softDeleteResource(resource.id);
-            fetchData();
-          }}
-          className="px-3 py-1.5 rounded-md text-sm font-medium border border-red-500 text-red-500 hover:bg-red-500 hover:text-white hover:text-text-primary transition"
-        >
-          Delete
-        </button>
-      </>
-    )}
-  </div>
+  {resource.status === "rejected" && (
+    <ApproveButton
+      resource={resource}
+      onSuccess={fetchData}
+    />
+  )}
+
+  {(resource.status === "approved" || resource.status === "active") && (
+    <RejectButton
+      resource={resource}
+      onSuccess={fetchData}
+    />
+  )}
+
+  {resource.status === "deleted" ? (
+    <>
+      <RestoreButton
+        resource={resource}
+        onSuccess={fetchData}
+      />
+
+      <DeleteButton
+        resource={resource}
+        variant="hard"
+        onSuccess={fetchData}
+      />
+    </>
+  ) : (
+    <DeleteButton
+      resource={resource}
+      onSuccess={fetchData}
+    />
+  )}
+</div>
+</div>
 )}
-
-
           </div>
         );
       })

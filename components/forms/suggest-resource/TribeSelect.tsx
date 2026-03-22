@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { TRIBES } from "@/lib/tribes";
 
 type Props = {
@@ -12,12 +12,30 @@ export default function TribeSelect({ value, onChange }: Props) {
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+  const handleClickOutside = (event: MouseEvent) => {
+    if (
+      containerRef.current &&
+      !containerRef.current.contains(event.target as Node)
+    ) {
+      setOpen(false);
+    }
+  };
+
+  document.addEventListener("mousedown", handleClickOutside);
+
+  return () => {
+    document.removeEventListener("mousedown", handleClickOutside);
+  };
+}, []);
+
   const filtered = TRIBES.filter((tribe) =>
     tribe.toLowerCase().includes(query.toLowerCase())
   );
 
   return (
-    <div className="relative">
+    <div ref={containerRef} className="relative">
 
       {/* Input */}
       <input

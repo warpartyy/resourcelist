@@ -4,6 +4,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import "./globals.css";
 import "@mfm/ui/src/index.css";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en">
       <body
          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-bg text-text-primary overflow-x-hidden`}>
+        <Toaster position="top-right" />
         <div className="min-h-screen flex flex-col">
           <Header />
             <main className="flex-grow w-full">
