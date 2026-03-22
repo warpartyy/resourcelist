@@ -8,23 +8,17 @@ import { getSupabase } from "@/lib/supabase";
 type Props = {
   resource: any;
   onSuccess?: () => void;
-  confirmMessage?: string;
 };
 
 export default function RejectButton({
   resource,
   onSuccess,
-  confirmMessage = "Move this resource to Rejected?",
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
  
- 
 const handleReject = async () => {
   if (isLoading) return;
-
-  const confirmReject = confirm(confirmMessage);
-  if (!confirmReject) return;
 
   setIsLoading(true);
 

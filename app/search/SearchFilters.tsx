@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PARENT_CATEGORIES, SUBCATEGORIES } from "@/lib/taxonomy";
+import { usePathname } from "next/navigation";
 
 export default function SearchFilters() {
   const router = useRouter();
@@ -14,6 +15,7 @@ export default function SearchFilters() {
   const [state, setState] = useState(searchParams.get("state") || "");
   const [tags, setTags] = useState(searchParams.get("tags") || "");
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
 
   const applyFilters = () => {
     const params = new URLSearchParams();
@@ -24,11 +26,11 @@ export default function SearchFilters() {
     if (state) params.set("state", state);
     if (tags) params.set("tags", tags);
 
-    router.push(`/search?${params.toString()}`);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   const clearFilters = () => {
-    router.push("/search");
+    router.push(pathname);
   };
 
   return (

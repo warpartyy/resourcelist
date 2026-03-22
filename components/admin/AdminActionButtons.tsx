@@ -51,21 +51,17 @@ export default function AdminActionButtons({
         </>
       )}
 
-      {/* REJECTED */}
-      {status === "rejected" && (
-        <>
-          <button onClick={onApprove} className="button button-primary">
-            Approve
-          </button>
-
-          <button
-            onClick={onDelete}
-            className="px-3 py-1.5 border border-red-500 text-red-500 rounded-md"
-          >
-            Move to Deleted
-          </button>
-        </>
-      )}
+{/* REJECTED */}
+{status === "rejected" && (
+  <>
+    <button
+      onClick={onDelete}
+      className="px-3 py-1.5 border border-red-500 text-red-500 rounded-md"
+    >
+      Move to Deleted
+    </button>
+  </>
+)}
 
       {/* DELETED */}
       {status === "deleted" && (
@@ -74,7 +70,7 @@ export default function AdminActionButtons({
             onClick={onRestore}
             className="px-3 py-1.5 border border-green-500 text-green-600 rounded-md"
           >
-            Restore
+            Restore to Pending
           </button>
 
           <button

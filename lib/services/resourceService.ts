@@ -167,7 +167,7 @@ export async function restoreResource(id: string) {
   const supabase = getSupabase();
   return await supabase
     .from("resources")
-    .update({ status: "approved" })
+    .update({ status: "pending" })
     .eq("id", id);
 }
 

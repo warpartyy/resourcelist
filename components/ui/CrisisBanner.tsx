@@ -1,4 +1,10 @@
 import Image from "next/image";
+import { Bebas_Neue } from "next/font/google";
+
+const bebas = Bebas_Neue({
+  subsets: ["latin"],
+  weight: "400",
+});
 
 export default function CrisisBanner() {
   return (
@@ -6,20 +12,21 @@ export default function CrisisBanner() {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
 
         {/* Left: Logo + Message */}
-        <div className="flex items-center gap-2">
-<Image
-  src="/988-logo.png"
-  alt="Call or Text 988"
-  width={70}
-  height={28}
-  className="hidden sm:block object-contain"
-/>
+<div className="flex items-center gap-2">
+  <p className="text-sm font-medium leading-tight">
+    In crisis? Call or text
+  </p>
 
+  <span
+    className={`${bebas.className} text-2xl leading-none tracking-normal`}
+  >
+    988
+  </span>
 
-          <p className="text-sm font-semibold leading-tight">
-            In crisis? Call or text <span className="font-bold">988</span> for the Suicide & Crisis Lifeline.
-          </p>
-        </div>
+  <p className="text-sm font-medium leading-tight">
+    for the Suicide & Crisis Lifeline.
+  </p>
+</div>
 
         {/* Right: Links */}
         <div className="hidden sm:flex items-center gap-4 text-sm font-medium">

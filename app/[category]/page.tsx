@@ -1,15 +1,23 @@
-import { getSupabase } from "@/lib/supabase";
 import ResourceCard from "../../components/ResourceCard";
 import Container from "../../components/ui/Container";
 import Link from "next/link";
 import {PARENT_CATEGORIES, SUBCATEGORIES, SUBCATEGORY_PARENT_MAP,} from "@/lib/taxonomy";
 import SubcategorySection from "../../components/SubcategorySection";
 import { notFound } from "next/navigation";
+import { buildResourceQuery } from "@/lib/queries/buildResourceQuery";
 
 export default async function CategoryPage({
   params,
+  searchParams,
 }: {
-  params: Promise<{ category: string }>;
+  params: { category: string };
+  searchParams: Promise<{
+    q?: string;
+    sub?: string;
+    tags?: string;
+    county?: string;
+    state?: string;
+  }>;
 }) {
   const { category } = await params;
 
@@ -27,7 +35,7 @@ const parentCategory = PARENT_CATEGORIES.find(
 
 const parentDescription = parentCategory?.description;
 
-
+const filters = await searchParams;
   let parentSlug: string | null = null;
 
   if (isSubcategory) {
@@ -50,30 +58,24 @@ if (!isParentCategory && !isSubcategory) {
 
 
   
+
 let resources: any[] = [];
 let error: any = null;
 
-const supabase = getSupabase();
+const query = await buildResourceQuery({
+  ...filters,
+  parent: isParentCategory ? category : undefined,
+  sub: isSubcategory ? category : filters.sub,
+});
 
-if (isParentCategory) {
-  const { data, error: queryError } = await supabase
-    .from("resources")
-    .select("*")
-    .contains("parent_categories", [category]);
+const { data, error: queryError } = await query;
 
-  resources = data || [];
-  error = queryError;
-}
+resources = data || [];
+error = queryError;
 
-if (isSubcategory) {
-  const { data, error: queryError } = await supabase
-    .from("resources")
-    .select("*")
-    .contains("subcategories", [category]);
 
-  resources = data || [];
-  error = queryError;
-}
+
+
 
 
 if (error) {

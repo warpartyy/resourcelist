@@ -136,14 +136,6 @@ export default function SubmissionCard({
 
     {section === "rejected" && (
       <>
-<ApproveButton
-  resource={submission}
-  onSuccess={() => {
-    setEditingId(null);
-    onSuccess();
-  }}
-/>
-
         <MoveSubmissionToPendingButton
           submission={submission}
           onSuccess={() => {

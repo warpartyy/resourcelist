@@ -13,6 +13,8 @@ import ApproveButton from "./actions/ApproveButton";
 import RejectButton from "./actions/RejectButton";
 import DeleteButton from "./actions/DeleteButton";
 import RestoreButton from "./actions/RestoreButton";
+import { moveResourceToPending } from "@/lib/services/resourceService";
+import MoveSubmissionToPendingButton from "./actions/MoveToPendingButton";
 
 type Props = {
   resources: any[];
@@ -127,15 +129,15 @@ const filteredResources = [...resources] // ✅ IMPORTANT
                   </div>
 
                   <span className={`text-xs px-2 py-1 rounded-full ${
-  resource.status === "approved" || resource.status === "active"
-    ? "bg-green-100 text-green-700"
+resource.status === "approved"
+  ? "bg-green-100 text-green-700"
     : resource.status === "rejected"
     ? "bg-yellow-100 text-yellow-700"
     : resource.status === "deleted"
     ? "bg-red-100 text-red-700"
     : "bg-gray-100 text-gray-600"
 }`}>
-  {resource.status === "active" ? "Approved" : resource.status}
+{resource.status === "approved" ? "Approved" : resource.status}
 </span>
                 </div>
 
@@ -225,39 +227,47 @@ const filteredResources = [...resources] // ✅ IMPORTANT
   {/* Right side: Actions */}
   <div className="flex gap-2">
 
-  {resource.status === "rejected" && (
-    <ApproveButton
-      resource={resource}
+
+
+{resource.status === "approved" && (
+  <>
+{resource.status === "approved" && (
+  <>
+    <MoveSubmissionToPendingButton
+      submission={resource}
       onSuccess={fetchData}
     />
-  )}
 
-  {(resource.status === "approved" || resource.status === "active") && (
     <RejectButton
       resource={resource}
       onSuccess={fetchData}
     />
-  )}
+  </>
+)}
+  </>
+)}
 
-  {resource.status === "deleted" ? (
-    <>
-      <RestoreButton
-        resource={resource}
-        onSuccess={fetchData}
-      />
-
-      <DeleteButton
-        resource={resource}
-        variant="hard"
-        onSuccess={fetchData}
-      />
-    </>
-  ) : (
-    <DeleteButton
+{resource.status === "deleted" ? (
+  <>
+    <RestoreButton
       resource={resource}
       onSuccess={fetchData}
     />
-  )}
+
+    <DeleteButton
+      resource={resource}
+      variant="hard"
+      onSuccess={fetchData}
+    />
+  </>
+) : resource.status === "rejected" ? (
+  <DeleteButton
+    resource={resource}
+    onSuccess={fetchData}
+  />
+) : null}
+
+
 </div>
 </div>
 )}

@@ -12,7 +12,7 @@ type AdminSection =
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
-  resources: "Active Resources",
+  resources: "Approved Resources",
   rejected: "Rejected",
   deleted: "Deleted Resources",
 };
@@ -124,7 +124,7 @@ export default function AdminLayout({
         {/* Navigation */}
         <div className="space-y-2">
           {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
-          {navItem("Active Resources", "resources", Database, resourceCount)}
+          {navItem("Approved Resources", "resources", Database, resourceCount)}
           {navItem("Rejected", "rejected", XCircle, rejectedCount)}
           {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
 

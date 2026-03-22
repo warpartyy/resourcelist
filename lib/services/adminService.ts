@@ -46,7 +46,7 @@ export async function fetchAdminCounts() {
     .select("*", { count: "exact", head: true })
     .eq("status", "rejected");
 
-  // Active resources
+  // Approved resources
   const { count: approvedResources } = await supabase
     .from("resources")
     .select("*", { count: "exact", head: true })

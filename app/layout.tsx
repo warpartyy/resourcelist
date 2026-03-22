@@ -5,6 +5,8 @@ import "./globals.css";
 import "@mfm/ui/src/index.css";
 import { Toaster } from "react-hot-toast";
 
+
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
