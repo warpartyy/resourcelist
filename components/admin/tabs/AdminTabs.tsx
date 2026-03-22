@@ -46,6 +46,7 @@ export default function AdminTabs(props: Props) {
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onSuccess={onSuccess}
         search={search}
+        sortOrder={sortOrder}
       />
     );
   }
@@ -60,23 +61,26 @@ export default function AdminTabs(props: Props) {
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onSuccess={onSuccess}
+        search={search}
+        sortOrder={sortOrder}
       />
     );
   }
 
-  if (adminSection === "resources" || adminSection === "deleted") {
-    return (
-      <ResourcesTab
-        adminSection={adminSection}
-        CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-        COUNTY_OPTIONS={COUNTY_OPTIONS}
-        sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
-        onSuccess={onSuccess}
-        search={search}
-      />
-    );
-  }
+if (adminSection === "resources" || adminSection === "deleted") {
+  return (
+    <ResourcesTab
+      key={`${adminSection}-${sortOrder}-${search}`} // 🔥 THIS LINE
+      adminSection={adminSection}
+      CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+      COUNTY_OPTIONS={COUNTY_OPTIONS}
+      sortOrder={sortOrder}
+      setSortOrder={setSortOrder}
+      onSuccess={onSuccess}
+      search={search}
+    />
+  );
+}
 
   return null;
 }

@@ -13,6 +13,7 @@ type Props = {
   COUNTY_OPTIONS: string[];
   onSuccess: () => void;
   search: string;
+  sortOrder: "az" | "za" | "newest" | "oldest";
 };
 
 export default function SubmissionsPanel({
@@ -26,26 +27,55 @@ export default function SubmissionsPanel({
   COUNTY_OPTIONS,
   onSuccess,
   search,
+  sortOrder,
 }: Props) {
 
-  const filteredSubmissions = submissions.filter((submission) => {
-  const searchText = (search || "").toLowerCase();
+const searchText = (search || "").toLowerCase();
 
-  const combined = [
-    submission.organization,
-    submission.city,
-    submission.services,
-    submission.description,
-    submission.eligibility,
-    submission.counties_served,
-    ...(Array.isArray(submission.tags) ? submission.tags : []),
-  ]
-    .filter(Boolean) // removes null/undefined
-    .join(" ")
-    .toLowerCase();
+const filteredSubmissions = [...submissions]
+  .filter((submission) => {
+    
+    const combined = [
+      submission.organization,
+      submission.city,
+      submission.services,
+      submission.description,
+      submission.eligibility,
+      submission.counties_served,
+      ...(Array.isArray(submission.tags) ? submission.tags : []),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
 
-  return combined.includes(searchText);
-});
+    return combined.includes(searchText);
+  })
+  .sort((a, b) => {
+    const nameA = a.organization || "";
+    const nameB = b.organization || "";
+
+    if (sortOrder === "az") return nameA.localeCompare(nameB);
+    if (sortOrder === "za") return nameB.localeCompare(nameA);
+
+    if (sortOrder === "newest") {
+      return (
+        new Date(b.submitted_at || 0).getTime() -
+        new Date(a.submitted_at || 0).getTime()
+      );
+    }
+
+    if (sortOrder === "oldest") {
+      return (
+        new Date(a.submitted_at || 0).getTime() -
+        new Date(b.submitted_at || 0).getTime()
+      );
+    }
+
+    return 0;
+  });
+
+
+
 
   return (
     <>

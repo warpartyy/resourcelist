@@ -12,6 +12,8 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
+  search: string;
+  sortOrder: "az" | "za" | "newest" | "oldest";
 };
 
 export default function RejectedTab(props: Props) {
@@ -50,6 +52,8 @@ export default function RejectedTab(props: Props) {
       submissions={submissions}
       section="rejected"
       onSuccess={handleSuccess}
+      search={props.search}
+      sortOrder={props.sortOrder}
     />
   );
 }

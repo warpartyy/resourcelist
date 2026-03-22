@@ -40,7 +40,7 @@ export default function ResourcesTab({
 
   useEffect(() => {
     loadData();
-  }, [adminSection]);
+  }, [adminSection, sortOrder, search]);
 
   // 🔁 keeps behavior consistent with other tabs
   const handleSuccess = async () => {

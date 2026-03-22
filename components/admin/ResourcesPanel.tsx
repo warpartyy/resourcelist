@@ -36,15 +36,28 @@ export default function ResourcesPanel({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedResource, setEditedResource] = useState<any>({});
 
-
-
   // Sort A-Z
-const filteredResources = resources
-  .filter((resource) =>
-    resource.organization
-      ?.toLowerCase()
-      .includes(search.toLowerCase())
-  )
+console.log("SORT ORDER:", sortOrder);
+
+const filteredResources = [...resources] // ✅ IMPORTANT
+  .filter((resource) => {
+    const searchText = (search || "").toLowerCase();
+
+    const combined = [
+      resource.organization,
+      resource.city,
+      resource.services,
+      resource.description,
+      resource.eligibility,
+      resource.counties_served,
+      ...(Array.isArray(resource.tags) ? resource.tags : []),
+    ]
+      .filter(Boolean)
+      .join(" ")
+      .toLowerCase();
+
+    return combined.includes(searchText);
+  })
   .sort((a, b) => {
     const nameA = a.organization || "";
     const nameB = b.organization || "";
@@ -53,15 +66,25 @@ const filteredResources = resources
     if (sortOrder === "za") return nameB.localeCompare(nameA);
 
     if (sortOrder === "newest") {
-  return new Date(b.submitted_at || 0).getTime() - new Date(a.submitted_at || 0).getTime();
-}
+      return (
+        new Date(b.submitted_at || 0).getTime() -
+        new Date(a.submitted_at || 0).getTime()
+      );
+    }
 
-if (sortOrder === "oldest") {
-  return new Date(a.submitted_at || 0).getTime() - new Date(b.submitted_at || 0).getTime();
-}
+    if (sortOrder === "oldest") {
+      return (
+        new Date(a.submitted_at || 0).getTime() -
+        new Date(b.submitted_at || 0).getTime()
+      );
+    }
 
     return 0;
   });
+
+
+
+
 
   return (
     <>

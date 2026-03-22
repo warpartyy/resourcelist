@@ -13,6 +13,7 @@ type Props = {
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
   search: string;
+  sortOrder: "az" | "za" | "newest" | "oldest";
 };
 
 export default function PendingTab(props: Props) {
@@ -48,6 +49,7 @@ export default function PendingTab(props: Props) {
       section="pending"
       onSuccess={handleSuccess}
       search={props.search}
+      sortOrder={props.sortOrder}
     />
   );
 }
