@@ -15,6 +15,8 @@ type Props = {
   onSuccess: () => void;
   sortOrder: "az" | "za" | "newest" | "oldest";
   setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
+  search: string;
+  setSearch: (value: string) => void;
 };
 
 export default function AdminTabs(props: Props) {
@@ -29,6 +31,8 @@ export default function AdminTabs(props: Props) {
     onSuccess,
     sortOrder,
     setSortOrder,
+    search,
+    setSearch,
   } = props;
 
   if (adminSection === "pending") {
@@ -41,6 +45,7 @@ export default function AdminTabs(props: Props) {
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onSuccess={onSuccess}
+        search={search}
       />
     );
   }
@@ -68,6 +73,7 @@ export default function AdminTabs(props: Props) {
         sortOrder={sortOrder}
         setSortOrder={setSortOrder}
         onSuccess={onSuccess}
+        search={search}
       />
     );
   }

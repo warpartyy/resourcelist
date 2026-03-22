@@ -21,6 +21,7 @@ type Props = {
   COUNTY_OPTIONS: string[];
   sortOrder: "az" | "za" | "newest" | "oldest";
   setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
+  search: string;
 };
 
 export default function ResourcesPanel({
@@ -30,10 +31,10 @@ export default function ResourcesPanel({
   COUNTY_OPTIONS,
   sortOrder,
   setSortOrder,
+  search,
 }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedResource, setEditedResource] = useState<any>({});
-  const [search, setSearch] = useState("");
 
 
 
@@ -64,36 +65,7 @@ if (sortOrder === "oldest") {
 
   return (
     <>
-      {/* Search + Sort Bar */}
-      <div className="flex flex-col md:flex-row gap-4 mb-6">
-        <input
-          type="text"
-          placeholder="Search by organization name..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 px-4 py-2 rounded-lg bg-bg border border-border text-text-primary placeholder-text-subtle focus:outline-none focus:ring-2 focus:ring-accent/40"
-        />
-
-        <select
-          value={sortOrder}
-          onChange={(e) =>
-            setSortOrder(
-              e.target.value as "az" | "za" | "newest" | "oldest"
-            )
-          }
-          className={`px-4 py-2 rounded-lg bg-surface border border-border focus:outline-none focus:ring-2 focus:ring-blue-600 ${
-            sortOrder === "az"
-              ? "text-text-subtle"
-              : "text-text-primary"
-          }`}
-        >
-          <option value="az">A–Z</option>
-          <option value="za">Z–A</option>
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-        </select>
-      </div>
-
+      
       {filteredResources.length === 0 ? (
   <div className="text-text-muted">
     No matching resources found.

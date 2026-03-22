@@ -12,6 +12,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
+  search: string;
 };
 
 export default function PendingTab(props: Props) {
@@ -46,6 +47,7 @@ export default function PendingTab(props: Props) {
       submissions={submissions}
       section="pending"
       onSuccess={handleSuccess}
+      search={props.search}
     />
   );
 }

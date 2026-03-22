@@ -12,6 +12,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess: () => void;
+  search: string;
 };
 
 export default function SubmissionsPanel({
@@ -24,7 +25,28 @@ export default function SubmissionsPanel({
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
   onSuccess,
+  search,
 }: Props) {
+
+  const filteredSubmissions = submissions.filter((submission) => {
+  const searchText = (search || "").toLowerCase();
+
+  const combined = [
+    submission.organization,
+    submission.city,
+    submission.services,
+    submission.description,
+    submission.eligibility,
+    submission.counties_served,
+    ...(Array.isArray(submission.tags) ? submission.tags : []),
+  ]
+    .filter(Boolean) // removes null/undefined
+    .join(" ")
+    .toLowerCase();
+
+  return combined.includes(searchText);
+});
+
   return (
     <>
       <div className="mb-4 mt-0">
@@ -38,12 +60,12 @@ export default function SubmissionsPanel({
         </p>
       </div>
 
-      {submissions.length === 0 ? (
+      {filteredSubmissions.length === 0 ? (
         <div className="text-text-muted">
           No {section} submissions.
         </div>
       ) : (
-        submissions.map((submission) => (
+        filteredSubmissions.map((submission) => (
           <SubmissionCard
   key={submission.id}
   submission={submission}

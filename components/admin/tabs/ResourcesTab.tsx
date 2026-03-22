@@ -11,6 +11,7 @@ type Props = {
   sortOrder: "az" | "za" | "newest" | "oldest";
   setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
   onSuccess?: () => void;
+  search: string;
 };
 
 export default function ResourcesTab({
@@ -20,6 +21,7 @@ export default function ResourcesTab({
   sortOrder,
   setSortOrder,
   onSuccess,
+  search,
 }: Props) {
   const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -64,6 +66,7 @@ export default function ResourcesTab({
       COUNTY_OPTIONS={COUNTY_OPTIONS}
       sortOrder={sortOrder}
       setSortOrder={setSortOrder}
+      search={search}
     />
   );
 }

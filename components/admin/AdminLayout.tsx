@@ -2,6 +2,7 @@
 import { Trash } from "lucide-react";
 import { useState } from "react";
 import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import AdminControls from "@/components/admin/AdminControls";
 
 type AdminSection =
   | "pending"
@@ -25,6 +26,12 @@ type Props = {
   rejectedCount?: number;
   deletedCount?: number;
   children: React.ReactNode;
+
+  // NEW
+  search: string;
+  setSearch: (value: string) => void;
+  sortOrder: "az" | "za" | "newest" | "oldest";
+  setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
 };
 
 export default function AdminLayout({
@@ -36,7 +43,13 @@ export default function AdminLayout({
   rejectedCount,
   deletedCount,
   children,
-}: Props) {
+
+  // NEW
+  search,
+  setSearch,
+  sortOrder,
+  setSortOrder,
+}: Props){
 
   const [collapsed, setCollapsed] = useState(false);
 
@@ -138,6 +151,14 @@ export default function AdminLayout({
       </h1>
     </div>
   </div>
+
+{/* ✅ NEW: Controls */}
+<AdminControls
+  search={search}
+  setSearch={setSearch}
+  sortOrder={sortOrder}
+  setSortOrder={setSortOrder}
+/>
 
   <div className="flex-1 overflow-y-auto">
     <div className="px-10 pt-6 pb-10">

@@ -76,6 +76,8 @@ const [counts, setCounts] = useState({
   setCounts(counts);
 };
 
+const [search, setSearch] = useState("");
+
 const fetchData = async () => {
   setLoading(true);
   setLoading(false);
@@ -88,14 +90,20 @@ const fetchData = async () => {
 
   return (
   <AdminLayout
-    adminSection={adminSection}
-    setAdminSection={setAdminSection}
-    onLogout={handleLogout}
-    pendingCount={counts.pending}
-    resourceCount={counts.resources}
-    rejectedCount={counts.rejected}
-    deletedCount={counts.deleted}
-  >
+  adminSection={adminSection}
+  setAdminSection={setAdminSection}
+  onLogout={handleLogout}
+  pendingCount={counts.pending}
+  resourceCount={counts.resources}
+  rejectedCount={counts.rejected}
+  deletedCount={counts.deleted}
+
+  // NEW
+  search={search}
+  setSearch={setSearch}
+  sortOrder={resourceSortOrder}
+  setSortOrder={setResourceSortOrder}
+>
     <AdminTabs
       adminSection={adminSection}
       editingId={editingId}
@@ -107,6 +115,8 @@ const fetchData = async () => {
       onSuccess={refreshAll}
       sortOrder={resourceSortOrder}
       setSortOrder={setResourceSortOrder}
+      search={search}
+      setSearch={setSearch}
     />
   </AdminLayout>
 );
