@@ -67,11 +67,6 @@ export default function Home() {
     { label: "Community & Cultural Programs", href: "/community-cultural-programs" },
   ]}
 />
-<CategoryCard
-  href="/tribal-programs"
-  title="Tribal Programs"
-  description="Browse resources by tribe"
-/>
   </div>
 </section>
 

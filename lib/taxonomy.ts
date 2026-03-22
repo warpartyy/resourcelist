@@ -29,12 +29,6 @@ export const PARENT_CATEGORIES = [
     description:
       "Programs that strengthen families, build connection, and support community wellbeing.",
   },
-    {
-    label: "Tribal Programs",
-    value: "tribal-programs",
-    description:
-      "Services and programs specifically designed for and delivered by tribal communities.",
-  },
 ];
 
 
@@ -199,7 +193,6 @@ export const TAG_GROUPS = {
     "seniors",
     "veterans",
     "tribal-members",
-    "rural-residents",
     "lgbtq-plus",
     "pregnant-postpartum",
     "justice-involved",
@@ -208,8 +201,7 @@ export const TAG_GROUPS = {
   delivery: [
     "in-person",
     "telehealth",
-    "hybrid",
-    "mobile-unit",
+    "mobile-services",
     "home-based",
     "school-based",
   ],
@@ -218,8 +210,7 @@ export const TAG_GROUPS = {
     "accepts-medicare",
     "private-insurance",
     "sliding-scale",
-    "free-service",
-    "grant-funded",
+    "free",
   ],
   eligibility: [
     "referral-required",
@@ -230,8 +221,6 @@ export const TAG_GROUPS = {
     "state-resident-only",
   ],
   logistics: [
-    "wheelchair-accessible",
-    "transportation-provided",
     "spanish-available",
     "evening-hours",
     "weekend-hours",

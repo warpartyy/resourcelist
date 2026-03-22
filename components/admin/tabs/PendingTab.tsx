@@ -13,13 +13,15 @@ type Props = {
   onSave: any;
   onApprove: any;
   onReject: any;
+  onSuccess?: () => void;
 };
 
 export default function PendingTab(props: Props) {
   return (
     <SubmissionsPanel
-      {...props}
-      section="pending"
-    />
+  {...props}
+  section="pending"
+  onSuccess={props.onSuccess ?? (() => {})}
+/>
   );
 }

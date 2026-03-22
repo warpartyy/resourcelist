@@ -1,4 +1,5 @@
 import { TAG_GROUPS } from "@/lib/taxonomy";
+import { useState } from "react";
 
 type Props = {
   editedSubmission: any;
@@ -11,7 +12,7 @@ export default function TagsSection({
 }: Props) {
   const toggle = (tag: string) => {
     setEditedSubmission((prev: any) => {
-      const current = prev.tags || [];
+      const current = Array.isArray(prev.tags) ? prev.tags : [];
 
       const updated = current.includes(tag)
         ? current.filter((t: string) => t !== tag)
@@ -24,53 +25,90 @@ export default function TagsSection({
     });
   };
 
+const formatTagLabel = (tag: string) => {
+  return tag
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+};
+
+const GROUP_LABELS: Record<string, string> = {
+  serviceType: "Service Type",
+  population: "Population",
+  access: "Access",
+  payment: "Payment",
+  eligibility: "Eligibility",
+  logistics: "Additional Details",
+};
+
+const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+
+const toggleGroup = (group: string) => {
+  setOpenGroups((prev) => ({
+    ...prev,
+    [group]: !(prev[group] ?? false),
+  }));
+};
+
+
   return (
     <div className="mb-6">
       <div className="mb-3 font-semibold text-sm text-text-muted">
         Tags
       </div>
 
-      {Object.entries(TAG_GROUPS).map(([groupName, tags]) => (
+      {Object.entries(TAG_GROUPS).map(([groupName, tags]) => {
+  const selectedCount =
+    (editedSubmission.tags || []).filter((t: string) =>
+      tags.includes(t)
+    ).length;
+
+  return (
+        
         <div
-          key={groupName}
-          className="mb-8 pb-6 border-b border-border last:border-b-0"
+          key={GROUP_LABELS[groupName] || groupName}
+          className="mb-4 rounded-xl border border-border bg-surface p-4"
         >
-          <div className="capitalize text-xs text-text-subtle mb-3">
-            {groupName}
-          </div>
+<button
+  type="button"
+  onClick={() => toggleGroup(groupName)}
+  className="w-full flex items-center justify-between text-sm font-medium mb-2 tag-group-header"
+>
+<span>
+  {GROUP_LABELS[groupName] || groupName}
+  {selectedCount > 0 && (
+    <span className="ml-2 text-xs text-text-subtle">
+      ({selectedCount})
+    </span>
+  )}
+</span>
+</button>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {tags.map((tag) => {
-              const selected =
-                editedSubmission.tags?.includes(tag) || false;
+{openGroups[groupName] === true && (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    {tags.map((tag) => {
+      const selected =
+        editedSubmission.tags?.includes(tag) || false;
 
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() => toggle(tag)}
-                  className={`p-3 rounded-lg border transition text-left ${
-                    selected
-                      ? "shadow-md"
-                      : "bg-bg border-border text-text-muted hover:border-accent"
-                  }`}
-                  style={
-                    selected
-                      ? {
-                          background: "var(--color-accent)",
-                          borderColor: "var(--color-accent)",
-                          color: "white",
-                        }
-                      : undefined
-                  }
-                >
-                  {tag}
-                </button>
-              );
-            })}
-          </div>
+      return (
+        <button
+          key={tag}
+          type="button"
+          onClick={() => toggle(tag)}
+          className={`px-3 py-2 rounded-md text-sm transition text-left tag ${
+  selected
+    ? "tag-selected shadow-sm"
+    : "hover:border-accent hover:bg-surface"
+}`}
+        >
+          {formatTagLabel(tag)}
+        </button>
+      );
+    })}
+  </div>
+)}
         </div>
-      ))}
+        );
+})}
     </div>
   );
 }

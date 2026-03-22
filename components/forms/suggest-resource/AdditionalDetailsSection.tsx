@@ -22,11 +22,6 @@ export default function AdditionalDetailsSection() {
       />
 
       {/* Eligibility */}
-      <input
-        name="eligibility"
-        placeholder="Eligibility"
-        className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
-      />
 
     </div>
   );

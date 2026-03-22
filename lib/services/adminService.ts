@@ -28,17 +28,6 @@ export async function fetchResourcesByStatus(status: string) {
   return data || [];
 }
 
-export async function filterApprovedSubmissions() {
-  const supabase = getSupabase();
-
-  const { data } = await supabase
-    .from("resources")
-    .select("*")
-    .eq("status", "approved");
-
-  return data || [];
-}
-
 /**
  * Fetch sidebar counts
  */
@@ -58,10 +47,10 @@ export async function fetchAdminCounts() {
     .eq("status", "rejected");
 
   // Active resources
-  const { count: activeResources } = await supabase
+  const { count: approvedResources } = await supabase
     .from("resources")
     .select("*", { count: "exact", head: true })
-    .eq("status", "active");
+    .eq("status", "approved");
 
   // Deleted resources
   const { count: deletedResources } = await supabase
@@ -69,14 +58,11 @@ export async function fetchAdminCounts() {
     .select("*", { count: "exact", head: true })
     .eq("status", "deleted");
 
-  // Approved submissions that still have ACTIVE resources
-  const approvedFiltered = await filterApprovedSubmissions();
 
   return {
-    pending: pending || 0,
-    approved: approvedFiltered.length,
-    rejected: rejected || 0,
-    resources: activeResources || 0,
-    deleted: deletedResources || 0,
-  };
+  pending: pending || 0,
+  rejected: rejected || 0,
+  resources: approvedResources || 0,
+  deleted: deletedResources || 0,
+};
 }
