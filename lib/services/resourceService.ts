@@ -12,11 +12,43 @@ function generateSlug(name: string) {
     .replace(/-+/g, "-");
 }
 
+
+// ==============================
+// Resource Update Type
+// ==============================
+type ResourceUpdate = {
+  organization?: string
+  status?: string
+  subcategories?: string[]
+  tags?: string[]
+  counties_served?: string[]
+  phone?: string | null
+  email?: string | null
+  website?: string | null
+  application_link?: string | null
+  address?: string | null
+  city?: string | null
+  state?: string | null
+  zip?: string | null
+  description?: string | null
+  services?: string[]
+  eligibility?: string | null
+  is_tribal?: boolean
+  tribe?: string | null
+  tribal_eligibility?: string | null
+  admin_notes?: string | null
+  last_edited_by?: string | null
+  last_edited_email?: string | null
+  last_edited_at?: string | null
+  last_edited_name?: string | null
+}
+
+
 /**
  * Update an existing approved resource
  */
 
-export async function updateResource(id: string, data: any) {
+export async function updateResource(id: string, data: ResourceUpdate) {
   const supabase = getSupabase();
 
   console.log("Updating resource with ID:", id);
@@ -24,7 +56,33 @@ export async function updateResource(id: string, data: any) {
   // 1️⃣ Get existing resource
   const { data: existing, error: fetchError } = await supabase
     .from("resources")
-    .select("organization, slug")
+    .select(`
+  organization,
+  slug,
+  status,
+  subcategories,
+  tags,
+  counties_served,
+  phone,
+  email,
+  website,
+  application_link,
+  address,
+  city,
+  state,
+  zip,
+  description,
+  services,
+  eligibility,
+  is_tribal,
+  tribe,
+  tribal_eligibility,
+  admin_notes,
+  last_edited_by,
+  last_edited_email,
+  last_edited_name,
+  last_edited_at
+`)
     .eq("id", id)
     .single();
 
@@ -57,39 +115,39 @@ export async function updateResource(id: string, data: any) {
   );
 
   // 4️⃣ Update resource
-  const result = await supabase
-    .from("resources")
-    .update({
-      organization: orgName,
-      slug: newSlug,
+const result = await supabase
+  .from("resources")
+  .update({
+    organization: orgName,
+    slug: newSlug,
 
-      status: data.status ?? undefined,
+    status: data.status ?? existing.status,
 
-      subcategories: data.subcategories ?? [],
-      tags: data.tags ?? [],
-      counties_served: data.counties_served ?? [],
-      phone: data.phone ?? null,
-      email: data.email ?? null,
-      website: data.website ?? null,
-      application_link: data.application_link ?? null,
-      address: data.address ?? null,
-      city: data.city ?? null,
-      state: data.state ?? null,
-      zip: data.zip ?? null,
-      description: data.description ?? null,
-      services: data.services ?? [],
-      eligibility: data.eligibility ?? null,
-      parent_categories: derivedParents,
-
-      admin_notes: data.admin_notes ?? null,
-      last_edited_by: data.last_edited_by ?? null,
-      last_edited_email: data.last_edited_email ?? null,
-      last_edited_at: data.last_edited_at ?? null,
-
-      last_verified: new Date().toISOString().split("T")[0],
-    })
-    .eq("id", id)
-    .select();
+    subcategories: data.subcategories ?? existing.subcategories ?? [],
+    tags: data.tags ?? existing.tags ?? [],
+    counties_served: data.counties_served ?? existing.counties_served ?? [],
+    phone: data.phone ?? existing.phone ?? null,
+    email: data.email ?? existing.email ?? null,
+    website: data.website ?? existing.website ?? null,
+    application_link: data.application_link ?? existing.application_link ?? null,
+    address: data.address ?? existing.address ?? null,
+    city: data.city ?? existing.city ?? null,
+    state: data.state ?? existing.state ?? null,
+    zip: data.zip ?? existing.zip ?? null,
+    description: data.description ?? existing.description ?? null,
+services: data.services ?? existing.services ?? [],
+eligibility: data.eligibility ?? existing.eligibility ?? null,
+is_tribal: data.is_tribal ?? existing.is_tribal ?? false,
+tribe: data.tribe ?? existing.tribe ?? null,
+tribal_eligibility: data.tribal_eligibility ?? existing.tribal_eligibility ?? null,
+admin_notes: data.admin_notes ?? existing.admin_notes ?? null,
+last_edited_by: data.last_edited_by ?? existing.last_edited_by ?? null,
+last_edited_email: data.last_edited_email ?? existing.last_edited_email ?? null,
+last_edited_at: new Date().toISOString(),
+last_edited_name: data.last_edited_name ?? existing.last_edited_name ?? null,
+  })
+  .eq("id", id)
+  .select();
 
   console.log("Update result:", result);
 

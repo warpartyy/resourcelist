@@ -8,7 +8,6 @@ import AdminLayout from "../../components/admin/AdminLayout";
 
 import {
   fetchSubmissionsByStatus,
-  filterApprovedSubmissions,
   fetchAdminCounts,
   fetchResourcesByStatus,
 } from "@/lib/services/adminService";
@@ -31,9 +30,8 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(true);
 
   // Counts
-  const [counts, setCounts] = useState({
+const [counts, setCounts] = useState({
   pending: 0,
-  approved: 0,
   rejected: 0,
   resources: 0,
   deleted: 0,
@@ -46,7 +44,7 @@ export default function AdminPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedSubmission, setEditedSubmission] = useState<any>({});
   const [adminSection, setAdminSection] = useState<
-    "pending" | "approved" | "rejected" | "resources" | "deleted"
+    "pending" | "rejected" | "resources" | "deleted"
   >("pending");
 
 
@@ -89,15 +87,9 @@ const fetchData = async () => {
   if (adminSection === "resources") {
     const data = await fetchResourcesByStatus("approved");
     setResources(data);
-
   } else if (adminSection === "deleted") {
     const data = await fetchResourcesByStatus("deleted");
     setResources(data);
-
-  } else if (adminSection === "approved") {
-    const data = await filterApprovedSubmissions();
-    setSubmissions(data);
-
   } else {
     const data = await fetchSubmissionsByStatus(adminSection);
     setSubmissions(data);
@@ -118,7 +110,6 @@ const fetchData = async () => {
       onLogout={handleLogout}
       pendingCount={counts.pending}
       resourceCount={counts.resources}
-      approvedCount={counts.approved}
       rejectedCount={counts.rejected}
       deletedCount={counts.deleted}
     >

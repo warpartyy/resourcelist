@@ -20,6 +20,23 @@ type Props = {
   onSuccess: () => void;
 };
 
+function getEditorDisplayName(submission: any) {
+  return submission.last_edited_name || "Unknown admin";
+}
+
+function formatAdminTimestamp(value?: string | null) {
+  if (!value) return "Unknown time";
+
+  return new Intl.DateTimeFormat("en-US", {
+    timeZone: "America/Chicago",
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
 export default function SubmissionCard({
   submission,
   section,
@@ -230,12 +247,12 @@ export default function SubmissionCard({
     </div>
   )}
 
-  {submission.last_edited_email && (
-    <div className="text-xs text-text-subtle mt-2">
-      Last edited by {submission.last_edited_email} on{" "}
-      {new Date(submission.last_edited_at).toLocaleString()}
-    </div>
-    )}
+  {(submission.last_edited_email || submission.last_edited_at) && (
+  <div className="text-xs text-text-subtle mt-2">
+    Last edited by {getEditorDisplayName(submission)} on{" "}
+    {formatAdminTimestamp(submission.last_edited_at)}
+  </div>
+)}
   </div>
 )}
         

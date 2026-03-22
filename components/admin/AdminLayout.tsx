@@ -1,20 +1,18 @@
 "use client";
 import { Trash } from "lucide-react";
 import { useState } from "react";
-import {Clock, Database, CheckCircle, XCircle, LogOut, ChevronLeft, ChevronRight,} from "lucide-react";
+import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 
 type AdminSection =
   | "pending"
   | "resources"
-  | "approved"
   | "rejected"
   | "deleted";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
   resources: "Active Resources",
-  approved: "Approval History",
-  rejected: "Rejected Submissions",
+  rejected: "Rejected",
   deleted: "Deleted Resources",
 };
 
@@ -24,9 +22,8 @@ type Props = {
   onLogout: () => void;
   pendingCount?: number;
   resourceCount?: number;
-  approvedCount?: number;
   rejectedCount?: number;
-  deletedCount?: number;   // ✅ add this
+  deletedCount?: number;
   children: React.ReactNode;
 };
 
@@ -36,7 +33,6 @@ export default function AdminLayout({
   onLogout,
   pendingCount,
   resourceCount,
-  approvedCount,
   rejectedCount,
   deletedCount,
   children,
@@ -116,7 +112,6 @@ export default function AdminLayout({
         <div className="space-y-2">
           {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
           {navItem("Active Resources", "resources", Database, resourceCount)}
-          {navItem("Approval History", "approved", CheckCircle, approvedCount)}
           {navItem("Rejected", "rejected", XCircle, rejectedCount)}
           {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
 

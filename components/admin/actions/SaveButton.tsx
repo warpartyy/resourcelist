@@ -31,11 +31,11 @@ export default function SaveButton({
       } = await supabase.auth.getUser();
 
       const { error } = await updateResource(resourceId, {
-        ...editedData,
-        last_edited_by: user?.id,
-        last_edited_email: user?.email,
-        last_edited_at: new Date().toISOString(),
-      });
+  ...editedData,
+  last_edited_by: user?.id,
+  last_edited_email: user?.email,
+  last_edited_name: user?.user_metadata?.display_name ?? null,
+});
 
       if (error) {
         console.error(error);
