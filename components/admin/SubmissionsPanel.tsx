@@ -45,8 +45,9 @@ export default function SubmissionsPanel({
       ) : (
         submissions.map((submission) => (
           <SubmissionCard
-            key={submission.id}
-            submission={submission}
+  key={submission.id}
+  submission={submission}
+  section={section}
   editingId={editingId}
   setEditingId={setEditingId}
   editedSubmission={editedSubmission}

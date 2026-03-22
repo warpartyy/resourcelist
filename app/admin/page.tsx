@@ -5,9 +5,7 @@ import { useRouter } from "next/navigation";
 import SubmissionsPanel from "../../components/admin/SubmissionsPanel";
 import ResourcesPanel from "../../components/admin/ResourcesPanel";
 import AdminLayout from "../../components/admin/AdminLayout";
-import {rejectSubmission, approveSubmissionRecord,} from "@/lib/services/submissionService";
-import {updateResource} from "@/lib/services/resourceService";
-import { updateSubmissionRecord } from "@/lib/services/submissionService";
+
 import {
   fetchSubmissionsByStatus,
   filterApprovedSubmissions,
@@ -15,8 +13,6 @@ import {
   fetchResourcesByStatus,
 } from "@/lib/services/adminService";
 import { COUNTY_OPTIONS_BY_STATE } from "@/lib/geography/counties";
-
-
 
 const CATEGORY_OPTIONS = [
   { label: "Mental Health", value: "mental-health" },
@@ -110,14 +106,10 @@ const fetchData = async () => {
   setLoading(false);
 };
 
-
-
   // ✅ UPDATED dependency
   useEffect(() => {
     fetchData();
   }, [adminSection, resourceSortOrder]);
-
-
 
   return (
     <AdminLayout
@@ -152,7 +144,6 @@ const fetchData = async () => {
   onSuccess={refreshAll}
 />
 )}
-
     </AdminLayout>
   );
 }

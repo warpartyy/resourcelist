@@ -120,3 +120,40 @@ export async function hardDeleteResource(id: string) {
     .delete()
     .eq("id", id);
 }
+
+export async function getResourcesByStatus(status: string) {
+  const supabase = getSupabase();
+
+  return await supabase
+    .from("resources")
+    .select("*")
+    .eq("status", status)
+    .order("id", { ascending: false });
+}
+
+export async function approveResource(id: string) {
+  const supabase = getSupabase();
+
+  return await supabase
+    .from("resources")
+    .update({ status: "approved" })
+    .eq("id", id);
+}
+
+export async function rejectResource(id: string) {
+  const supabase = getSupabase();
+
+  return await supabase
+    .from("resources")
+    .update({ status: "rejected" })
+    .eq("id", id);
+}
+
+export async function moveResourceToPending(id: string) {
+  const supabase = getSupabase();
+
+  return await supabase
+    .from("resources")
+    .update({ status: "pending" })
+    .eq("id", id);
+}

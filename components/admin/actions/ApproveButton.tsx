@@ -7,20 +7,21 @@ import { getSupabase } from "@/lib/supabase";
 
 type Props = {
   resource: any;
+  editedData?: any;
+  isEditing?: boolean;
   onSuccess?: () => void;
-  confirmMessage?: string;
 };
 
 export default function ApproveButton({
   resource,
+  editedData,
+  isEditing = false,
   onSuccess,
-  confirmMessage = "Approve this resource?",
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleApprove = async () => {
     if (isLoading) return;
-
 
     setIsLoading(true);
 
@@ -31,7 +32,13 @@ export default function ApproveButton({
         data: { user },
       } = await supabase.auth.getUser();
 
+      const finalData =
+        isEditing && editedData
+          ? editedData
+          : resource;
+
       const { error } = await updateResource(resource.id, {
+        ...finalData,
         status: "approved",
         last_edited_by: user?.id,
         last_edited_email: user?.email,

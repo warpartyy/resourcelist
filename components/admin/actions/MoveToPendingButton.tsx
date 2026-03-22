@@ -2,34 +2,34 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
-import { rejectSubmission } from "@/lib/services/submissionService";
+import { moveResourceToPending } from "@/lib/services/resourceService";
 
 type Props = {
   submission: any;
   onSuccess?: () => void;
 };
 
-export default function RejectSubmissionButton({
+export default function MoveSubmissionToPendingButton({
   submission,
   onSuccess,
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleReject = async () => {
+  const handleMoveToPending = async () => {
     if (isLoading) return;
-
 
     setIsLoading(true);
 
     try {
-      const { error } = await rejectSubmission(submission.id);
+const { error } = await moveResourceToPending(submission.id);
 
       if (error) {
-        toast.error("Reject failed.");
+        console.error(error);
+        toast.error("Move to pending failed.");
         return;
       }
 
-      toast.success("Submission rejected");
+      toast.success("Moved to pending");
       onSuccess?.();
     } finally {
       setIsLoading(false);
@@ -38,11 +38,11 @@ export default function RejectSubmissionButton({
 
   return (
     <button
-      onClick={handleReject}
+      onClick={handleMoveToPending}
       disabled={isLoading}
       className={`button button-secondary ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
     >
-      {isLoading ? "Rejecting..." : "Reject"}
+      {isLoading ? "Moving..." : "Move to Pending"}
     </button>
   );
 }

@@ -3,17 +3,17 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { getSupabase } from "@/lib/supabase";
-import { updateSubmissionRecord } from "@/lib/services/submissionService";
+import { updateResource } from "@/lib/services/resourceService";
 
 type Props = {
-  submissionId: string;
-  editedSubmission: any;
+  resourceId: string;
+  editedData: any;
   onSuccess?: () => void;
 };
 
-export default function SaveSubmissionButton({
-  submissionId,
-  editedSubmission,
+export default function SaveButton({
+  resourceId,
+  editedData,
   onSuccess,
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,8 +30,8 @@ export default function SaveSubmissionButton({
         data: { user },
       } = await supabase.auth.getUser();
 
-      const { error } = await updateSubmissionRecord(submissionId, {
-        ...editedSubmission,
+      const { error } = await updateResource(resourceId, {
+        ...editedData,
         last_edited_by: user?.id,
         last_edited_email: user?.email,
         last_edited_at: new Date().toISOString(),
@@ -54,7 +54,9 @@ export default function SaveSubmissionButton({
     <button
       onClick={handleSave}
       disabled={isLoading}
-      className={`button button-secondary ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}
+      className={`button button-secondary ${
+        isLoading ? "opacity-60 cursor-not-allowed" : ""
+      }`}
     >
       {isLoading ? "Saving..." : "Save"}
     </button>

@@ -1,12 +1,16 @@
 "use client";
 
 import ResourceEditForm from "./ResourceEditForm";
-import ApproveSubmissionButton from "./actions/ApproveSubmissionButton";
-import RejectSubmissionButton from "./actions/RejectSubmissionButton";
-import SaveSubmissionButton from "./actions/SaveSubmissionButton";
+import SaveButton from "./actions/SaveButton";
+import MoveSubmissionToPendingButton from "./actions/MoveToPendingButton";
+import ApproveButton from "./actions/ApproveButton";
+import DeleteButton from "./actions/DeleteButton";
+import RejectButton from "./actions/RejectButton";
+
 
 type Props = {
   submission: any;
+  section: "pending" | "approved" | "rejected";
   editingId: string | null;
   setEditingId: (id: string | null) => void;
   editedSubmission: any;
@@ -18,6 +22,7 @@ type Props = {
 
 export default function SubmissionCard({
   submission,
+  section,
   editingId,
   setEditingId,
   editedSubmission,
@@ -26,7 +31,8 @@ export default function SubmissionCard({
   COUNTY_OPTIONS,
   onSuccess,
 }: Props) {
-  const isEditing = editingId === submission.id;
+  const isEditing =
+  section === "pending" && editingId === submission.id;
 
  return (
   <div className="bg-surface border border-border p-6 rounded-xl mb-6 shadow-sm">
@@ -45,53 +51,87 @@ export default function SubmissionCard({
       <div className="flex flex-col items-end gap-2 flex-shrink-0">
         {/* Buttons */}
         <div className="flex gap-2">
-          {!isEditing ? (
+{!isEditing ? (
+  <>
+    {section === "pending" && (
+      <>
+        <button
+          onClick={() => {
+            setEditingId(submission.id);
+            setEditedSubmission(submission);
+          }}
+          className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
+        >
+          Edit
+        </button>
+
+<ApproveButton
+  resource={submission}
+  onSuccess={() => {
+    setEditingId(null);
+    onSuccess();
+  }}
+/>
+
+<RejectButton
+  resource={submission}
+  onSuccess={() => {
+    onSuccess();
+  }}
+/>
+      </>
+    )}
+
+    {section === "rejected" && (
+      <>
+<ApproveButton
+  resource={submission}
+  onSuccess={() => {
+    setEditingId(null);
+    onSuccess();
+  }}
+/>
+
+        <MoveSubmissionToPendingButton
+          submission={submission}
+          onSuccess={() => {
+            setEditingId(null);
+            onSuccess();
+          }}
+        />
+
+<DeleteButton
+  resource={submission}
+  onSuccess={() => {
+    setEditingId(null);
+    onSuccess();
+  }}
+/>
+      </>
+    )}
+
+    {section === "approved" && null}
+  </>
+) : (
 <>
-  <button
-    onClick={() => {
-      setEditingId(submission.id);
-      setEditedSubmission(submission);
-    }}
-    className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
-  >
-    Edit
-  </button>
+<SaveButton
+  resourceId={submission.id}
+  editedData={editedSubmission}
+  onSuccess={() => {
+    setEditingId(null);
+    onSuccess();
+  }}
+/>
 
-  <ApproveSubmissionButton
-    submission={submission}
-    onSuccess={() => {
-      setEditingId(null);
-      onSuccess();
-    }}
-  />
-
-  <RejectSubmissionButton
-    submission={submission}
-    onSuccess={() => {
-      onSuccess();
-    }}
-  />
-</>
-          ) : (
-<>
-  <SaveSubmissionButton
-    submissionId={submission.id}
-    editedSubmission={editedSubmission}
-    onSuccess={() => {
-      setEditingId(null);
-      onSuccess();
-    }}
-  />
-
-  <ApproveSubmissionButton
-    submission={submission}
-    editedSubmission={editedSubmission}
-    isEditing={true}
-    onSuccess={() => {
-      setEditingId(null);
-      onSuccess();
-    }}
-  />
+<ApproveButton
+  resource={submission}
+  editedData={editedSubmission}
+  isEditing={true}
+  onSuccess={() => {
+    setEditingId(null);
+    onSuccess();
+  }}
+/>
 
   <button
     onClick={() => setEditingId(null)}
