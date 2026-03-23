@@ -26,16 +26,31 @@ export default function SaveButton({
     try {
       const supabase = getSupabase();
 
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+const {
+  data: { user },
+} = await supabase.auth.getUser();
 
-      const { error } = await updateResource(resourceId, {
+if (!user) {
+  toast.error("User not found");
+  return;
+}
+
+// 🔑 Fetch profile (NEW)
+const { data: profile } = await supabase
+  .from("profiles")
+  .select("display_name, email")
+  .eq("id", user.id)
+  .single();
+
+// 🔁 UPDATED payload
+const { error } = await updateResource(resourceId, {
   ...editedData,
-  last_edited_by: user?.id,
-  last_edited_email: user?.email,
-  last_edited_name: user?.user_metadata?.display_name ?? null,
+  last_edited_by: user.id, // UUID stays
+  last_edited_email: user.email,
+  last_edited_name: profile?.display_name || user.email, // ✅ FIXED
+  last_edited_at: new Date().toISOString(), // ✅ NEW
 });
+
 
       if (error) {
         console.error(error);

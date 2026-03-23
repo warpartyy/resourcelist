@@ -3,6 +3,7 @@
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { restoreResource } from "@/lib/services/resourceService";
+import { getSupabase } from "@/lib/supabase";
 
 type Props = {
   resource: any;
@@ -21,7 +22,27 @@ export default function RestoreButton({
     setIsLoading(true);
 
     try {
-      const { error } = await restoreResource(resource.id);
+      const supabase = getSupabase();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("User not found");
+        return;
+      }
+
+// 🔑 Fetch profile
+const { data: profile } = await supabase
+  .from("profiles")
+  .select("display_name, email")
+  .eq("id", user.id)
+  .single();
+
+const { error } = await restoreResource(resource.id, {
+  last_edited_by: user.id,
+  last_edited_email: user.email!,
+  last_edited_name: profile?.display_name || user.email!,
+});
 
       if (error) {
         console.error(error);

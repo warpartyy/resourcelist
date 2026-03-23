@@ -3,18 +3,23 @@ import { Trash } from "lucide-react";
 import { useState } from "react";
 import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import AdminControls from "@/components/admin/AdminControls";
+import { Settings } from "lucide-react";
+import { useEffect } from "react";
+import { getSupabase } from "@/lib/supabase";
 
 type AdminSection =
   | "pending"
   | "resources"
   | "rejected"
-  | "deleted";
+  | "deleted"
+  | "settings"; // ✅ ADD
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
   resources: "Approved Resources",
   rejected: "Rejected",
   deleted: "Deleted Resources",
+  settings: "Settings", // ✅ ADD
 };
 
 type Props = {
@@ -43,8 +48,6 @@ export default function AdminLayout({
   rejectedCount,
   deletedCount,
   children,
-
-  // NEW
   search,
   setSearch,
   sortOrder,
@@ -52,6 +55,34 @@ export default function AdminLayout({
 }: Props){
 
   const [collapsed, setCollapsed] = useState(false);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  useEffect(() => {
+  const loadUser = async () => {
+    const supabase = getSupabase();
+
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name")
+      .eq("id", user.id)
+      .single();
+
+    if (profile?.display_name) {
+      setDisplayName(profile.display_name);
+    } else {
+      setDisplayName(user.email || null);
+    }
+  };
+
+  loadUser();
+}, []);
+
 
   const navItem = (
     label: string,
@@ -60,6 +91,7 @@ export default function AdminLayout({
     count?: number
   ) => {
     const isActive = adminSection === value;
+
 
     return (
       <button
@@ -104,10 +136,18 @@ export default function AdminLayout({
         } h-full bg-surface border-r border-border p-4 flex flex-col transition-all duration-300`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          {!collapsed && (
-            <h2 className="text-lg font-semibold">Admin</h2>
-          )}
+<div className="flex items-center justify-between mb-6">
+  {!collapsed && (
+    <div>
+      <h2 className="text-lg font-semibold">Admin</h2>
+
+      {displayName && (
+        <p className="text-xs text-text-muted mt-1">
+          Logged in as {displayName}
+        </p>
+      )}
+    </div>
+  )}
 
           <button
             onClick={() => setCollapsed(!collapsed)}
@@ -127,11 +167,14 @@ export default function AdminLayout({
           {navItem("Approved Resources", "resources", Database, resourceCount)}
           {navItem("Rejected", "rejected", XCircle, rejectedCount)}
           {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
-
+          {navItem("Settings", "settings", Settings)}
         </div>
+
+
 
         {/* Logout */}
         <div className="mt-auto border-t border-border pt-4">
+
           <button
             onClick={onLogout}
             className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-bg text-text-muted transition"

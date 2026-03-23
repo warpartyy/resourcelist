@@ -15,6 +15,7 @@ import DeleteButton from "./actions/DeleteButton";
 import RestoreButton from "./actions/RestoreButton";
 import { moveResourceToPending } from "@/lib/services/resourceService";
 import MoveSubmissionToPendingButton from "./actions/MoveToPendingButton";
+import { getSupabase } from "@/lib/supabase";
 
 type Props = {
   resources: any[];
@@ -190,11 +191,33 @@ resource.status === "approved"
     </button>
 
     <button
-      onClick={async () => {
-        const { error } = await updateResource(
-          resource.id,
-          editedResource
-        );
+
+onClick={async () => {
+  const supabase = getSupabase();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    alert("User not found");
+    return;
+  }
+
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("display_name, email")
+    .eq("id", user.id)
+    .single();
+
+  const { error } = await updateResource(resource.id, {
+    ...editedResource,
+    last_edited_by: user.id,
+    last_edited_email: user.email,
+    last_edited_name: profile?.display_name || user.email,
+    last_edited_at: new Date().toISOString(),
+  });
+
 
         if (error) {
           alert("Update failed.");

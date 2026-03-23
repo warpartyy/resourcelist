@@ -1,13 +1,73 @@
+"use client";
+
 import Link from "next/link";
 import Container from "../components/ui/Container";
 import CategoryCard from "../components/ui/CategoryCard";
 import CrisisBanner from "../components/ui/CrisisBanner";
+import { useEffect } from "react"; 
+import { useRouter } from "next/navigation";
+import { getSupabase } from "@/lib/supabase";
+
 
 export default function Home() {
+
+const testLogin = async () => {
+  const supabase = getSupabase();
+
+  await supabase.auth.signInWithOtp({
+    email: "vvillamodel@gmail.com",
+  });
+};
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleInvite = async () => {
+      const supabase = getSupabase();
+
+      const hash = window.location.hash;
+
+      console.log("HASH:", hash);
+
+      if (hash && hash.includes("access_token")) {
+        // 🔥 Parse tokens from URL
+        const params = new URLSearchParams(hash.replace("#", ""));
+
+        const access_token = params.get("access_token");
+        const refresh_token = params.get("refresh_token");
+
+        if (!access_token || !refresh_token) {
+          console.error("Missing tokens");
+          return;
+        }
+
+        // 🔥 THIS is the fix
+        const { error } = await supabase.auth.setSession({
+          access_token,
+          refresh_token,
+        });
+
+        if (error) {
+          console.error("Session error:", error);
+          return;
+        }
+
+        // Clean URL
+        window.history.replaceState({}, document.title, "/");
+
+        // Redirect
+        router.replace("/admin");
+      }
+    };
+
+    handleInvite();
+  }, [router]);
+
   return (
     <div>
       <CrisisBanner />
       <Container>
+
         {/* Category Grid */}
         <section className="mt-5 md:mt-8 mb-16 md:mb-20">
           <h2 className="text-xl md:text-2xl font-semibold mb-6">

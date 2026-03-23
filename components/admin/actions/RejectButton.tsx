@@ -25,16 +25,37 @@ const handleReject = async () => {
   try {
     const supabase = getSupabase();
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
-    const { error } = await updateResource(resource.id, {
-      status: "rejected",
-      last_edited_by: user?.id,
-      last_edited_email: user?.email,
-      last_edited_name: user?.user_metadata?.display_name ?? null,
-    });
+
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (!user) {
+  toast.error("User not found");
+  return;
+}
+
+// 🔑 Fetch profile
+const { data: profile } = await supabase
+  .from("profiles")
+  .select("display_name, email")
+  .eq("id", user.id)
+  .single();
+
+// 🔁 Updated payload
+const { error } = await updateResource(resource.id, {
+  status: "rejected",
+  last_edited_by: user.id,
+  last_edited_email: user.email,
+  last_edited_name: profile?.display_name || user.email,
+  last_edited_at: new Date().toISOString(),
+});
+
+
+
+
 
     if (error) {
       console.error(error);

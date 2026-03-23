@@ -3,6 +3,7 @@
 import PendingTab from "./PendingTab";
 import RejectedTab from "./RejectedTab";
 import ResourcesTab from "./ResourcesTab";
+import AdminSettingsPage from "@/app/admin/settings/page";
 
 type Props = {
   adminSection: "pending" | "rejected" | "resources" | "deleted";
@@ -70,7 +71,7 @@ export default function AdminTabs(props: Props) {
 if (adminSection === "resources" || adminSection === "deleted") {
   return (
     <ResourcesTab
-      key={`${adminSection}-${sortOrder}-${search}`} // 🔥 THIS LINE
+      key={`${adminSection}-${sortOrder}-${search}`}
       adminSection={adminSection}
       CATEGORY_OPTIONS={CATEGORY_OPTIONS}
       COUNTY_OPTIONS={COUNTY_OPTIONS}
@@ -80,6 +81,10 @@ if (adminSection === "resources" || adminSection === "deleted") {
       search={search}
     />
   );
+}
+
+if (adminSection === "settings") {
+  return <AdminSettingsPage />;
 }
 
   return null;

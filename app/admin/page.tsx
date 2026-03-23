@@ -53,18 +53,47 @@ const [counts, setCounts] = useState({
     checkUser();
   }, []);
 
-  const checkUser = async () => {
-    const supabase = getSupabase();
-    const { data } = await supabase.auth.getSession();
 
-    if (!data.session) {
-      router.push("/login");
-      return;
-    }
 
-    await fetchCounts();
-    fetchData();
-  };
+const checkUser = async () => {
+  const supabase = getSupabase();
+
+  // 1. Check session
+  const { data: sessionData } = await supabase.auth.getSession();
+
+  if (!sessionData.session) {
+    router.push("/login");
+    return;
+  }
+
+  const user = sessionData.session.user;
+
+  // 2. Fetch profile
+  const { data: profile, error } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (error || !profile) {
+    console.error("Profile fetch error:", error);
+    router.push("/");
+    return;
+  }
+
+  // 3. Check role
+  if (profile.role !== "admin") {
+    router.push("/");
+    return;
+  }
+
+  // ✅ Authorized
+  await fetchCounts();
+  fetchData();
+};
+
+
+
 
   const refreshAll = async () => {
   await fetchCounts();

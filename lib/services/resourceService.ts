@@ -155,19 +155,46 @@ last_edited_name: data.last_edited_name ?? existing.last_edited_name ?? null,
 }
 
 
-export async function softDeleteResource(id: string) {
+export async function softDeleteResource(
+  id: string,
+  audit: {
+    last_edited_by: string;
+    last_edited_email: string;
+    last_edited_name: string;
+  }
+) {
   const supabase = getSupabase();
+
   return await supabase
     .from("resources")
-    .update({ status: "deleted" })
+    .update({
+      status: "deleted",
+      last_edited_by: audit.last_edited_by,
+      last_edited_email: audit.last_edited_email,
+      last_edited_name: audit.last_edited_name,
+      last_edited_at: new Date().toISOString(),
+    })
     .eq("id", id);
 }
 
-export async function restoreResource(id: string) {
+export async function restoreResource(
+  id: string,
+  audit: {
+    last_edited_by: string;
+    last_edited_email: string;
+    last_edited_name: string;
+  }
+) {
   const supabase = getSupabase();
   return await supabase
     .from("resources")
-    .update({ status: "pending" })
+    .update({
+  status: "pending",
+  last_edited_by: audit.last_edited_by,
+  last_edited_email: audit.last_edited_email,
+  last_edited_name: audit.last_edited_name,
+  last_edited_at: new Date().toISOString(),
+})
     .eq("id", id);
 }
 
@@ -207,11 +234,24 @@ export async function rejectResource(id: string) {
     .eq("id", id);
 }
 
-export async function moveResourceToPending(id: string) {
+export async function moveResourceToPending(
+  id: string,
+  audit: {
+    last_edited_by: string;
+    last_edited_email: string;
+    last_edited_name: string;
+  }
+) {
   const supabase = getSupabase();
 
   return await supabase
     .from("resources")
-    .update({ status: "pending" })
+    .update({
+      status: "pending",
+      last_edited_by: audit.last_edited_by,
+      last_edited_email: audit.last_edited_email,
+      last_edited_name: audit.last_edited_name,
+      last_edited_at: new Date().toISOString(),
+    })
     .eq("id", id);
 }

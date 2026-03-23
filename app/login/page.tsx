@@ -5,14 +5,34 @@ import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import Container from "../../components/ui/Container";
 import "@mfm/ui/src/components/button.css";
+import { useEffect } from "react";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
 
+  const [loading, setLoading] = useState(false);
+
+useEffect(() => {
+  const checkSession = async () => {
+    const supabase = getSupabase();
+    const { data } = await supabase.auth.getSession();
+
+    if (data.session) {
+      router.push("/admin");
+    }
+  };
+
+  checkSession();
+}, [router]);
+
+
 const handleLogin = async (e: any) => {
   e.preventDefault();
+
+  if (loading) return;
+  setLoading(true);
 
   const supabase = getSupabase();
 
@@ -22,10 +42,12 @@ const handleLogin = async (e: any) => {
   });
 
   if (!error) {
-    router.push("/admin");
+    router.replace("/admin");
   } else {
-    alert("Login failed.");
+    alert(error.message || "Login failed.");
   }
+
+  setLoading(false);
 };
 
 
@@ -55,9 +77,14 @@ const handleLogin = async (e: any) => {
           onChange={(e) => setPassword(e.target.value)}
         />
 
-        <button className="button button-primary w-full">
-  Login
-</button>
+        <button
+          disabled={loading}
+          className="button button-primary w-full"
+          >
+          {loading ? "Logging in..." : "Login"}
+        </button>
+
+
       </form>
     </Container>
   );

@@ -7,10 +7,9 @@ export function getSupabase() {
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-    if (!supabaseUrl || !supabaseAnonKey) {
-      console.warn("Supabase env vars missing during build.");
-      return {} as any;
-    }
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error("Missing Supabase environment variables");
+}
 
     supabaseClient = createClient(
       supabaseUrl,
