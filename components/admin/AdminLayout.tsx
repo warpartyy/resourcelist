@@ -7,19 +7,23 @@ import { Settings } from "lucide-react";
 import { useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 
+type Profile = {
+  display_name: string | null;
+};
+
 type AdminSection =
   | "pending"
   | "resources"
   | "rejected"
   | "deleted"
-  | "settings"; // ✅ ADD
+  | "settings";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
   resources: "Approved Resources",
   rejected: "Rejected",
   deleted: "Deleted Resources",
-  settings: "Settings", // ✅ ADD
+  settings: "Settings",
 };
 
 type Props = {
@@ -71,7 +75,7 @@ export default function AdminLayout({
       .from("profiles")
       .select("display_name")
       .eq("id", user.id)
-      .single();
+      .single<Profile>();
 
     if (profile?.display_name) {
       setDisplayName(profile.display_name);

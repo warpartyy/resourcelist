@@ -6,7 +6,7 @@ import ResourcesTab from "./ResourcesTab";
 import AdminSettingsPage from "@/app/admin/settings/page";
 
 type Props = {
-  adminSection: "pending" | "rejected" | "resources" | "deleted";
+  adminSection: "pending" | "rejected" | "resources" | "deleted" | "settings";
   editingId: string | null;
   setEditingId: (id: string | null) => void;
   editedSubmission: any;

@@ -89,9 +89,8 @@ export async function updateResource(id: string, data: ResourceUpdate) {
   if (fetchError || !existing) {
     return { error: fetchError || new Error("Resource not found") };
   }
-
-  // ✅ SAFE organization fallback
-  const orgName = data.organization ?? existing.organization;
+  
+  const orgName = data.organization ?? existing.organization ?? "";
 
   let newSlug = existing.slug;
 

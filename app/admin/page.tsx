@@ -4,10 +4,7 @@ import { getSupabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import AdminLayout from "../../components/admin/AdminLayout";
 import AdminTabs from "@/components/admin/tabs/AdminTabs";
-
-import {
-  fetchAdminCounts,
-} from "@/lib/services/adminService";
+import {fetchAdminCounts} from "@/lib/services/adminService";
 import { COUNTY_OPTIONS_BY_STATE } from "@/lib/geography/counties";
 
 const CATEGORY_OPTIONS = [
@@ -39,8 +36,8 @@ const [counts, setCounts] = useState({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedSubmission, setEditedSubmission] = useState<any>({});
   const [adminSection, setAdminSection] = useState<
-    "pending" | "rejected" | "resources" | "deleted"
-  >("pending");
+  "pending" | "rejected" | "resources" | "deleted" | "settings"
+>("pending");
 
 
   const handleLogout = async () => {
@@ -68,12 +65,15 @@ const checkUser = async () => {
 
   const user = sessionData.session.user;
 
+  type Profile = {
+  role: string | null;
+};
   // 2. Fetch profile
   const { data: profile, error } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
-    .single();
+    .single<Profile>();
 
   if (error || !profile) {
     console.error("Profile fetch error:", error);
@@ -91,9 +91,6 @@ const checkUser = async () => {
   await fetchCounts();
   fetchData();
 };
-
-
-
 
   const refreshAll = async () => {
   await fetchCounts();

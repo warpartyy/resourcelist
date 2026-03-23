@@ -6,14 +6,12 @@ import CategoryCard from "../components/ui/CategoryCard";
 import CrisisBanner from "../components/ui/CrisisBanner";
 import { useEffect } from "react"; 
 import { useRouter } from "next/navigation";
-import { getSupabase } from "@/lib/supabase";
+import { supabase } from "@/lib/supabase";
 
 
 export default function Home() {
 
 const testLogin = async () => {
-  const supabase = getSupabase();
-
   await supabase.auth.signInWithOtp({
     email: "vvillamodel@gmail.com",
   });
@@ -21,47 +19,63 @@ const testLogin = async () => {
 
   const router = useRouter();
 
-  useEffect(() => {
-    const handleInvite = async () => {
-      const supabase = getSupabase();
+useEffect(() => {
+  console.log("🔥 EFFECT STARTED");
 
-      const hash = window.location.hash;
+  const handleInvite = async () => {
+    console.log("👉 handleInvite running");
 
-      console.log("HASH:", hash);
+    const hash = window.location.hash;
+    console.log("HASH:", hash);
 
-      if (hash && hash.includes("access_token")) {
-        // 🔥 Parse tokens from URL
-        const params = new URLSearchParams(hash.replace("#", ""));
+    if (!hash) {
+      console.log("❌ NO HASH");
+      return;
+    }
 
-        const access_token = params.get("access_token");
-        const refresh_token = params.get("refresh_token");
+    if (!hash.includes("access_token")) {
+      console.log("❌ NO ACCESS TOKEN");
+      return;
+    }
 
-        if (!access_token || !refresh_token) {
-          console.error("Missing tokens");
-          return;
-        }
+    const params = new URLSearchParams(hash.replace("#", ""));
 
-        // 🔥 THIS is the fix
-        const { error } = await supabase.auth.setSession({
-          access_token,
-          refresh_token,
-        });
+    const access_token = params.get("access_token");
+    const refresh_token = params.get("refresh_token");
 
-        if (error) {
-          console.error("Session error:", error);
-          return;
-        }
+    console.log("TOKENS:", access_token, refresh_token);
 
-        // Clean URL
-        window.history.replaceState({}, document.title, "/");
+    if (!access_token || !refresh_token) {
+      console.log("❌ TOKENS MISSING");
+      return;
+    }
 
-        // Redirect
-        router.replace("/admin");
-      }
-    };
+    console.log("⚡ SETTING SESSION...");
 
-    handleInvite();
-  }, [router]);
+    const { data, error } = await supabase.auth.setSession({
+      access_token,
+      refresh_token,
+    });
+
+    console.log("SET SESSION RESULT:", data, error);
+
+    const sessionCheck = await supabase.auth.getSession();
+    console.log("SESSION AFTER:", sessionCheck);
+
+    console.log("➡️ REDIRECTING NOW");
+
+    window.history.replaceState({}, document.title, "/");
+
+    router.replace("/admin");
+  };
+
+  handleInvite();
+}, [router]);
+
+
+
+
+
 
   return (
     <div>

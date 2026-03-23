@@ -5,6 +5,7 @@ import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 
+
 export default function AdminSettingsPage() {
   const supabase = getSupabase();
   const router = useRouter();
