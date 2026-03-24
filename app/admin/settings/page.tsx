@@ -93,9 +93,11 @@ const { data: updatedProfile, error: profileError } = await supabase
 toast.success("Profile setup complete");
 
 // ✅ SMALL DELAY to ensure DB + session sync
-setTimeout(() => {
+if (updatedProfile?.display_name) {
   window.location.href = "/admin";
-}, 300);
+} else {
+  toast.error("Profile update did not persist");
+}
 
 setSaving(false);
 }; // ✅ ← THIS WAS MISSING

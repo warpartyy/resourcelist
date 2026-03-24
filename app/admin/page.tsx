@@ -73,7 +73,7 @@ type Profile = {
   // 2. Fetch profile
   const { data: profile, error } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, display_name")
     .eq("id", user.id)
     .single<Profile>();
 
