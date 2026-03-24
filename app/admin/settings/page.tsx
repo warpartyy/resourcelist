@@ -4,6 +4,9 @@ import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
+import ProfileCard from "@/components/settings/ProfileCard";
+import AccountSection from "@/components/settings/AccountSection";
+import SecuritySection from "@/components/settings/SecuritySection";
 
 
 export default function AdminSettingsPage() {
@@ -49,131 +52,99 @@ export default function AdminSettingsPage() {
     };
 
     loadProfile();
-  }, [router]);
+  }, [router, supabase]);
 
-const handleSave = async () => {
+const handleProfileSave = async () => {
   if (!userId) return;
 
-  if (!password || password !== confirmPassword) {
+  if (!displayName.trim()) {
+    toast.error("Display name is required");
+    return;
+  }
+
+  setSaving(true);
+
+  const { error } = await supabase
+    .from("profiles")
+    .update({ display_name: displayName.trim() })
+    .eq("id", userId);
+
+  if (error) {
+    console.error(error);
+    toast.error("Failed to update profile");
+    setSaving(false);
+    return;
+  }
+
+  toast.success("Profile updated");
+  setSaving(false);
+};
+
+
+const handlePasswordSave = async () => {
+  if (!userId) return;
+
+  // Password optional
+  if (!password) {
+    toast.error("Enter a password");
+    return;
+  }
+
+  if (password !== confirmPassword) {
     toast.error("Passwords do not match");
     return;
   }
 
   setSaving(true);
 
-  // 🔑 1. Update password in Supabase Auth
-  const { error: passwordError } = await supabase.auth.updateUser({
+  const { error } = await supabase.auth.updateUser({
     password,
   });
 
-  if (passwordError) {
-    console.error(passwordError);
-    toast.error("Failed to set password");
+  if (error) {
+    console.error(error);
+    toast.error("Failed to update password");
     setSaving(false);
     return;
   }
 
-  // 🧾 2. Update profile
-const { data: updatedProfile, error: profileError } = await supabase
-  .from("profiles")
-  .update({ display_name: displayName })
-  .eq("id", userId)
-  .select("display_name") // 👈 important
-  .single();
-  
-  console.log("UPDATED PROFILE:", updatedProfile);
+  toast.success("Password updated");
 
-  if (profileError) {
-    console.error(profileError);
-    toast.error("Failed to update profile");
-    setSaving(false);
-    return;
-  }
+  // Clear fields after success
+  setPassword("");
+  setConfirmPassword("");
 
-toast.success("Profile setup complete");
-
-// ✅ SMALL DELAY to ensure DB + session sync
-if (updatedProfile?.display_name) {
-  window.location.href = "/admin";
-} else {
-  toast.error("Profile update did not persist");
-}
-
-setSaving(false);
-}; // ✅ ← THIS WAS MISSING
-
+  setSaving(false);
+};
 
 if (loading) return <p className="p-6">Loading...</p>;
+return (
+  <div className="p-6 max-w-3xl space-y-8">
+    
+    {/* Profile Overview */}
+    <ProfileCard
+      displayName={displayName}
+      email={email}
+    />
 
-  return (
-    <div className="p-6 max-w-xl">
-      <h1 className="text-2xl font-semibold mb-6">
-        Admin Settings
-      </h1>
+    {/* Account Info */}
+    <AccountSection
+      displayName={displayName}
+      setDisplayName={setDisplayName}
+      saving={saving}
+      onSave={handleProfileSave}
+    />
 
-      <div className="space-y-4">
+    {/* Security */}
+    <SecuritySection
+      password={password}
+      confirmPassword={confirmPassword}
+      setPassword={setPassword}
+      setConfirmPassword={setConfirmPassword}
+      saving={saving}
+      onSave={handlePasswordSave}
+    />
 
-        <div>
-          <label className="block text-sm mb-1">Email</label>
-          <input
-            value={email}
-            disabled
-            className="w-full border rounded p-2 bg-gray-100"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm mb-1">Display Name</label>
-          <input
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Enter your name"
-            className="w-full border rounded p-2"
-          />
-        </div>
-
-<div>
-  <label className="block text-sm mb-1">Password</label>
-  <input
-    type="password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    placeholder="Enter password"
-    className="w-full border rounded p-2"
-  />
-</div>
-
-<div>
-  <label className="block text-sm mb-1">Confirm Password</label>
-  <input
-    type="password"
-    value={confirmPassword}
-    onChange={(e) => setConfirmPassword(e.target.value)}
-    placeholder="Confirm password"
-    className="w-full border rounded p-2"
-  />
-
-  {passwordsDoNotMatch && (
-    <p className="text-sm text-red-500 mt-1">
-      Passwords do not match
-    </p>
-  )}
-</div>
-
-        <button
-          onClick={handleSave}
-          disabled={
-            saving ||
-            !displayName ||
-            !password ||
-            password !== confirmPassword
-          }
-          className="button button-primary"
-        >
-          {saving ? "Saving..." : "Save Changes"}
-        </button>
-
-      </div>
-    </div>
-  );
+  </div>
+);
 }
