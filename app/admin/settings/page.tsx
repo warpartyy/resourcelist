@@ -54,10 +54,13 @@ export default function AdminSettingsPage() {
     loadProfile();
   }, [router, supabase]);
 
-const handleProfileSave = async () => {
+
+
+
+const handleProfileSave = async (newName: string) => {
   if (!userId) return;
 
-  if (!displayName.trim()) {
+  if (!newName.trim()) {
     toast.error("Display name is required");
     return;
   }
@@ -66,7 +69,7 @@ const handleProfileSave = async () => {
 
   const { error } = await supabase
     .from("profiles")
-    .update({ display_name: displayName.trim() })
+    .update({ display_name: newName.trim() })
     .eq("id", userId);
 
   if (error) {
@@ -76,9 +79,14 @@ const handleProfileSave = async () => {
     return;
   }
 
+  // ✅ update saved state AFTER success
+  setDisplayName(newName.trim());
+
   toast.success("Profile updated");
   setSaving(false);
 };
+
+
 
 
 const handlePasswordSave = async () => {
@@ -128,12 +136,11 @@ return (
     />
 
     {/* Account Info */}
-    <AccountSection
-      displayName={displayName}
-      setDisplayName={setDisplayName}
-      saving={saving}
-      onSave={handleProfileSave}
-    />
+<AccountSection
+  displayName={displayName}
+  saving={saving}
+  onSave={handleProfileSave}
+/>
 
     {/* Security */}
     <SecuritySection
