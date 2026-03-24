@@ -192,13 +192,6 @@ export const TAG_GROUPS = {
     "school-based",
   ],
 
-  // ✅ NEW (moved out of old serviceType thinking)
-  levelOfCare: [
-    "inpatient",
-    "residential",
-    "outpatient",
-  ],
-
   payment: [
     "accepts-medicaid",
     "accepts-medicare",

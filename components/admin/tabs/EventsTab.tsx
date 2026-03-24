@@ -12,6 +12,16 @@ export default function EventsTab() {
     "pending" | "approved" | "rejected"
   >("pending");
 
+  const handleEventUpdate = (updatedEvent: any) => {
+  setEvents((prev: any[]) =>
+    prev.map((e) => (e.id === updatedEvent.id ? updatedEvent : e))
+  );
+};
+
+const handleEventDelete = (id: string) => {
+  setEvents((prev: any[]) => prev.filter((e) => e.id !== id));
+};
+
   const fetchEvents = async () => {
     const { data, error } = await supabase
       .from("events")
@@ -77,7 +87,12 @@ export default function EventsTab() {
 
       {/* 🔹 Event List */}
       {filteredEvents.map((event) => (
-        <EventCard key={event.id} event={event} />
+        <EventCard
+  key={event.id}
+  event={event}
+  onUpdate={handleEventUpdate}
+  onDelete={handleEventDelete}
+/>
       ))}
 
       {/* 🔹 Empty State */}

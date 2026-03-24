@@ -74,9 +74,6 @@ const filteredSubmissions = [...submissions]
     return 0;
   });
 
-
-
-
   return (
     <>
       <div className="mb-4 mt-0">

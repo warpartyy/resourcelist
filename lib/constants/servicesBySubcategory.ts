@@ -11,7 +11,8 @@ export const SERVICES_BY_SUBCATEGORY: Record<string, string[]> = {
   "substance-use-recovery": [
     "Detox",
     "Medication-Assisted Treatment (MAT)",
-    "Treatment",
+    "Residental Treatment",
+    "Outpatient Treatment",
     "Counseling",
     "Peer Support",
     "Naloxone Distribution",
