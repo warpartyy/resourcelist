@@ -7,7 +7,7 @@ import { TAG_GROUPS } from "@/lib/taxonomy";
 export default async function ResourcePage({
   params,
 }: {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }) {
   const supabase = getSupabase(); // 👈 add this
 
@@ -17,6 +17,7 @@ export default async function ResourcePage({
     .from("resources")
     .select("*")
     .eq("slug", slug)
+    .eq("status", "approved") // 🔥 CRITICAL FIX
     .single();
 
   if (error || !resource) {

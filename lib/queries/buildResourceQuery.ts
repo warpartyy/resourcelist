@@ -10,17 +10,27 @@ type ResourceQueryFilters = {
   tags?: string;
   county?: string;
   state?: string;
+  status?: "approved" | "pending" | "rejected" | "deleted";
 };
 
 export async function buildResourceQuery(filters: ResourceQueryFilters) {
   const supabase = getSupabase();
+    
+const { q, parent, sub, tags, county, state, status } = filters;
 
-  let query = supabase
-    .from("resources")
-    .select("*")
-    .order("organization", { ascending: true });
+let query = supabase
+  .from("resources")
+  .select("*");
 
-  const { q, parent, sub, tags, county, state } = filters;
+// ✅ apply status filter FIRST
+if (status) {
+  query = query.eq("status", status);
+} else {
+  query = query.eq("status", "approved");
+}
+
+// ✅ then ordering
+query = query.order("organization", { ascending: true });
 
   // -----------------------------
   // SEARCH (q)
