@@ -2,14 +2,13 @@ import { getSupabase } from "@/lib/supabase";
 import Container from "../../../components/ui/Container";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { TAG_GROUPS } from "@/lib/taxonomy";
 
 export default async function ResourcePage({
   params,
 }: {
   params: { slug: string };
 }) {
-  const supabase = getSupabase(); // 👈 add this
+  const supabase = getSupabase();
 
   const { slug } = await params;
 
@@ -49,10 +48,7 @@ function formatWebsite(url?: string) {
   }
 }
 
-const serviceTags =
-  resource.tags?.filter((tag: string) =>
-    TAG_GROUPS.serviceType.includes(tag)
-  ) || [];
+const services = resource.services || [];
 
   return (
 <Container>
@@ -201,15 +197,10 @@ const serviceTags =
       Services
     </h2>
 
-    {serviceTags.length > 0 ? (
+{services.length > 0 ? (
   <ul className="list-disc list-inside text-text-primary space-y-2">
-    {serviceTags.map((tag: string, i: number) => (
-      <li key={i}>
-        {tag
-          .split("-")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ")}
-      </li>
+    {services.map((service: string, i: number) => (
+      <li key={i}>{service}</li>
     ))}
   </ul>
 ) : (
