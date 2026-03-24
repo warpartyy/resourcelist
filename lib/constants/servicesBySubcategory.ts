@@ -13,6 +13,7 @@ export const SERVICES_BY_SUBCATEGORY: Record<string, string[]> = {
     "Treatment",
     "Counseling",
     "Peer Support",
+    "Naloxone Distribution"
   ],
 
   "general-healthcare-services": [
@@ -54,6 +55,9 @@ export const SERVICES_BY_SUBCATEGORY: Record<string, string[]> = {
     "Job Training",
     "Job Placement",
     "Resume Assistance",
+    "GED Programs",
+    "Drivers License Reinstatement"
+
   ],
 
   "financial-benefits-assistance": [
