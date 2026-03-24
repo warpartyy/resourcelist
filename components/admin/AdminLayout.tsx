@@ -61,7 +61,7 @@ export default function AdminLayout({
   const [collapsed, setCollapsed] = useState(false);
   const [displayName, setDisplayName] = useState<string | null>(null);
 
-  useEffect(() => {
+useEffect(() => {
   const loadUser = async () => {
     const supabase = getSupabase();
 
@@ -87,7 +87,6 @@ export default function AdminLayout({
   loadUser();
 }, []);
 
-
   const navItem = (
     label: string,
     value: AdminSection,
@@ -96,6 +95,8 @@ export default function AdminLayout({
   ) => {
     const isActive = adminSection === value;
 
+
+    
 
     return (
       <button
@@ -132,7 +133,7 @@ export default function AdminLayout({
   };
 
   return (
-    <div className="h-screen flex overflow-hiddenbg-bg text-text-primary">
+    <div className="h-screen flex overflow-hidden bg-bg text-text-primary">
       {/* Sidebar */}
       <div
         className={`${

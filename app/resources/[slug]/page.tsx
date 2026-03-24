@@ -17,7 +17,7 @@ export default async function ResourcePage({
     .from("resources")
     .select("*")
     .eq("slug", slug)
-    .eq("status", "approved") // 🔥 CRITICAL FIX
+    .eq("status", "approved")
     .single();
 
   if (error || !resource) {

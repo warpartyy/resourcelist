@@ -1,11 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getSupabase } from "../../lib/supabase";
 import { useRouter } from "next/navigation";
 import AdminLayout from "../../components/admin/AdminLayout";
 import AdminTabs from "@/components/admin/tabs/AdminTabs";
 import {fetchAdminCounts} from "@/lib/services/adminService";
 import { COUNTY_OPTIONS_BY_STATE } from "@/lib/geography/counties";
+import { getSupabase } from "@/lib/supabase";
 
 const CATEGORY_OPTIONS = [
   { label: "Mental Health", value: "mental-health" },
@@ -18,8 +18,13 @@ const CATEGORY_OPTIONS = [
 
 const COUNTY_OPTIONS = COUNTY_OPTIONS_BY_STATE["OK"] ?? [];
 
-export default function AdminPage() {
-  const [loading, setLoading] = useState(true);
+export default function AdminPage({
+  displayName,
+}: {
+  displayName?: string | null;
+}) {
+
+
 
   // Counts
 const [counts, setCounts] = useState({
@@ -46,83 +51,38 @@ const [counts, setCounts] = useState({
     router.push("/login");
   };
 
-  useEffect(() => {
-    checkUser();
-  }, []);
 
 
-
-const checkUser = async () => {
-  const supabase = getSupabase();
-
-  // 1. Check session
-  const { data: sessionData } = await supabase.auth.getSession();
-
-  if (!sessionData.session) {
-    router.push("/login");
-    return;
-  }
-
-  const user = sessionData.session.user;
-
-type Profile = {
-  role: string | null;
-  display_name: string | null;
-};
-
-  // 2. Fetch profile
-  const { data: profile, error } = await supabase
-    .from("profiles")
-    .select("role, display_name")
-    .eq("id", user.id)
-    .single<Profile>();
-
-  if (error || !profile) {
-    console.error("Profile fetch error:", error);
-    router.push("/");
-    return;
-  }
-
-  // 3. Check role
-  if (profile.role !== "admin") {
-    router.push("/");
-    return;
-  }
-
-  // 🚨 Force onboarding if no display name
-if (!profile.display_name) {
-  // 🛑 Allow short grace period after onboarding
-  console.warn("Missing display_name — redirecting to settings");
-  router.push("/admin/settings");
-  return;
-}
-
-  // ✅ Authorized
-  await fetchCounts();
-  fetchData();
-};
 
   const refreshAll = async () => {
   await fetchCounts();
   await fetchData();
 };
 
- const fetchCounts = async () => {
-  const counts = await fetchAdminCounts();
-  setCounts(counts);
+const fetchCounts = async () => {
+  try {
+    const counts = await fetchAdminCounts();
+    setCounts(counts);
+  } catch (err) {
+    console.error("Failed to fetch counts", err);
+  }
 };
 
 const [search, setSearch] = useState("");
 
 const fetchData = async () => {
-  setLoading(true);
-  setLoading(false);
 };
+
+  useEffect(() => {
+  fetchCounts();
+}, []);
 
   // ✅ UPDATED dependency
   useEffect(() => {
     fetchData();
   }, [adminSection, resourceSortOrder]);
+
+
 
   return (
   <AdminLayout
@@ -133,8 +93,6 @@ const fetchData = async () => {
   resourceCount={counts.resources}
   rejectedCount={counts.rejected}
   deletedCount={counts.deleted}
-
-  // NEW
   search={search}
   setSearch={setSearch}
   sortOrder={resourceSortOrder}
