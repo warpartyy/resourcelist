@@ -91,6 +91,8 @@ type Profile = {
 
   // 🚨 Force onboarding if no display name
 if (!profile.display_name) {
+  // 🛑 Allow short grace period after onboarding
+  console.warn("Missing display_name — redirecting to settings");
   router.push("/admin/settings");
   return;
 }

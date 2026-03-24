@@ -18,6 +18,9 @@ export default function AdminSettingsPage() {
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const passwordsDoNotMatch =
+  confirmPassword.length > 0 && password !== confirmPassword;
+
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -83,13 +86,12 @@ const handleSave = async () => {
     return;
   }
 
-  toast.success("Profile setup complete");
+toast.success("Profile setup complete");
 
-  // 🚀 3. Redirect to dashboard
+// ✅ SMALL DELAY to ensure DB + session sync
+setTimeout(() => {
   window.location.href = "/admin";
-
-  setSaving(false);
-};
+}, 300);
 
   
   if (loading) return <p className="p-6">Loading...</p>;
@@ -141,6 +143,12 @@ const handleSave = async () => {
     placeholder="Confirm password"
     className="w-full border rounded p-2"
   />
+
+  {passwordsDoNotMatch && (
+    <p className="text-sm text-red-500 mt-1">
+      Passwords do not match
+    </p>
+  )}
 </div>
 
 
