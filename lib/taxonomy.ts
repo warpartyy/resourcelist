@@ -168,7 +168,6 @@ export const SUBCATEGORY_PARENT_MAP: Record<string, string> = {
 
   "youth-programs": "family-community-support",
   "parenting-family-support": "family-community-support",
-  "peer-support-services": "family-community-support",
   "community-cultural-programs": "family-community-support",
 };
 

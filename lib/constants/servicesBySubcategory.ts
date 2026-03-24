@@ -5,6 +5,7 @@ export const SERVICES_BY_SUBCATEGORY: Record<string, string[]> = {
     "Counseling",
     "Psychiatric Services",
     "Crisis Intervention",
+    "Peer Support",
   ],
 
   "substance-use-recovery": [
@@ -13,7 +14,8 @@ export const SERVICES_BY_SUBCATEGORY: Record<string, string[]> = {
     "Treatment",
     "Counseling",
     "Peer Support",
-    "Naloxone Distribution"
+    "Naloxone Distribution",
+    "Sober Living",
   ],
 
   "general-healthcare-services": [
@@ -32,12 +34,14 @@ export const SERVICES_BY_SUBCATEGORY: Record<string, string[]> = {
     "Rental Assistance",
     "Transitional Housing",
     "Housing Navigation",
+    "Sober Living",
   ],
 
   "food-assistance": [
     "Food Pantry",
     "Meal Program",
     "Grocery Assistance",
+    "Food Distribution Boxes",
   ],
 
   "transportation-services": [
@@ -95,9 +99,8 @@ export const SERVICES_BY_SUBCATEGORY: Record<string, string[]> = {
   "parenting-family-support": [
     "Parenting Support",
     "Family Counseling",
-  ],
-
-  "peer-support-services": [
+    "Parenting Classes",
+    "Personal Care Items",
     "Peer Support",
   ],
 
