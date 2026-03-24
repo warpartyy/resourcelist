@@ -172,21 +172,7 @@ export const SUBCATEGORY_PARENT_MAP: Record<string, string> = {
   "community-cultural-programs": "family-community-support",
 };
 
-
 export const TAG_GROUPS = {
-  serviceType: [
-    "counseling",
-    "psychiatric-services",
-    "detox",
-    "inpatient",
-    "outpatient",
-    "residential-treatment",
-    "medication-assisted-treatment",
-    "support-group",
-    "peer-support",
-    "case-management",
-    "prevention-program",
-  ],
   population: [
     "youth",
     "adults",
@@ -198,6 +184,7 @@ export const TAG_GROUPS = {
     "justice-involved",
     "families",
   ],
+
   delivery: [
     "in-person",
     "telehealth",
@@ -205,6 +192,14 @@ export const TAG_GROUPS = {
     "home-based",
     "school-based",
   ],
+
+  // ✅ NEW (moved out of old serviceType thinking)
+  levelOfCare: [
+    "inpatient",
+    "residential",
+    "outpatient",
+  ],
+
   payment: [
     "accepts-medicaid",
     "accepts-medicare",
@@ -212,6 +207,7 @@ export const TAG_GROUPS = {
     "sliding-scale",
     "free",
   ],
+
   eligibility: [
     "referral-required",
     "walk-in-available",
@@ -220,6 +216,7 @@ export const TAG_GROUPS = {
     "county-resident-only",
     "state-resident-only",
   ],
+
   logistics: [
     "spanish-available",
     "evening-hours",
@@ -227,5 +224,3 @@ export const TAG_GROUPS = {
     "same-day-service",
   ],
 };
-
-
