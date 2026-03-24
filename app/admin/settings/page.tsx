@@ -93,8 +93,11 @@ setTimeout(() => {
   window.location.href = "/admin";
 }, 300);
 
-  
-  if (loading) return <p className="p-6">Loading...</p>;
+setSaving(false);
+}; // ✅ ← THIS WAS MISSING
+
+
+if (loading) return <p className="p-6">Loading...</p>;
 
   return (
     <div className="p-6 max-w-xl">
