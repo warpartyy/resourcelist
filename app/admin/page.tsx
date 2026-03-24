@@ -40,8 +40,8 @@ const [counts, setCounts] = useState({
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedSubmission, setEditedSubmission] = useState<any>({});
-  const [adminSection, setAdminSection] = useState<
-  "pending" | "rejected" | "resources" | "deleted" | "settings"
+const [adminSection, setAdminSection] = useState<
+  "resources" | "deleted" | "pending" | "rejected" | "settings" | "events"
 >("pending");
 
 

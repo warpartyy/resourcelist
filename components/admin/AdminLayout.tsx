@@ -6,6 +6,7 @@ import AdminControls from "@/components/admin/AdminControls";
 import { Settings } from "lucide-react";
 import { useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
+import { Calendar } from "lucide-react";
 
 type Profile = {
   display_name: string | null;
@@ -16,7 +17,8 @@ type AdminSection =
   | "resources"
   | "rejected"
   | "deleted"
-  | "settings";
+  | "settings"
+  | "events";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
@@ -24,6 +26,7 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   rejected: "Rejected",
   deleted: "Deleted Resources",
   settings: "Settings",
+  events: "Pending Events",
 };
 
 type Props = {
@@ -172,6 +175,7 @@ useEffect(() => {
           {navItem("Approved Resources", "resources", Database, resourceCount)}
           {navItem("Rejected", "rejected", XCircle, rejectedCount)}
           {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
+          {navItem("Events", "events", Calendar)}
           {navItem("Settings", "settings", Settings)}
         </div>
 

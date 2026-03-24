@@ -4,9 +4,16 @@ import PendingTab from "./PendingTab";
 import RejectedTab from "./RejectedTab";
 import ResourcesTab from "./ResourcesTab";
 import AdminSettingsPage from "@/app/admin/settings/page";
+import EventsTab from "./EventsTab";
 
 type Props = {
-  adminSection: "pending" | "rejected" | "resources" | "deleted" | "settings";
+  adminSection:
+  | "pending"
+  | "rejected"
+  | "resources"
+  | "deleted"
+  | "settings"
+  | "events";
   editingId: string | null;
   setEditingId: (id: string | null) => void;
   editedSubmission: any;
@@ -85,6 +92,10 @@ if (adminSection === "resources" || adminSection === "deleted") {
 
 if (adminSection === "settings") {
   return <AdminSettingsPage />;
+}
+
+if (adminSection === "events") {
+  return <EventsTab />;
 }
 
   return null;

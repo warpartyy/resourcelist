@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "./types";
+import { Database } from "@/lib/database.types";
 
 // ✅ FIXED: typed client reference
 let supabaseClient: ReturnType<typeof createClient<Database>> | null = null;
