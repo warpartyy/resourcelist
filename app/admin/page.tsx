@@ -65,9 +65,11 @@ const checkUser = async () => {
 
   const user = sessionData.session.user;
 
-  type Profile = {
+type Profile = {
   role: string | null;
+  display_name: string | null;
 };
+
   // 2. Fetch profile
   const { data: profile, error } = await supabase
     .from("profiles")
@@ -86,6 +88,12 @@ const checkUser = async () => {
     router.push("/");
     return;
   }
+
+  // 🚨 Force onboarding if no display name
+if (!profile.display_name) {
+  router.push("/admin/settings");
+  return;
+}
 
   // ✅ Authorized
   await fetchCounts();

@@ -16,6 +16,8 @@ export default function AdminSettingsPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
 
   useEffect(() => {
     const loadProfile = async () => {
@@ -46,26 +48,50 @@ export default function AdminSettingsPage() {
     loadProfile();
   }, [router]);
 
-  const handleSave = async () => {
-    if (!userId) return;
+const handleSave = async () => {
+  if (!userId) return;
 
-    setSaving(true);
+  if (!password || password !== confirmPassword) {
+    toast.error("Passwords do not match");
+    return;
+  }
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ display_name: displayName })
-      .eq("id", userId);
+  setSaving(true);
 
-    if (error) {
-      console.error(error);
-      toast.error("Failed to update profile");
-    } else {
-      toast.success("Profile updated");
-    }
+  // 🔑 1. Update password in Supabase Auth
+  const { error: passwordError } = await supabase.auth.updateUser({
+    password,
+  });
 
+  if (passwordError) {
+    console.error(passwordError);
+    toast.error("Failed to set password");
     setSaving(false);
-  };
+    return;
+  }
 
+  // 🧾 2. Update profile
+  const { error: profileError } = await supabase
+    .from("profiles")
+    .update({ display_name: displayName })
+    .eq("id", userId);
+
+  if (profileError) {
+    console.error(profileError);
+    toast.error("Failed to update profile");
+    setSaving(false);
+    return;
+  }
+
+  toast.success("Profile setup complete");
+
+  // 🚀 3. Redirect to dashboard
+  window.location.href = "/admin";
+
+  setSaving(false);
+};
+
+  
   if (loading) return <p className="p-6">Loading...</p>;
 
   return (
@@ -95,13 +121,42 @@ export default function AdminSettingsPage() {
           />
         </div>
 
+<div>
+  <label className="block text-sm mb-1">Password</label>
+  <input
+    type="password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    placeholder="Enter password"
+    className="w-full border rounded p-2"
+  />
+</div>
+
+<div>
+  <label className="block text-sm mb-1">Confirm Password</label>
+  <input
+    type="password"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    placeholder="Confirm password"
+    className="w-full border rounded p-2"
+  />
+</div>
+
+
         <button
           onClick={handleSave}
-          disabled={saving}
+          disabled={
+            saving ||
+            !displayName ||
+            !password ||
+            password !== confirmPassword
+          }
           className="button button-primary"
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>
+
 
       </div>
     </div>
