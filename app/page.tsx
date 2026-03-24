@@ -66,7 +66,27 @@ useEffect(() => {
 
     window.history.replaceState({}, document.title, "/");
 
-    router.replace("/admin");
+    const { data: sessionData } = await supabase.auth.getSession();
+const user = sessionData.session?.user;
+
+if (!user) {
+  console.error("No user after session set");
+  return;
+}
+
+// ✅ Detect first login
+const isFirstLogin =
+  user.created_at === user.last_sign_in_at;
+
+// ✅ Clean URL
+window.history.replaceState({}, document.title, "/");
+
+// ✅ Conditional redirect
+if (isFirstLogin) {
+  router.replace("/admin/settings");
+} else {
+  router.replace("/admin");
+}
   };
 
   handleInvite();
