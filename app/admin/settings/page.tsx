@@ -74,10 +74,14 @@ const handleSave = async () => {
   }
 
   // 🧾 2. Update profile
-  const { error: profileError } = await supabase
-    .from("profiles")
-    .update({ display_name: displayName })
-    .eq("id", userId);
+const { data: updatedProfile, error: profileError } = await supabase
+  .from("profiles")
+  .update({ display_name: displayName })
+  .eq("id", userId)
+  .select("display_name") // 👈 important
+  .single();
+  
+  console.log("UPDATED PROFILE:", updatedProfile);
 
   if (profileError) {
     console.error(profileError);
@@ -154,7 +158,6 @@ if (loading) return <p className="p-6">Loading...</p>;
   )}
 </div>
 
-
         <button
           onClick={handleSave}
           disabled={
@@ -167,7 +170,6 @@ if (loading) return <p className="p-6">Loading...</p>;
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>
-
 
       </div>
     </div>
