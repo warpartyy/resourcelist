@@ -66,7 +66,9 @@ useEffect(() => {
 
     window.history.replaceState({}, document.title, "/");
 
-    const { data: sessionData } = await supabase.auth.getSession();
+
+    
+const { data: sessionData } = await supabase.auth.getSession();
 const user = sessionData.session?.user;
 
 if (!user) {
@@ -74,15 +76,18 @@ if (!user) {
   return;
 }
 
-// ✅ Detect first login
-const isFirstLogin =
-  user.created_at === user.last_sign_in_at;
+// 🔑 NEW: check profile instead of timestamps
+const { data: profile } = await supabase
+  .from("profiles")
+  .select("display_name")
+  .eq("id", user.id)
+  .single();
 
-// ✅ Clean URL
+// Clean URL
 window.history.replaceState({}, document.title, "/");
 
-// ✅ Conditional redirect
-if (isFirstLogin) {
+// ✅ Conditional redirect (CORRECT LOGIC)
+if (!profile?.display_name) {
   router.replace("/admin/settings");
 } else {
   router.replace("/admin");
