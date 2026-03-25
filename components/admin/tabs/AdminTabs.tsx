@@ -6,11 +6,13 @@ import ResourcesTab from "./ResourcesTab";
 import AdminSettingsPage from "@/app/admin/settings/page";
 import EventsTab from "./EventsTab";
 import MessagesTab from "@/app/admin/components/MessagesTab";
+import UpdateRequestsTab from "./UpdateRequestsTab";
 
 
 type Props = {
 adminSection:
   | "pending"
+  | "update-requests"
   | "rejected"
   | "resources"
   | "deleted"
@@ -29,6 +31,7 @@ adminSection:
   setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
   search: string;
   setSearch: (value: string) => void;
+  onUpdateRequestHandled?: () => void;
 };
 
 export default function AdminTabs(props: Props) {
@@ -104,6 +107,14 @@ if (adminSection === "events") {
 
 if (adminSection === "messages") {
   return <MessagesTab />;
+}
+
+if (adminSection === "update-requests") {
+  return <UpdateRequestsTab />;
+}
+
+if (adminSection === "update-requests") {
+  return <UpdateRequestsTab onHandled={props.onUpdateRequestHandled} />;
 }
 
   return null;

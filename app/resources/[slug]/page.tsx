@@ -3,6 +3,7 @@ import Container from "../../../components/ui/Container";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ResourceLocationBlock } from "@/components/resources/ResourceLocationBlock";
+import UpdateSuccessBanner from '@/components/resources/UpdateSuccessBanner'
 
 export default async function ResourcePage({
   params,
@@ -63,7 +64,7 @@ const services = resource.services || [];
 
   return (
 <Container>
-
+<UpdateSuccessBanner />
   {/* Back Link */}
   {primaryCategory && displayCategory && (
     <div className="mb-4">
@@ -215,32 +216,28 @@ const services = resource.services || [];
   </div>
 
 
+
+
+
+
 <div className="mt-6 pt-4 border-t border-border flex flex-col md:flex-row md:items-center md:justify-between text-xs text-text-muted gap-3">
 
-  <p>
-    See outdated or missing information?{" "}
-    <Link
-      href={`/suggest-resource?resource=${resource.slug}`}
-      className="text-blue-400 hover:underline"
-    >
-      Suggest an update
-    </Link>
-  </p>
+
+
+
+<Link href={`/resources/${resource.slug}/suggest-update`}>
+  <button className="mt-4 border px-4 py-2 rounded">
+    Suggest an Update
+  </button>
+</Link>
+
 
   <p className="md:text-right">
     {resource.last_verified
       ? `Last Verified: ${resource.last_verified}`
       : "Verification date not recorded."}
   </p>
-
 </div>
-
-
-
-
-
 </Container>
-
-
   );
 }

@@ -32,6 +32,7 @@ const [counts, setCounts] = useState({
   rejected: 0,
   resources: 0,
   deleted: 0,
+  updateRequests: 0,
 });
 
   const [resourceSortOrder, setResourceSortOrder] =
@@ -48,6 +49,7 @@ const [adminSection, setAdminSection] = useState<
   | "settings"
   | "events"
   | "messages"
+  | "update-requests"
 >("pending");
 
 
@@ -71,6 +73,13 @@ const fetchCounts = async () => {
   }
 };
 
+const decrementUpdateRequests = () => {
+  setCounts((prev) => ({
+    ...prev,
+    updateRequests: Math.max(0, prev.updateRequests - 1),
+  }))
+}
+
 const [search, setSearch] = useState("");
 
 
@@ -89,6 +98,7 @@ const [search, setSearch] = useState("");
   resourceCount={counts.resources}
   rejectedCount={counts.rejected}
   deletedCount={counts.deleted}
+  updateRequestsCount={counts.updateRequests}
   search={search}
   setSearch={setSearch}
   sortOrder={resourceSortOrder}
@@ -107,6 +117,7 @@ const [search, setSearch] = useState("");
       setSortOrder={setResourceSortOrder}
       search={search}
       setSearch={setSearch}
+      onUpdateRequestHandled={decrementUpdateRequests}
     />
   </AdminLayout>
 );

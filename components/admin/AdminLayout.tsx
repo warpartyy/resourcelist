@@ -1,7 +1,7 @@
 "use client";
 import { Trash } from "lucide-react";
 import { useState } from "react";
-import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
+import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight, MessageSquare, RefreshCw  } from "lucide-react";
 import AdminControls from "@/components/admin/AdminControls";
 import { Settings } from "lucide-react";
 import { useEffect } from "react";
@@ -14,6 +14,7 @@ type Profile = {
 
 type AdminSection =
   | "pending"
+  | "update-requests" // ✅ NEW
   | "resources"
   | "rejected"
   | "deleted"
@@ -23,6 +24,7 @@ type AdminSection =
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
+  "update-requests": "Update Requests", // ✅ NEW
   resources: "Approved Resources",
   rejected: "Rejected",
   deleted: "Deleted Resources",
@@ -39,6 +41,7 @@ type Props = {
   resourceCount?: number;
   rejectedCount?: number;
   deletedCount?: number;
+  updateRequestsCount?: number;
   children: React.ReactNode;
 
   // NEW
@@ -56,6 +59,7 @@ export default function AdminLayout({
   resourceCount,
   rejectedCount,
   deletedCount,
+  updateRequestsCount,
   children,
   search,
   setSearch,
@@ -174,6 +178,7 @@ useEffect(() => {
         {/* Navigation */}
 <div className="space-y-2">
   {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
+  {navItem("Update Requests", "update-requests", RefreshCw, updateRequestsCount)}
   {navItem("Approved Resources", "resources", Database, resourceCount)}
   {navItem("Rejected", "rejected", XCircle, rejectedCount)}
   {navItem("Deleted Resources", "deleted", Trash, deletedCount)}

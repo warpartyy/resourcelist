@@ -58,11 +58,18 @@ export async function fetchAdminCounts() {
     .select("*", { count: "exact", head: true })
     .eq("status", "deleted");
 
+    const { count: updateRequests } = await supabase
+  .from('resource_submissions')
+  .select('*', { count: 'exact', head: true })
+  .eq('type', 'update')
+  .eq('status', 'pending')
+
 
   return {
   pending: pending || 0,
   rejected: rejected || 0,
   resources: approvedResources || 0,
   deleted: deletedResources || 0,
+  updateRequests: updateRequests || 0,
 };
 }

@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "ability for messages and messages tab in admin"
+git commit -m "'suggest an update' is preloaded for the resource they are looking at. update suggestions appear in the admin dash"
 git push
 
 
