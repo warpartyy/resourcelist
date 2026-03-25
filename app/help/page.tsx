@@ -81,7 +81,7 @@ return (
       <button
         type="submit"
         disabled={loading}
-        className="bg-black text-white px-4 py-2 rounded"
+        className="button button-primary"
       >
         {loading ? 'Sending...' : 'Send message'}
       </button>
