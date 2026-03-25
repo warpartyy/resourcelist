@@ -43,38 +43,49 @@ export default function HelpPage() {
     );
   }
 
-  return (
-    <div className="max-w-xl mx-auto p-6">
-      <h1 className="text-xl font-semibold mb-4">
-        Need help finding a resource?
-      </h1>
+return (
+  <div className="max-w-xl mx-auto p-6">
+    {/* Header */}
+<h1 className="text-2xl font-semibold mb-2">
+  Get in touch
+</h1>
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <textarea
-          required
-          placeholder="Tell us what you’re looking for..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className="w-full border rounded p-3"
-          rows={5}
-        />
+<p className="text-sm text-gray-600 mb-4">
+  You can ask for help finding resources, share feedback, or let us know what’s missing.
+  We’re always looking to improve and better support the community.
+</p>
 
-        <input
-          type="email"
-          placeholder="Email (optional)"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded p-3"
-        />
+    <p className="text-xs text-gray-500 mb-6">
+      This isn’t automated — a real person will read your message.
+    </p>
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="bg-black text-white px-4 py-2 rounded"
-        >
-          {loading ? 'Sending...' : 'Submit'}
-        </button>
-      </form>
-    </div>
-  );
+    {/* Form */}
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <textarea
+        required
+        placeholder="Share what’s going on or what you’re looking for..."
+        value={message}
+        onChange={(e) => setMessage(e.target.value)}
+        className="w-full border rounded p-3"
+        rows={5}
+      />
+
+      <input
+        type="email"
+        placeholder="Email (optional, if you'd like a response)"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full border rounded p-3"
+      />
+
+      <button
+        type="submit"
+        disabled={loading}
+        className="bg-black text-white px-4 py-2 rounded"
+      >
+        {loading ? 'Sending...' : 'Send message'}
+      </button>
+    </form>
+  </div>
+);
 }
