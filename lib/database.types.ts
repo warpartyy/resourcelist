@@ -86,6 +86,36 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          admin_notes: string | null
+          contact_email: string | null
+          content: string
+          created_at: string | null
+          id: string
+          responded_at: string | null
+          status: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          contact_email?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          responded_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          contact_email?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          responded_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -109,6 +139,62 @@ export type Database = {
           role?: string | null
         }
         Relationships: []
+      }
+      resource_locations: {
+        Row: {
+          address: string | null
+          city: string | null
+          counties_served: string[] | null
+          created_at: string | null
+          email: string | null
+          id: string
+          is_primary: boolean | null
+          location_name: string | null
+          phone: string | null
+          resource_id: string
+          state: string | null
+          updated_at: string | null
+          zip: string | null
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          counties_served?: string[] | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          location_name?: string | null
+          phone?: string | null
+          resource_id: string
+          state?: string | null
+          updated_at?: string | null
+          zip?: string | null
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          counties_served?: string[] | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          is_primary?: boolean | null
+          location_name?: string | null
+          phone?: string | null
+          resource_id?: string
+          state?: string | null
+          updated_at?: string | null
+          zip?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_locations_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resources: {
         Row: {

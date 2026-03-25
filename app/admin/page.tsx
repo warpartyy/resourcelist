@@ -58,11 +58,8 @@ const [adminSection, setAdminSection] = useState<
   };
 
 
-
-
   const refreshAll = async () => {
   await fetchCounts();
-  await fetchData();
 };
 
 const fetchCounts = async () => {
@@ -76,17 +73,10 @@ const fetchCounts = async () => {
 
 const [search, setSearch] = useState("");
 
-const fetchData = async () => {
-};
 
   useEffect(() => {
   fetchCounts();
 }, []);
-
-  // ✅ UPDATED dependency
-  useEffect(() => {
-    fetchData();
-  }, [adminSection, resourceSortOrder]);
 
 
 

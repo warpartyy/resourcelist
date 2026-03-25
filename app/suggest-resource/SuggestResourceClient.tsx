@@ -127,11 +127,26 @@ const newSubmission = {
 
 console.log("Submitting:", newSubmission);
 
+
 const supabase = getSupabase();
 
+
+
+// ✅ STEP 2: Insert if safe
 const response = await supabase
   .from("resources")
   .insert([newSubmission]);
+
+console.log("Full response:", JSON.stringify(response, null, 2));
+
+if (response.error) {
+  console.error("Submission error:", JSON.stringify(response.error, null, 2));
+  alert("Error submitting form. Check console.");
+} else {
+  setSubmitted(true);
+}
+
+
 
 console.log("Full response:", JSON.stringify(response, null, 2));
 

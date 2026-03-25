@@ -1,5 +1,6 @@
 "use client";
 import {PARENT_CATEGORIES, SUBCATEGORIES, TAG_GROUPS,} from "@/lib/taxonomy";
+import AdditionalLocationsSection from "./resource-edit/AdditionalLocationsSection";
 import {
   BasicInfoSection,
   LocationSection,
@@ -11,18 +12,24 @@ import {
   AdminNotesSection,
   TribalSection,
 } from "@/components/admin/resource-edit";
+import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
 
 type Props = {
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
+additionalLocations: any[];
+setAdditionalLocations: (data: any[]) => void;
   CATEGORY_OPTIONS: { label: string; value: string }[];
   COUNTY_OPTIONS: string[];
   onCancel: () => void;
+  
 };
 
 export default function ResourceEditForm({
   editedSubmission,
   setEditedSubmission,
+  additionalLocations,
+  setAdditionalLocations,
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
   onCancel,
@@ -59,10 +66,15 @@ export default function ResourceEditForm({
     setEditedSubmission={setEditedSubmission}
   />
 
-  <LocationSection
-    editedSubmission={editedSubmission}
-    setEditedSubmission={setEditedSubmission}
-  />
+<LocationSection
+  editedSubmission={editedSubmission}
+  setEditedSubmission={setEditedSubmission}
+/>
+
+<AdditionalLocationsSection
+  locations={additionalLocations}
+  setLocations={setAdditionalLocations}
+/>
 
   <ContactSection
     editedSubmission={editedSubmission}

@@ -4,16 +4,19 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { getSupabase } from "@/lib/supabase";
 import { updateResource } from "@/lib/services/resourceService";
+import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
 
 type Props = {
   resourceId: string;
   editedData: any;
+  additionalLocations: ResourceLocation[]; // ✅ NEW
   onSuccess?: () => void;
 };
 
 export default function SaveButton({
   resourceId,
   editedData,
+  additionalLocations,
   onSuccess,
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
@@ -57,6 +60,54 @@ const { error } = await updateResource(resourceId, {
         toast.error("Save failed.");
         return;
       }
+
+      // ✅ STEP 2: Sync locations
+const { error: deleteError } = await supabase
+  .from("resource_locations")
+  .delete()
+  .eq("resource_id", resourceId);
+
+if (deleteError) {
+  console.error(deleteError);
+  toast.error("Failed to update locations.");
+  return;
+}
+
+// Build locations array
+const primaryLocation = {
+  resource_id: resourceId,
+  address: editedData.address || "",
+  city: editedData.city || "",
+  state: editedData.state || "",
+  zip: editedData.zip || "",
+  is_primary: true,
+  location_name: null,
+};
+
+const additional = additionalLocations.map((loc) => ({
+  resource_id: resourceId,
+  address: loc.address,
+  city: loc.city,
+  state: loc.state,
+  zip: loc.zip,
+  is_primary: false,
+  location_name: loc.location_name || null, // ✅ THIS FIXES IT
+}));
+
+const allLocations = [primaryLocation, ...additional].filter(
+  (loc) => loc.address || loc.city
+);
+
+// Insert all
+const { error: insertError } = await supabase
+  .from("resource_locations")
+  .insert(allLocations);
+
+if (insertError) {
+  console.error(insertError);
+  toast.error("Failed to save locations.");
+  return;
+}
 
       toast.success("Changes saved");
       onSuccess?.();

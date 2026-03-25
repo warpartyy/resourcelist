@@ -16,6 +16,7 @@ import RestoreButton from "./actions/RestoreButton";
 import { moveResourceToPending } from "@/lib/services/resourceService";
 import MoveSubmissionToPendingButton from "./actions/MoveToPendingButton";
 import { getSupabase } from "@/lib/supabase";
+import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
 
 type Props = {
   resources: any[];
@@ -38,6 +39,9 @@ export default function ResourcesPanel({
 }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedResource, setEditedResource] = useState<any>({});
+  const [additionalLocations, setAdditionalLocations] = useState([
+  { address: "", city: "", state: "OK", zip: "", is_primary: false }
+]);
 
   // Sort A-Z
 console.log("SORT ORDER:", sortOrder);
@@ -108,9 +112,11 @@ const filteredResources = [...resources] // ✅ IMPORTANT
             >
 
             {isEditing ? (
-              <ResourceEditForm
-                editedSubmission={editedResource}
-                setEditedSubmission={setEditedResource}
+<ResourceEditForm
+  editedSubmission={editedResource}
+  setEditedSubmission={setEditedResource}
+  additionalLocations={additionalLocations}
+  setAdditionalLocations={setAdditionalLocations}
                 CATEGORY_OPTIONS={CATEGORY_OPTIONS}
                 COUNTY_OPTIONS={COUNTY_OPTIONS}
                 onCancel={() => setEditingId(null)}
@@ -238,10 +244,46 @@ onClick={async () => {
 
   {/* Left side: Edit */}
   <button
-    onClick={() => {
-      setEditingId(resource.id);
-      setEditedResource(resource);
-    }}
+onClick={async () => {
+  setEditingId(resource.id);
+  setEditedResource(resource);
+
+  const supabase = getSupabase();
+
+  const { data: locations, error } = await supabase
+    .from("resource_locations")
+    .select("*")
+    .eq("resource_id", resource.id);
+
+  if (error) {
+    console.error(error);
+    setAdditionalLocations([]);
+    return;
+  }
+
+  // Remove primary location (we already use resource fields for that)
+  const additional = (locations || [])
+    .filter((loc) => !loc.is_primary)
+.map((loc) => ({
+  address: loc.address || "",
+  city: loc.city || "",
+  state: loc.state || "OK",
+  zip: loc.zip || "",
+  is_primary: false,
+  location_name: loc.location_name || "", // ✅ ADD THIS
+}))
+
+  setAdditionalLocations(additional.length > 0 ? additional : [
+    {
+  address: "",
+  city: "",
+  state: "OK",
+  zip: "",
+  is_primary: false,
+  location_name: "", // ✅ ADD THIS
+}
+  ]);
+}}
     className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
   >
     Edit

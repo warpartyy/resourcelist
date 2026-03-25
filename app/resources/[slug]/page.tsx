@@ -2,6 +2,7 @@ import { getSupabase } from "@/lib/supabase";
 import Container from "../../../components/ui/Container";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ResourceLocationBlock } from "@/components/resources/ResourceLocationBlock";
 
 export default async function ResourcePage({
   params,
@@ -12,16 +13,26 @@ export default async function ResourcePage({
 
   const { slug } = await params;
 
-  const { data: resource, error } = await supabase
-    .from("resources")
-    .select("*")
-    .eq("slug", slug)
-    .eq("status", "approved")
-    .single();
+const { data: resource, error } = await supabase
+  .from("resources")
+.select(`
+  *,
+  resource_locations (
+    address,
+    city,
+    state,
+    zip,
+    is_primary,
+    location_name
+  )
+`)
+  .eq("slug", slug)
+  .eq("status", "approved")
+  .single();
 
-  if (error || !resource) {
-    notFound();
-  }
+if (error || !resource) {
+  notFound();
+}
 
 
   const primaryCategory =
@@ -89,34 +100,9 @@ const services = resource.services || [];
   )}
 </p>
 
-
-{/* Address */}
-{resource.address || resource.city || resource.state || resource.zip ? (
-  <p>
-    📍{" "}
-    <a
-      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-        [resource.address, resource.city, resource.state, resource.zip]
-          .filter(Boolean)
-          .join(" ")
-      )}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-accent hover:underline"
-    >
-      <span className="text-text-primary">
-        {resource.address && `${resource.address} `}
-        {[resource.city, resource.state, resource.zip]
-          .filter(Boolean)
-          .join(", ")}
-      </span>
-    </a>
-  </p>
-) : (
-  <p className="text-text-subtle italic">
-    Address not provided
-  </p>
-)}
+<div className="mt-2">
+  <ResourceLocationBlock resource={resource} />
+</div>
 
 {/* Application Link */}
 {resource.application_link && (

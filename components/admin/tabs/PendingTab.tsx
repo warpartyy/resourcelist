@@ -33,10 +33,9 @@ export default function PendingTab(props: Props) {
   }, []);
 
   // Optional: refresh after actions (approve/reject/etc)
-  const handleSuccess = async () => {
-    await loadData();
-    props.onSuccess?.();
-  };
+const handleSuccess = async () => {
+  await loadData();
+};
 
   if (loading) {
     return <div className="text-sm text-text-muted">Loading pending submissions...</div>;

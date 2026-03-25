@@ -11,6 +11,15 @@ type Message = {
   created_at: string;
 };
 
+function timeAgo(date: string) {
+  const diff = Math.floor((Date.now() - new Date(date).getTime()) / 1000);
+
+  if (diff < 60) return 'just now';
+  if (diff < 3600) return `${Math.floor(diff / 60)} min ago`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} hr ago`;
+  return `${Math.floor(diff / 86400)} days ago`;
+}
+
 export default function MessagesTab() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,8 +60,10 @@ export default function MessagesTab() {
   return (
     <div className="max-w-4xl mx-auto">
 
-      {/* Header */}
-      <h1 className="text-xl font-semibold mb-4">Messages</h1>
+
+      <p className="text-sm text-gray-500 mb-4">
+        Messages from users and community feedback
+      </p>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-6">
@@ -80,39 +91,49 @@ export default function MessagesTab() {
         {filteredMessages.map((msg) => (
           <div
             key={msg.id}
-            className={`border rounded p-4 space-y-2 ${
+            className={`border rounded p-4 space-y-3 ${
               statusStyles[msg.status] || ''
             }`}
           >
-            <div className="text-sm text-gray-500">
-              {new Date(msg.created_at).toLocaleString()}
+            {/* Top Row */}
+            <div className="flex items-center justify-between">
+              <div className="text-xs text-gray-500">
+                {timeAgo(msg.created_at)}
+              </div>
+
+              {msg.status === 'new' && (
+                <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded">
+                  New
+                </span>
+              )}
             </div>
 
-            <div className="font-medium whitespace-pre-wrap">
+            {/* Message Content */}
+            <div className="text-sm whitespace-pre-wrap">
               {msg.content}
             </div>
 
+            {/* Email */}
             {msg.contact_email && (
-              <div className="text-sm text-gray-700">
-                {msg.contact_email}
+              <div className="text-xs text-gray-500">
+                From: {msg.contact_email}
               </div>
             )}
 
-            <div className="text-xs uppercase tracking-wide">
-              Status: {msg.status}
+            {/* Actions */}
+            <div className="pt-2 border-t">
+              <MessageActions
+                id={msg.id}
+                currentStatus={msg.status}
+              />
             </div>
-
-            <MessageActions
-              id={msg.id}
-              currentStatus={msg.status}
-            />
           </div>
         ))}
 
         {/* Empty State */}
         {filteredMessages.length === 0 && (
-          <div className="text-sm text-gray-500">
-            No {activeTab.replace('_', ' ')} messages
+          <div className="text-sm text-gray-500 py-6">
+            No {activeTab.replace('_', ' ')} messages right now
           </div>
         )}
       </div>

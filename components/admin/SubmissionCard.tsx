@@ -6,7 +6,9 @@ import MoveSubmissionToPendingButton from "./actions/MoveToPendingButton";
 import ApproveButton from "./actions/ApproveButton";
 import DeleteButton from "./actions/DeleteButton";
 import RejectButton from "./actions/RejectButton";
-
+import { useState, useEffect } from "react";
+import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
+import { getSupabase } from "@/lib/supabase";
 
 type Props = {
   submission: any;
@@ -23,6 +25,7 @@ type Props = {
 function getEditorDisplayName(submission: any) {
   return submission.last_edited_name || "Unknown admin";
 }
+
 
 function formatAdminTimestamp(value?: string | null) {
   if (!value) return "Unknown time";
@@ -84,8 +87,76 @@ export default function SubmissionCard({
   const isEditing =
   section === "pending" && editingId === submission.id;
 
+const [additionalLocations, setAdditionalLocations] = useState([
+  {
+    address: "",
+    city: "",
+    state: "OK",
+    zip: "",
+    is_primary: false,
+    location_name: "", // ✅ ADD THIS
+  }
+]);
+
+const [possibleMatches, setPossibleMatches] = useState<any[]>([]);
+
+
+
+
+
+useEffect(() => {
+  const runMatchCheck = async () => {
+    const supabase = getSupabase();
+
+    const normalized = normalizeOrgName(submission.organization || "").trim();
+
+    // ❌ stop weak matches f
+    if (!normalized || normalized.length < 3) {
+      setPossibleMatches([]);
+      return;
+    }
+
+    // 🔍 SIMPLE query (no nested locations)
+    const { data: matches } = await supabase
+      .from("resources")
+      .select("id, organization, address, city, state")
+      .neq("id", submission.id)
+      .in("status", ["approved", "pending"]);
+
+    const filteredMatches = (matches || []).filter((match) => {
+      const normalizedMatch = normalizeOrgName(match.organization || "").trim();
+
+      if (!normalizedMatch) return false;
+
+      // ✅ ONLY name comparison
+      const isNameMatch =
+        normalizedMatch.includes(normalized) ||
+        normalized.includes(normalizedMatch);
+
+      if (!isNameMatch) return false;
+
+      return true;
+    });
+
+    setPossibleMatches(filteredMatches);
+  };
+
+  runMatchCheck();
+}, [submission]);
+
+
+
+
   const missingFields = getMissingFields(submission);
 
+function normalizeOrgName(name: string = "") {
+  return name
+    .toLowerCase()
+    .replace(/behavioral health|services|outpatient|clinic|center|office|mat|program|unit/gi, "")
+    .replace(/[^a-z0-9 ]/g, "")
+    .trim();
+}
+  
  return (
   <div className="bg-surface border border-border p-6 rounded-xl mb-6 shadow-sm">
 
@@ -98,7 +169,6 @@ export default function SubmissionCard({
           {submission.organization}
         </h2>
       </div>
-
       {/* RIGHT SIDE (BUTTONS + STATUS) */}
       <div className="flex flex-col items-end gap-2 flex-shrink-0">
         {/* Buttons */}
@@ -108,15 +178,53 @@ export default function SubmissionCard({
     {section === "pending" && (
       <>
         <button
-          onClick={() => {
-            setEditingId(submission.id);
-            setEditedSubmission(submission);
-          }}
+
+onClick={async () => {
+  const supabase = getSupabase();
+
+  setEditingId(submission.id);
+  setEditedSubmission(submission);
+
+  // 🔍 Fetch locations (your existing logic)
+  const { data: locations, error } = await supabase
+    .from("resource_locations")
+    .select("*")
+    .eq("resource_id", submission.id);
+
+  if (error) {
+    console.error(error);
+    setAdditionalLocations([]);
+    return;
+  }
+
+const additional = (locations || [])
+  .filter((loc) => !loc.is_primary)
+  .map((loc) => ({
+    address: loc.address || "",
+    city: loc.city || "",
+    state: loc.state || "OK",
+    zip: loc.zip || "",
+    is_primary: false,
+    location_name: loc.location_name || "", // ✅ ADD THIS
+  }));
+
+  setAdditionalLocations(
+    additional.length > 0
+      ? additional
+      : [{
+  address: "",
+  city: "",
+  state: "OK",
+  zip: "",
+  is_primary: false,
+  location_name: "", // ✅ ADD THIS
+}]
+  );
+}}
           className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
         >
           Edit
         </button>
-
 <ApproveButton
   resource={submission}
   onSuccess={() => {
@@ -161,6 +269,7 @@ export default function SubmissionCard({
 <SaveButton
   resourceId={submission.id}
   editedData={editedSubmission}
+  additionalLocations={additionalLocations}
   onSuccess={() => {
     setEditingId(null);
     onSuccess();
@@ -188,12 +297,14 @@ export default function SubmissionCard({
         </div>
       </div>
     </div>
-
+    
     {/* CONTENT SWITCH */}
     {isEditing ? (
-      <ResourceEditForm
-        editedSubmission={editedSubmission}
-        setEditedSubmission={setEditedSubmission}
+<ResourceEditForm
+  editedSubmission={editedSubmission}
+  setEditedSubmission={setEditedSubmission}
+  additionalLocations={additionalLocations}
+  setAdditionalLocations={setAdditionalLocations}
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onCancel={() => setEditingId(null)}
@@ -258,6 +369,14 @@ export default function SubmissionCard({
           )}
         </div>
 
+
+
+
+
+
+
+
+
         {/* Missing Fields (Admin helper) */}
 {section === "pending" && missingFields.length > 0 && (
   <div className="mt-4 p-3 bg-amber-50 border border-amber-200 rounded-md">
@@ -269,6 +388,140 @@ export default function SubmissionCard({
     </div>
   </div>
 )}
+
+{/* ✅ Duplicate Warning */}
+{section === "pending" && possibleMatches.length > 0 && (
+  <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+    <div className="text-xs font-medium text-blue-700">
+      Possible duplicate or existing organization
+    </div>
+
+    <div className="text-xs text-blue-800 mt-1">
+      This submission may belong to an existing organization.
+      Review carefully before creating a new resource.
+    </div>
+
+    <div className="mt-2 space-y-2">
+      {possibleMatches.map((match) => (
+        <div
+          key={match.id}
+          className="flex justify-between items-center text-sm"
+        >
+          <div>
+            <div className="font-medium text-blue-900">
+              {match.organization}
+            </div>
+            <div className="text-xs text-blue-700">
+              <div className="text-xs mt-1">
+
+{match.address &&
+ submission.address &&
+ match.address.toLowerCase().trim() === submission.address.toLowerCase().trim() &&
+ match.city?.toLowerCase().trim() === submission.city?.toLowerCase().trim() ? (
+    
+    <span className="text-red-600">
+      ⚠️ Exact duplicate (same address)
+    </span>
+  ) : (
+    <span className="text-blue-700">
+      📍 Same organization, different location ({match.city}, {match.state})
+    </span>
+  )}
+</div>
+            </div>
+          </div>
+
+
+
+
+          <button
+onClick={async () => {
+  const supabase = getSupabase(); // ✅ ALWAYS FIRST
+
+  // 🔍 1. Get existing resource
+  const { data: existingResource } = await supabase
+    .from("resources")
+    .select("subcategories, tags, parent_categories")
+    .eq("id", match.id)
+    .single();
+
+  // 🧠 2. Merge data
+
+
+const mergedSubcategories = Array.from(new Set([
+  ...(existingResource?.subcategories || []),
+  ...(Array.isArray(submission.subcategories) ? submission.subcategories : []),
+]));
+
+const mergedTags = Array.from(new Set([
+  ...(existingResource?.tags || []),
+  ...(Array.isArray(submission.tags) ? submission.tags : []),
+]));
+
+const mergedParentCategories = Array.from(new Set([
+  ...(existingResource?.parent_categories || []),
+  ...(Array.isArray(submission.parent_categories) ? submission.parent_categories : []),
+]));
+
+  // ✅ 3. Update parent resource FIRST
+  await supabase
+    .from("resources")
+    .update({
+      subcategories: mergedSubcategories,
+      tags: mergedTags,
+      parent_categories: mergedParentCategories,
+    })
+    .eq("id", match.id);
+
+  // 📍 4. Insert location
+  const { error } = await supabase
+    .from("resource_locations")
+    .insert({
+      resource_id: match.id,
+      address: submission.address,
+      city: submission.city,
+      state: submission.state,
+      zip: submission.zip,
+      is_primary: false,
+      location_name: submission.organization || null,
+    });
+
+  if (error) {
+    console.error(error);
+    alert("Failed to attach location");
+    return;
+  }
+
+  // 🗑️ 5. Remove submission
+  await supabase
+    .from("resources")
+    .update({ status: "deleted" })
+    .eq("id", submission.id);
+
+  // 🔄 6. Refresh UI
+  setPossibleMatches([]);
+  setEditingId(null);
+  onSuccess();
+}}
+
+            className="text-xs text-blue-600 hover:underline"
+          >
+            Attach as location
+          </button>
+
+
+
+
+
+
+        </div>
+      ))}
+    </div>
+  </div>
+)}
+
+
+
 
 {/* Admin Notes */}
 {submission.admin_notes?.trim() && (
