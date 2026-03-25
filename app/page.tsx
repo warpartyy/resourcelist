@@ -196,6 +196,11 @@ if (!profile?.display_name) {
       </Link>
 
     </div>
+
+<Link href="/help">
+  Send us a message
+</Link>
+
   </Container>
 
 </section>

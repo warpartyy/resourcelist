@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "Describe what you changed"
+git commit -m "ability for messages and messages tab in admin"
 git push
 
 

@@ -41,7 +41,13 @@ const [counts, setCounts] = useState({
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedSubmission, setEditedSubmission] = useState<any>({});
 const [adminSection, setAdminSection] = useState<
-  "resources" | "deleted" | "pending" | "rejected" | "settings" | "events"
+  | "resources"
+  | "deleted"
+  | "pending"
+  | "rejected"
+  | "settings"
+  | "events"
+  | "messages"
 >("pending");
 
 

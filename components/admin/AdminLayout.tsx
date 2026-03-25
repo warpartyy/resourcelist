@@ -1,7 +1,7 @@
 "use client";
 import { Trash } from "lucide-react";
 import { useState } from "react";
-import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
 import AdminControls from "@/components/admin/AdminControls";
 import { Settings } from "lucide-react";
 import { useEffect } from "react";
@@ -18,7 +18,8 @@ type AdminSection =
   | "rejected"
   | "deleted"
   | "settings"
-  | "events";
+  | "events"
+  | "messages";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
@@ -27,6 +28,7 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   deleted: "Deleted Resources",
   settings: "Settings",
   events: "Pending Events",
+  messages: "Messages",
 };
 
 type Props = {
@@ -170,14 +172,15 @@ useEffect(() => {
         </div>
 
         {/* Navigation */}
-        <div className="space-y-2">
-          {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
-          {navItem("Approved Resources", "resources", Database, resourceCount)}
-          {navItem("Rejected", "rejected", XCircle, rejectedCount)}
-          {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
-          {navItem("Events", "events", Calendar)}
-          {navItem("Settings", "settings", Settings)}
-        </div>
+<div className="space-y-2">
+  {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
+  {navItem("Approved Resources", "resources", Database, resourceCount)}
+  {navItem("Rejected", "rejected", XCircle, rejectedCount)}
+  {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
+  {navItem("Events", "events", Calendar)}
+  {navItem("Messages", "messages", MessageSquare)}
+  {navItem("Settings", "settings", Settings)}
+</div>
 
 
 
