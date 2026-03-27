@@ -8,7 +8,6 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 
-
 export default function Home() {
 
 const testLogin = async () => {
@@ -96,10 +95,6 @@ if (!profile?.display_name) {
 
   handleInvite();
 }, [router]);
-
-
-
-
 
 
   return (
@@ -197,13 +192,36 @@ if (!profile?.display_name) {
 
     </div>
 
-<Link href="/help">
-  Send us a message
-</Link>
-
   </Container>
 
+
+
 </section>
+{/* Contact Section */}
+<section className="bg-background py-10 md:py-14 text-center">
+  <Container>
+    <div className="max-w-2xl mx-auto">
+
+      <h2 className="text-2xl md:text-3xl font-semibold mb-3">
+        Need Help or Have Questions?
+      </h2>
+
+      <p className="text-muted text-sm md:text-base mb-6">
+        If you're unsure where to start or need help finding the right resource,
+        reach out and we’ll do our best to guide you.
+      </p>
+
+      <Link
+        href="/help"
+        className="button button-secondary w-full sm:w-auto"
+      >
+        Send us a message
+      </Link>
+
+    </div>
+  </Container>
+</section>
+
     </div>
   );
 }

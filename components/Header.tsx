@@ -118,7 +118,7 @@ return (
 
         {/* Brand */}
 <Link href="/" className="header-brand">
-  Motive For Movement
+   {/* Motive For Movement */}
   <span className="brand-sub"> Resources</span>
 </Link>
 

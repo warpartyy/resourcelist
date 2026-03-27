@@ -48,10 +48,8 @@ if (!profile.display_name) {
   return;
 }
 
-// ✅ store it
 setDisplayName(profile.display_name);
 
-      // ✅ Authorized
       setLoading(false);
     };
 

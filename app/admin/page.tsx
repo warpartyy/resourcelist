@@ -36,7 +36,7 @@ const [counts, setCounts] = useState({
 });
 
   const [resourceSortOrder, setResourceSortOrder] =
-  useState<"az" | "za" | "newest" | "oldest">("az");
+  useState<"az" | "za" | "newest" | "oldest">("newest");
 
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);

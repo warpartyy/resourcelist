@@ -4,11 +4,11 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "'suggest an update' is preloaded for the resource they are looking at. update suggestions appear in the admin dash"
+git commit -m "comment"
 git push
 
 
 
 npm update @mfm/ui
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This  uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for

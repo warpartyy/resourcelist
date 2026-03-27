@@ -1,29 +1,52 @@
 'use client';
 
 import { useState } from 'react';
+import toast from "react-hot-toast";
 
 export default function MessageActions({
   id,
   currentStatus,
+  onUpdate,
 }: {
   id: string;
   currentStatus: string;
+  onUpdate: (status: 'new' | 'in_progress' | 'resolved') => void;
 }) {
   const [loading, setLoading] = useState(false);
 
-  async function updateStatus(status: string) {
-    setLoading(true);
+type MessageStatus = 'new' | 'in_progress' | 'resolved';
 
-    await fetch('/api/messages/update', {
-      method: 'POST',
-      body: JSON.stringify({ id, status }),
-    });
+async function updateStatus(status: MessageStatus) {
+  setLoading(true);
 
-    setLoading(false);
+  const res = await fetch('/api/messages/update', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ id, status }),
+  });
 
-    // simple refresh for now
-    window.location.reload();
+  setLoading(false);
+
+  // ❌ Handle failure
+  if (!res.ok) {
+    toast.error("Failed to update message");
+    return;
   }
+
+  // ✅ Update UI
+  onUpdate(status);
+
+  // ✅ Toast feedback
+  if (status === 'resolved') {
+    toast.success("Message marked as resolved");
+  } else if (status === 'in_progress') {
+    toast("Message marked as in progress");
+  }
+}
+
+
 
   return (
     <div className="flex gap-2 pt-2">

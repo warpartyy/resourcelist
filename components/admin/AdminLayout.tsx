@@ -14,7 +14,7 @@ type Profile = {
 
 type AdminSection =
   | "pending"
-  | "update-requests" // ✅ NEW
+  | "update-requests"
   | "resources"
   | "rejected"
   | "deleted"

@@ -1,14 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
-import MessageActions from '@/components/admin/MessageActions';
+import MessagesList from '@/components/admin/MessagesList';
 
 export default async function MessagesPage() {
   const supabase = await createClient();
 
-const { data: messages, error } = await supabase
-  .from('messages')
-  .select('*')
-  .order('status', { ascending: true })
-  .order('created_at', { ascending: false });
+  const { data: messages, error } = await supabase
+    .from('messages')
+    .select('*')
+    .order('status', { ascending: true })
+    .order('created_at', { ascending: false });
 
   if (error) {
     return <div>Error loading messages</div>;
@@ -20,37 +20,8 @@ const { data: messages, error } = await supabase
         Messages
       </h1>
 
-      <div className="space-y-4">
-        {messages?.map((msg) => (
-          <div
-            key={msg.id}
-            className="border rounded p-4 space-y-2"
-          >
-            <div className="text-sm text-gray-500">
-              {new Date(msg.created_at).toLocaleString()}
-            </div>
-
-            <div className="font-medium whitespace-pre-wrap">
-              {msg.content}
-            </div>
-
-            {msg.contact_email && (
-              <div className="text-sm">
-                {msg.contact_email}
-              </div>
-            )}
-
-            <div className="text-xs uppercase tracking-wide">
-              Status: {msg.status}
-            </div>
-
-            <MessageActions
-              id={msg.id}
-              currentStatus={msg.status}
-            />
-          </div>
-        ))}
-      </div>
+      {/* ✅ NEW: Client-side interactive list */}
+      <MessagesList initialMessages={messages || []} />
     </div>
   );
 }

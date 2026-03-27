@@ -122,10 +122,17 @@ export default function MessagesTab() {
 
             {/* Actions */}
             <div className="pt-2 border-t">
-              <MessageActions
-                id={msg.id}
-                currentStatus={msg.status}
-              />
+<MessageActions
+  id={msg.id}
+  currentStatus={msg.status}
+  onUpdate={(newStatus) => {
+    setMessages((prev) =>
+      prev.map((m) =>
+        m.id === msg.id ? { ...m, status: newStatus } : m
+      )
+    );
+  }}
+/>
             </div>
           </div>
         ))}
