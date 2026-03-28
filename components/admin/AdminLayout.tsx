@@ -106,126 +106,147 @@ useEffect(() => {
 
 
     
+return (
+  <button
+    onClick={() => setAdminSection(value)}
+    className={`flex items-center gap-3 w-full pl-4 pr-3 py-2 rounded-lg transition relative
+      ${
+        isActive
+          ? "bg-bg text-text-primary"
+          : "hover:bg-bg text-text-muted"
+      }`}
+  >
+    {isActive && (
+      <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-accent" />
+    )}
 
-    return (
-      <button
-  onClick={() => setAdminSection(value)}
-  className={`flex items-center gap-3 w-full pl-4 pr-3 py-2 rounded-lg transition relative
-    ${
-      isActive
-        ? "bg-bg text-text-primary"
-        : "hover:bg-bg text-text-muted"
-    }`}
->
-  {isActive && (
-    <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-accent" />
-  )}
+    <span className={isActive ? "text-accent" : "text-text-muted"}>
+      <Icon size={18} strokeWidth={2} />
+    </span>
 
-  <span className={isActive ? "text-accent" : "text-text-muted"}>
-    <Icon size={18} strokeWidth={2} />
-  </span>
+    {!collapsed && (
+      <>
+        <span className="flex-1 text-left">{label}</span>
 
-  {!collapsed && (
-    <>
-      <span className="flex-1 text-left">{label}</span>
+        {count !== undefined && (
+          <span className="text-xs bg-bg border border-border px-2 py-0.5 rounded-full text-text-muted">
+            {count}
+          </span>
+        )}
+      </>
+    )}
+  </button>
+);
 
-      {count !== undefined && (
-        <span className="text-xs bg-bg border border-border px-2 py-0.5 rounded-full text-text-muted">
-          {count}
-        </span>
-      )}
-    </>
-  )}
-</button>
+};
 
-    );
-  };
+return (
+  <div className="h-screen flex overflow-hidden bg-bg text-text-primary relative">
+    {/* Sidebar */}
+    <div
+      className={`
+        fixed md:relative z-40
+        ${
+          collapsed
+            ? "-translate-x-full md:translate-x-0 md:w-20"
+            : "translate-x-0 md:w-64"
+        }
+        w-64 h-full bg-surface border-r border-border p-4 flex flex-col
+        transition-all duration-300
+      `}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        {!collapsed && (
+          <div>
+            <h2 className="text-lg font-semibold">Admin</h2>
 
-  return (
-    <div className="h-screen flex overflow-hidden bg-bg text-text-primary">
-      {/* Sidebar */}
-      <div
-        className={`${
-        collapsed ? "w-20" : "w-64"
-        } h-full bg-surface border-r border-border p-4 flex flex-col transition-all duration-300`}
-      >
-        {/* Header */}
-<div className="flex items-center justify-between mb-6">
-  {!collapsed && (
-    <div>
-      <h2 className="text-lg font-semibold">Admin</h2>
-
-      {displayName && (
-        <p className="text-xs text-text-muted mt-1">
-          Logged in as {displayName}
-        </p>
-      )}
-    </div>
-  )}
-
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="text-text-muted hover:text-text-primary transition"
-          >
-            {collapsed ? (
-              <ChevronRight size={18} />
-            ) : (
-              <ChevronLeft size={18} />
+            {displayName && (
+              <p className="text-xs text-text-muted mt-1">
+                Logged in as {displayName}
+              </p>
             )}
-          </button>
-        </div>
+          </div>
+        )}
 
-        {/* Navigation */}
-<div className="space-y-2">
-  {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
-  {navItem("Update Requests", "update-requests", RefreshCw, updateRequestsCount)}
-  {navItem("Approved Resources", "resources", Database, resourceCount)}
-  {navItem("Rejected", "rejected", XCircle, rejectedCount)}
-  {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
-  {navItem("Events", "events", Calendar)}
-  {navItem("Messages", "messages", MessageSquare)}
-  {navItem("Settings", "settings", Settings)}
-</div>
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="text-text-muted hover:text-text-primary transition"
+        >
+          {collapsed ? (
+            <ChevronRight size={18} />
+          ) : (
+            <ChevronLeft size={18} />
+          )}
+        </button>
+      </div>
 
+      {/* Navigation */}
+      <div className="space-y-2">
+        {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
+        {navItem("Update Requests", "update-requests", RefreshCw, updateRequestsCount)}
+        {navItem("Approved Resources", "resources", Database, resourceCount)}
+        {navItem("Rejected", "rejected", XCircle, rejectedCount)}
+        {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
+        {navItem("Events", "events", Calendar)}
+        {navItem("Messages", "messages", MessageSquare)}
+        {navItem("Settings", "settings", Settings)}
+      </div>
 
+      {/* Logout */}
+      <div className="mt-auto border-t border-border pt-4">
+        <button
+          onClick={onLogout}
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-bg text-text-muted transition"
+        >
+          <LogOut size={18} />
+          {!collapsed && <span>Logout</span>}
+        </button>
+      </div>
+    </div>
 
-        {/* Logout */}
-        <div className="mt-auto border-t border-border pt-4">
+    {/* Mobile overlay */}
+    {!collapsed && (
+      <div
+        className="fixed inset-0 bg-black/40 z-30 md:hidden"
+        onClick={() => setCollapsed(true)}
+      />
+    )}
 
+    {/* Main Content */}
+    <div className="flex-1 h-full flex flex-col bg-bg">
+      {/* Header */}
+      <div className="shrink-0 border-b border-border bg-bg shadow-sm">
+        <div className="px-4 md:px-10 pt-6 md:pt-8 pb-4 flex items-center gap-3">
+          {/* Mobile menu button */}
           <button
-            onClick={onLogout}
-            className="flex items-center gap-3 w-full px-3 py-2 rounded-lg hover:bg-bg text-text-muted transition"
+            onClick={() => setCollapsed(false)}
+            className="md:hidden p-2 rounded-lg border border-border"
           >
-            <LogOut size={18} />
-            {!collapsed && <span>Logout</span>}
+            <ChevronRight size={18} />
           </button>
+
+          <h1 className="text-xl md:text-2xl font-semibold">
+            {SECTION_TITLES[adminSection]}
+          </h1>
         </div>
       </div>
 
-      {/* Main Content */}
-<div className="flex-1 h-full flex flex-col bg-bg">
-  <div className="shrink-0 border-b border-border bg-bg shadow-sm">
-    <div className="px-10 pt-8 pb-4">
-      <h1 className="text-2xl font-semibold">
-        {SECTION_TITLES[adminSection]}
-      </h1>
+      {/* Controls */}
+      <AdminControls
+        search={search}
+        setSearch={setSearch}
+        sortOrder={sortOrder}
+        setSortOrder={setSortOrder}
+      />
+
+      {/* Content */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="px-4 md:px-10 pt-4 md:pt-6 pb-8 md:pb-10">
+          {children}
+        </div>
+      </div>
     </div>
   </div>
-
-{/* ✅ NEW: Controls */}
-<AdminControls
-  search={search}
-  setSearch={setSearch}
-  sortOrder={sortOrder}
-  setSortOrder={setSortOrder}
-/>
-
-  <div className="flex-1 overflow-y-auto">
-    <div className="px-10 pt-6 pb-10">
-      {children}
-    </div>
-  </div>
-</div>
-    </div>
-  );
-} 
+);
+}

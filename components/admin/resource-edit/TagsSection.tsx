@@ -38,6 +38,7 @@ const GROUP_LABELS: Record<string, string> = {
   payment: "Payment",
   eligibility: "Eligibility",
   logistics: "Additional Details",
+  programlength: "Program Length",
 };
 
 const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});

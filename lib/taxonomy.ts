@@ -193,20 +193,22 @@ export const TAG_GROUPS = {
   ],
 
   payment: [
-    "accepts-medicaid",
-    "accepts-medicare",
+    "medicaid",
+    "medicare",
     "private-insurance",
     "sliding-scale",
     "free",
   ],
 
   eligibility: [
+    "Member of federally recognized tribe",
+    "18+",
+    "Women only",
+    "Men Only",
     "referral-required",
     "walk-in-available",
     "appointment-required",
     "income-based",
-    "county-resident-only",
-    "state-resident-only",
   ],
 
   logistics: [
@@ -214,5 +216,13 @@ export const TAG_GROUPS = {
     "evening-hours",
     "weekend-hours",
     "same-day-service",
+  ],
+    programlength: [
+    "30 days",
+    "45 days",
+    "60 days",
+    "90 days",
+    "6 months",
+    "12 months",
   ],
 };

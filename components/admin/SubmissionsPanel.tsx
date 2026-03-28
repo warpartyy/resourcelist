@@ -73,40 +73,41 @@ const filteredSubmissions = [...submissions]
 
     return 0;
   });
+return (
+  <>
+    <div className="mb-4 mt-0">
+      <p className="text-text-primary text-base font-medium">
+        {section === "pending" &&
+          "Review and approve new submissions."}
+        {section === "approved" &&
+          "Previously approved submissions."}
+        {section === "rejected" &&
+          "Submissions that were not approved."}
+      </p>
+    </div>
 
-  return (
-    <>
-      <div className="mb-4 mt-0">
-        <p className="text-text-primary text-base font-medium">
-          {section === "pending" &&
-            "Review and approve new submissions."}
-          {section === "approved" &&
-            "Previously approved submissions."}
-          {section === "rejected" &&
-            "Submissions that were not approved."}
-        </p>
+    {filteredSubmissions.length === 0 ? (
+      <div className="text-text-muted">
+        No {section} submissions.
       </div>
-
-      {filteredSubmissions.length === 0 ? (
-        <div className="text-text-muted">
-          No {section} submissions.
-        </div>
-      ) : (
-        filteredSubmissions.map((submission) => (
+    ) : (
+      <div className="space-y-4 md:space-y-6">
+        {filteredSubmissions.map((submission) => (
           <SubmissionCard
-  key={submission.id}
-  submission={submission}
-  section={section}
-  editingId={editingId}
-  setEditingId={setEditingId}
-  editedSubmission={editedSubmission}
-  setEditedSubmission={setEditedSubmission}
-  CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-  COUNTY_OPTIONS={COUNTY_OPTIONS}
-  onSuccess={onSuccess}
-/>
-        ))
-      )}
-    </>
-  );
+            key={submission.id}
+            submission={submission}
+            section={section}
+            editingId={editingId}
+            setEditingId={setEditingId}
+            editedSubmission={editedSubmission}
+            setEditedSubmission={setEditedSubmission}
+            CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+            COUNTY_OPTIONS={COUNTY_OPTIONS}
+            onSuccess={onSuccess}
+          />
+        ))}
+      </div>
+    )}
+  </>
+);
 }

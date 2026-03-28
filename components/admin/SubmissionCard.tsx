@@ -158,10 +158,10 @@ function normalizeOrgName(name: string = "") {
 }
   
  return (
-  <div className="bg-surface border border-border p-6 rounded-xl mb-6 shadow-sm">
+  <div className="bg-surface border border-border p-4 md:p-6 rounded-xl mb-4 md:mb-6 shadow-sm">
 
     {/* TOP ROW (ALWAYS VISIBLE) */}
-    <div className="flex justify-between items-start mb-3">
+    <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-3 gap-3">
 
       {/* LEFT SIDE */}
       <div className="flex-1 pr-4">
@@ -170,9 +170,9 @@ function normalizeOrgName(name: string = "") {
         </h2>
       </div>
       {/* RIGHT SIDE (BUTTONS + STATUS) */}
-      <div className="flex flex-col items-end gap-2 flex-shrink-0">
+      <div className="w-full md:w-auto flex flex-col md:items-end gap-2">
         {/* Buttons */}
-        <div className="flex gap-2">
+        <div className="flex flex-col md:flex-row gap-2 w-full md:w-auto">
 {!isEditing ? (
   <>
     {section === "pending" && (
@@ -221,7 +221,7 @@ const additional = (locations || [])
 }]
   );
 }}
-          className="px-3 py-1.5 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
+          className="w-full md:w-auto px-4 py-2 rounded-md text-sm font-medium bg-bg border border-border hover:bg-surface transition"
         >
           Edit
         </button>
@@ -288,7 +288,7 @@ const additional = (locations || [])
 
   <button
     onClick={() => setEditingId(null)}
-    className="px-3 py-1.5 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg transition"
+    className="w-full md:w-auto px-4 py-2 rounded-md text-sm font-medium border border-border text-text-muted hover:bg-bg transition"
   >
     Cancel
   </button>
