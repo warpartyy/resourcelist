@@ -9,6 +9,7 @@ import RejectButton from "./actions/RejectButton";
 import { useState, useEffect } from "react";
 import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
 import { getSupabase } from "@/lib/supabase";
+import CommentsPreview from "@/components/admin/resource-edit/CommentsPreview";
 
 type Props = {
   submission: any;
@@ -20,6 +21,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess: () => void;
+  user: any;
 };
 
 function getEditorDisplayName(submission: any) {
@@ -83,9 +85,11 @@ export default function SubmissionCard({
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
   onSuccess,
+  user,
 }: Props) {
   const isEditing =
   section === "pending" && editingId === submission.id;
+
 
 const [additionalLocations, setAdditionalLocations] = useState([
   {
@@ -98,11 +102,9 @@ const [additionalLocations, setAdditionalLocations] = useState([
   }
 ]);
 
+
+
 const [possibleMatches, setPossibleMatches] = useState<any[]>([]);
-
-
-
-
 
 useEffect(() => {
   const runMatchCheck = async () => {
@@ -143,9 +145,6 @@ useEffect(() => {
 
   runMatchCheck();
 }, [submission]);
-
-
-
 
   const missingFields = getMissingFields(submission);
 
@@ -308,6 +307,7 @@ const additional = (locations || [])
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onCancel={() => setEditingId(null)}
+        user={user}
       />
     ) : (
       <>
@@ -542,6 +542,8 @@ const mergedParentCategories = Array.from(new Set([
     )}
   </div>
 )}
+
+<CommentsPreview resourceId={submission.id} />
         
       </>
     )}

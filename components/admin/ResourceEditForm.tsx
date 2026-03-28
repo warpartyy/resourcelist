@@ -13,6 +13,7 @@ import {
   TribalSection,
 } from "@/components/admin/resource-edit";
 import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
+import CommentsSection from "@/components/admin/CommentsSection";
 
 type Props = {
   editedSubmission: any;
@@ -22,6 +23,7 @@ setAdditionalLocations: (data: any[]) => void;
   CATEGORY_OPTIONS: { label: string; value: string }[];
   COUNTY_OPTIONS: string[];
   onCancel: () => void;
+  user: any;
   
 };
 
@@ -33,6 +35,7 @@ export default function ResourceEditForm({
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
   onCancel,
+  user,
 }: Props) {
   const toggleArrayValue = (
   field: string,
@@ -101,6 +104,11 @@ export default function ResourceEditForm({
     editedSubmission={editedSubmission}
     setEditedSubmission={setEditedSubmission}
   />
+
+  <CommentsSection
+  resourceId={editedSubmission.id}
+  user={user}
+/>
   
   <AdminNotesSection
     editedSubmission={editedSubmission}

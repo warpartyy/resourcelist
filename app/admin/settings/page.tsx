@@ -8,7 +8,6 @@ import ProfileCard from "@/components/settings/ProfileCard";
 import AccountSection from "@/components/settings/AccountSection";
 import SecuritySection from "@/components/settings/SecuritySection";
 
-
 export default function AdminSettingsPage() {
   const supabase = getSupabase();
   const router = useRouter();

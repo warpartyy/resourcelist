@@ -1,6 +1,5 @@
 "use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ResourceEditForm from "./ResourceEditForm";
 import {
   updateResource,
@@ -39,9 +38,20 @@ export default function ResourcesPanel({
 }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editedResource, setEditedResource] = useState<any>({});
+  const [user, setUser] = useState<any>(null);
   const [additionalLocations, setAdditionalLocations] = useState([
   { address: "", city: "", state: "OK", zip: "", is_primary: false }
 ]);
+
+useEffect(() => {
+  const fetchUser = async () => {
+    const supabase = getSupabase();
+    const { data } = await supabase.auth.getUser();
+    setUser(data.user);
+  };
+
+  fetchUser();
+}, []);
 
   // Sort A-Z
 console.log("SORT ORDER:", sortOrder);
@@ -120,6 +130,7 @@ const filteredResources = [...resources] // ✅ IMPORTANT
                 CATEGORY_OPTIONS={CATEGORY_OPTIONS}
                 COUNTY_OPTIONS={COUNTY_OPTIONS}
                 onCancel={() => setEditingId(null)}
+                user={user}
               />
             ) : (
               <>

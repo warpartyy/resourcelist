@@ -215,15 +215,7 @@ const services = resource.services || [];
 
   </div>
 
-
-
-
-
-
 <div className="mt-6 pt-4 border-t border-border flex flex-col md:flex-row md:items-center md:justify-between text-xs text-text-muted gap-3">
-
-
-
 
 <Link href={`/resources/${resource.slug}/suggest-update`}>
   <button className="mt-4 border px-4 py-2 rounded">

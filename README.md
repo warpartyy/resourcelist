@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "upgrades to mobile"
+git commit -m "comments by user added"
 git push
 
 

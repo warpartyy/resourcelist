@@ -140,6 +140,41 @@ export type Database = {
         }
         Relationships: []
       }
+      resource_comments: {
+        Row: {
+          comment: string
+          created_at: string | null
+          created_by: string | null
+          created_by_email: string | null
+          id: string
+          resource_id: string | null
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          created_by?: string | null
+          created_by_email?: string | null
+          id?: string
+          resource_id?: string | null
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          created_by?: string | null
+          created_by_email?: string | null
+          id?: string
+          resource_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_comments_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resource_locations: {
         Row: {
           address: string | null
@@ -230,7 +265,15 @@ export type Database = {
           suggested_changes?: Json | null
           type?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "resource_submissions_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       resources: {
         Row: {

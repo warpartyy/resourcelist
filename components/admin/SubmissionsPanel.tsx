@@ -1,6 +1,9 @@
 "use client";
 
 import SubmissionCard from "./SubmissionCard";
+import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
+
+
 
 type Props = {
   submissions: any[];
@@ -31,6 +34,8 @@ export default function SubmissionsPanel({
 }: Props) {
 
 const searchText = (search || "").toLowerCase();
+
+const { user, loading } = useCurrentUser();
 
 const filteredSubmissions = [...submissions]
   .filter((submission) => {
@@ -104,6 +109,7 @@ return (
             CATEGORY_OPTIONS={CATEGORY_OPTIONS}
             COUNTY_OPTIONS={COUNTY_OPTIONS}
             onSuccess={onSuccess}
+            user={user}
           />
         ))}
       </div>
