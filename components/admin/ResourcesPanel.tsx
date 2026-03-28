@@ -229,12 +229,12 @@ onClick={async () => {
 
   const { error } = await updateResource(resource.id, {
     ...editedResource,
+    last_verified: resource.last_verified ?? editedResource.last_verified,
     last_edited_by: user.id,
     last_edited_email: user.email,
     last_edited_name: profile?.display_name || user.email,
     last_edited_at: new Date().toISOString(),
   });
-
 
         if (error) {
           alert("Update failed.");
@@ -281,7 +281,7 @@ onClick={async () => {
   state: loc.state || "OK",
   zip: loc.zip || "",
   is_primary: false,
-  location_name: loc.location_name || "", // ✅ ADD THIS
+  location_name: loc.location_name || "",
 }))
 
   setAdditionalLocations(additional.length > 0 ? additional : [
