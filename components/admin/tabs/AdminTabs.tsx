@@ -109,9 +109,6 @@ if (adminSection === "messages") {
   return <MessagesTab />;
 }
 
-if (adminSection === "update-requests") {
-  return <UpdateRequestsTab />;
-}
 
 if (adminSection === "update-requests") {
   return <UpdateRequestsTab onHandled={props.onUpdateRequestHandled} />;

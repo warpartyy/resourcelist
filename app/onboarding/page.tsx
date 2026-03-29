@@ -86,7 +86,7 @@ if (profile?.display_name) {
     toast.success("Setup complete");
 
     if (updatedProfile?.display_name) {
-      window.location.href = "/admin";
+      router.push("/admin");
     }
   } catch (err) {
     console.error(err);
