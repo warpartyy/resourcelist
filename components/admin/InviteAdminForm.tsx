@@ -57,7 +57,7 @@ export default function InviteAdminForm() {
     <div className="border rounded-lg p-6 bg-white">
       {/* Header */}
       <h2 className="text-lg font-semibold mb-2">
-        Admin Management
+        Admin Invites
       </h2>
 
       {/* Supporting text */}
