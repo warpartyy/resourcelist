@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "admins to invite admins"
+git commit -m "filter by tags added to cat page"
 git push
 
 

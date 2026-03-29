@@ -5,6 +5,7 @@ import {PARENT_CATEGORIES, SUBCATEGORIES, SUBCATEGORY_PARENT_MAP,} from "@/lib/t
 import SubcategorySection from "../../components/SubcategorySection";
 import { notFound } from "next/navigation";
 import { buildResourceQuery } from "@/lib/queries/buildResourceQuery";
+import FiltersBar from "../../components/filters/FiltersBar";
 
 export default async function CategoryPage({
   params,
@@ -71,12 +72,15 @@ const query = await buildResourceQuery({
 const { data, error: queryError } = await query;
 
 resources = data || [];
+// --- derive available tags from current results ---
+const availableTags = Array.from(
+  new Set(resources.flatMap((r) => r.tags || []))
+).sort();
+
+const selectedTags =
+  filters.tags?.split(",") ?? [];
+
 error = queryError;
-
-
-
-
-
 
 if (error) {
   return (
@@ -178,13 +182,14 @@ const displayTitle =
   </div>
 )}
 
+<FiltersBar
+  availableTags={availableTags}
+  selectedTags={selectedTags}
+  searchParams={filters as any}
+/>
 
 {/* Divider */}
 <div className="relative left-1/2 right-1/2 -mx-[48vw] w-[96vw] border-b border-border mb-2 md:mb-4" />
-
-
-
-
 
       {/* ---------------- SUBCATEGORY PAGE ---------------- */}
       {isSubcategory && (
