@@ -7,6 +7,8 @@ import toast from "react-hot-toast";
 import ProfileCard from "@/components/settings/ProfileCard";
 import AccountSection from "@/components/settings/AccountSection";
 import SecuritySection from "@/components/settings/SecuritySection";
+import InviteAdminForm from '@/components/admin/InviteAdminForm';
+
 
 export default function AdminSettingsPage() {
   const supabase = getSupabase();
@@ -125,6 +127,7 @@ const handlePasswordSave = async () => {
 };
 
 if (loading) return <p className="p-6">Loading...</p>;
+
 return (
   <div className="p-6 max-w-3xl space-y-8">
     
@@ -135,11 +138,11 @@ return (
     />
 
     {/* Account Info */}
-<AccountSection
-  displayName={displayName}
-  saving={saving}
-  onSave={handleProfileSave}
-/>
+    <AccountSection
+      displayName={displayName}
+      saving={saving}
+      onSave={handleProfileSave}
+    />
 
     {/* Security */}
     <SecuritySection
@@ -151,6 +154,8 @@ return (
       onSave={handlePasswordSave}
     />
 
+    {/* ✅ NEW: Admin Management */}
+    <InviteAdminForm />
   </div>
 );
 }
