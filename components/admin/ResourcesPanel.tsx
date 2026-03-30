@@ -99,13 +99,8 @@ const filteredResources = [...resources] // ✅ IMPORTANT
     return 0;
   });
 
-
-
-
-
   return (
     <>
-      
       {filteredResources.length === 0 ? (
   <div className="text-text-muted">
     No matching resources found.
@@ -122,11 +117,11 @@ const filteredResources = [...resources] // ✅ IMPORTANT
             >
 
             {isEditing ? (
-<ResourceEditForm
-  editedSubmission={editedResource}
-  setEditedSubmission={setEditedResource}
-  additionalLocations={additionalLocations}
-  setAdditionalLocations={setAdditionalLocations}
+              <ResourceEditForm
+                editedSubmission={editedResource}
+                setEditedSubmission={setEditedResource}
+                additionalLocations={additionalLocations}
+                setAdditionalLocations={setAdditionalLocations}
                 CATEGORY_OPTIONS={CATEGORY_OPTIONS}
                 COUNTY_OPTIONS={COUNTY_OPTIONS}
                 onCancel={() => setEditingId(null)}
@@ -147,16 +142,16 @@ const filteredResources = [...resources] // ✅ IMPORTANT
                   </div>
 
                   <span className={`text-xs px-2 py-1 rounded-full ${
-resource.status === "approved"
-  ? "bg-green-100 text-green-700"
-    : resource.status === "rejected"
-    ? "bg-yellow-100 text-yellow-700"
-    : resource.status === "deleted"
-    ? "bg-red-100 text-red-700"
-    : "bg-gray-100 text-gray-600"
-}`}>
-{resource.status === "approved" ? "Approved" : resource.status}
-</span>
+                    resource.status === "approved"
+                    ? "bg-green-100 text-green-700"
+                    : resource.status === "rejected"
+                    ? "bg-yellow-100 text-yellow-700"
+                    : resource.status === "deleted"
+                    ? "bg-red-100 text-red-700"
+                    : "bg-gray-100 text-gray-600"
+                    }`}>
+                      {resource.status === "approved" ? "Approved" : resource.status}
+                      </span>
                 </div>
 
                 {/* Metadata Row */}

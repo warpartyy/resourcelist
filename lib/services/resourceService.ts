@@ -12,7 +12,6 @@ function generateSlug(name: string) {
     .replace(/-+/g, "-");
 }
 
-
 // ==============================
 // Resource Update Type
 // ==============================
@@ -41,6 +40,7 @@ type ResourceUpdate = {
   last_edited_email?: string | null
   last_edited_at?: string | null
   last_edited_name?: string | null
+  last_verified?: string | null
 }
 
 
@@ -113,38 +113,51 @@ export async function updateResource(id: string, data: ResourceUpdate) {
     data.subcategories || []
   );
 
+  const now = new Date().toISOString();
+
+const shouldUpdateVerification =
+  data.status === "approved" || existing.status === "approved";
+
+  // ✅ Build update payload safely
+const updatePayload: any = {
+  organization: orgName,
+  slug: newSlug,
+
+  status: data.status ?? existing.status,
+
+  subcategories: data.subcategories ?? existing.subcategories ?? [],
+  tags: data.tags ?? existing.tags ?? [],
+  counties_served: data.counties_served ?? existing.counties_served ?? [],
+  phone: data.phone ?? existing.phone ?? null,
+  email: data.email ?? existing.email ?? null,
+  website: data.website ?? existing.website ?? null,
+  application_link: data.application_link ?? existing.application_link ?? null,
+  address: data.address ?? existing.address ?? null,
+  city: data.city ?? existing.city ?? null,
+  state: data.state ?? existing.state ?? null,
+  zip: data.zip ?? existing.zip ?? null,
+  description: data.description ?? existing.description ?? null,
+  services: data.services ?? existing.services ?? [],
+  eligibility: data.eligibility ?? existing.eligibility ?? null,
+  is_tribal: data.is_tribal ?? existing.is_tribal ?? false,
+  tribe: data.tribe ?? existing.tribe ?? null,
+  tribal_eligibility: data.tribal_eligibility ?? existing.tribal_eligibility ?? null,
+  admin_notes: data.admin_notes ?? existing.admin_notes ?? null,
+  last_edited_by: data.last_edited_by ?? existing.last_edited_by ?? null,
+  last_edited_email: data.last_edited_email ?? existing.last_edited_email ?? null,
+  last_edited_at: now,
+  last_edited_name: data.last_edited_name ?? existing.last_edited_name ?? null,
+};
+
+// ✅ Only set verification when appropriate
+if (shouldUpdateVerification) {
+  updatePayload.last_verified = now;
+}
+
   // 4️⃣ Update resource
 const result = await supabase
   .from("resources")
-  .update({
-    organization: orgName,
-    slug: newSlug,
-
-    status: data.status ?? existing.status,
-
-    subcategories: data.subcategories ?? existing.subcategories ?? [],
-    tags: data.tags ?? existing.tags ?? [],
-    counties_served: data.counties_served ?? existing.counties_served ?? [],
-    phone: data.phone ?? existing.phone ?? null,
-    email: data.email ?? existing.email ?? null,
-    website: data.website ?? existing.website ?? null,
-    application_link: data.application_link ?? existing.application_link ?? null,
-    address: data.address ?? existing.address ?? null,
-    city: data.city ?? existing.city ?? null,
-    state: data.state ?? existing.state ?? null,
-    zip: data.zip ?? existing.zip ?? null,
-    description: data.description ?? existing.description ?? null,
-services: data.services ?? existing.services ?? [],
-eligibility: data.eligibility ?? existing.eligibility ?? null,
-is_tribal: data.is_tribal ?? existing.is_tribal ?? false,
-tribe: data.tribe ?? existing.tribe ?? null,
-tribal_eligibility: data.tribal_eligibility ?? existing.tribal_eligibility ?? null,
-admin_notes: data.admin_notes ?? existing.admin_notes ?? null,
-last_edited_by: data.last_edited_by ?? existing.last_edited_by ?? null,
-last_edited_email: data.last_edited_email ?? existing.last_edited_email ?? null,
-last_edited_at: new Date().toISOString(),
-last_edited_name: data.last_edited_name ?? existing.last_edited_name ?? null,
-  })
+  .update(updatePayload)
   .eq("id", id)
   .select();
 
@@ -217,10 +230,15 @@ export async function getResourcesByStatus(status: string) {
 
 export async function approveResource(id: string) {
   const supabase = getSupabase();
+  const now = new Date().toISOString();
 
   return await supabase
     .from("resources")
-    .update({ status: "approved" })
+    .update({
+      status: "approved",
+      last_verified: now,
+      last_edited_at: now,
+    })
     .eq("id", id);
 }
 

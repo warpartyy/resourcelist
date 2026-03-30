@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "filter by tags added to cat page"
+git commit -m "Fix approve and update to set verified date"
 git push
 
 

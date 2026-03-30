@@ -57,7 +57,7 @@ const { error } = await updateResource(resource.id, {
   last_edited_email: user.email,
   last_edited_name: profile?.display_name || user.email,
   last_edited_at: new Date().toISOString(),
-  last_verified: finalData.last_verified || resource.last_verified,
+  last_verified: new Date().toISOString(),
 });
 
       if (error) {
