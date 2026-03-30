@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { formatTag } from "@/lib/utils/formatTag";
 
 type Props = {
   availableTags: string[];
@@ -88,7 +89,7 @@ return (
               >
                 <span className="flex items-center gap-2">
                   {isSelected && "✓"}
-                  {tag}
+                  {formatTag(tag)}
                 </span>
               </button>
             );

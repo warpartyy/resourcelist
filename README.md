@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "filters for services and tags"
+git commit -m "fix display for tags to fix dash"
 git push
 
 
