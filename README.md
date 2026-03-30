@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "Fix approve and update to set verified date"
+git commit -m "eligibilty doesn't show on the page if there is nothing set for it"
 git push
 
 

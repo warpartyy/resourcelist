@@ -198,7 +198,8 @@ const services = resource.services || [];
 
   </div>
 
-  {/* ---------------- Eligibility ---------------- */}
+{/* ---------------- Eligibility ---------------- */}
+{resource.eligibility && resource.eligibility.trim() !== "" && (
   <div className="mb-6 md:mb-10">
 
     <h2 className="text-xl font-semibold mb-3">
@@ -206,14 +207,11 @@ const services = resource.services || [];
     </h2>
 
     <p className="text-text-primary leading-relaxed">
-      {resource.eligibility || (
-        <span className="text-text-subtle italic">
-          Eligibility details not yet provided.
-        </span>
-      )}
+      {resource.eligibility}
     </p>
 
   </div>
+)}
 
 <div className="mt-6 pt-4 border-t border-border flex flex-col md:flex-row md:items-center md:justify-between text-xs text-text-muted gap-3">
 
@@ -225,9 +223,11 @@ const services = resource.services || [];
 
 
   <p className="md:text-right">
-    {resource.last_verified
-      ? `Last Verified: ${resource.last_verified}`
-      : "Verification date not recorded."}
+    {resource.last_verified ? (
+      `Last Verified: ${new Date(resource.last_verified).toLocaleDateString()}`
+    ) : (
+      "Verification date not recorded."
+      )}
   </p>
 </div>
 </Container>
