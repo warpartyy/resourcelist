@@ -11,12 +11,13 @@ type ResourceQueryFilters = {
   county?: string;
   state?: string;
   status?: "approved" | "pending" | "rejected" | "deleted";
+  services?: string;
 };
 
 export async function buildResourceQuery(filters: ResourceQueryFilters) {
   const supabase = getSupabase();
     
-const { q, parent, sub, tags, county, state, status } = filters;
+const { q, parent, sub, tags, services, county, state, status } = filters;
 
 let query = supabase
   .from("resources")
@@ -96,6 +97,18 @@ query = query.order("organization", { ascending: true });
       query = query.overlaps("tags", tagArray);
     }
   }
+
+
+  if (services) {
+  const serviceArray = services
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (serviceArray.length > 0) {
+    query = query.overlaps("services", serviceArray);
+  }
+}
 
   // -----------------------------
   // LOCATION

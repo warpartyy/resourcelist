@@ -12,6 +12,7 @@ import {
   ServicesSection,
   AdditionalDetailsSection,
 } from "@/components/forms/suggest-resource";
+import toast from "react-hot-toast";
 
 function generateSlug(name: string) {
   return name
@@ -28,6 +29,8 @@ export default function SuggestResourcePage() {
   const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [errors, setErrors] = useState<{ organization?: string; subcategories?: string; email?: string;}>({});
   
+  const [selectedServices, setSelectedServices] = useState<string[]>([]);
+
   const [isTribal, setIsTribal] = useState(false);
   const [tribe, setTribe] = useState("");
   const searchParams = useSearchParams();
@@ -65,7 +68,7 @@ if (!organizationName) {
 }
 
 if (!selectedSubcategories.length) {
-  newErrors.subcategories = "Please select at least one service type.";
+  newErrors.subcategories = "Please select at least one category.";
 }
 
 const email = formData.get("email")?.toString();
@@ -118,47 +121,33 @@ const newSubmission = {
   tribe: formData.get("tribe")?.toString() || null,
 
   description: formData.get("description")?.toString() || null,
-  services: formData.get("services")
-    ? formData.get("services")!.toString().split(",").map((s) => s.trim())
-    : [],
+services: selectedServices,
   eligibility: formData.get("eligibility")?.toString() || null,
   status: "pending",
 };
 
-console.log("Submitting:", newSubmission);
-
 
 const supabase = getSupabase();
 
+// ✅ 1. Show loading FIRST
+const toastId = toast.loading("Submitting resource...");
 
-
-// ✅ STEP 2: Insert if safe
+// ✅ 2. Make request
 const response = await supabase
   .from("resources")
   .insert([newSubmission]);
 
-console.log("Full response:", JSON.stringify(response, null, 2));
-
+// ✅ 3. Update toast based on result
 if (response.error) {
-  console.error("Submission error:", JSON.stringify(response.error, null, 2));
-  alert("Error submitting form. Check console.");
+  console.error("Submission error:", response.error);
+  toast.error("Something went wrong while submitting.", { id: toastId });
 } else {
+  toast.success("Resource submitted for review!", { id: toastId });
   setSubmitted(true);
 }
+setLoading(false);
+};
 
-
-
-console.log("Full response:", JSON.stringify(response, null, 2));
-
-if (response.error) {
-  console.error("Submission error:", JSON.stringify(response.error, null, 2));
-  alert("Error submitting form. Check console.");
-} else {
-  setSubmitted(true);
-}
-
-    setLoading(false);
-  };
 
 if (submitted) {
   return (
@@ -176,6 +165,7 @@ if (submitted) {
         onClick={() => {
           setSubmitted(false);
           setSelectedSubcategories([]);
+          setSelectedServices([]);
         }}
         className="bg-accent hover:brightness-110 text-text-primary px-6 py-3 rounded-lg transition"
       >
@@ -184,8 +174,6 @@ if (submitted) {
     </Container>
   );
 }
-
-
 
 return (
   <Container>
@@ -207,12 +195,14 @@ return (
   setTribe={setTribe}
 />
 
-  <ServicesSection
-    selectedSubcategories={selectedSubcategories}
-    setSelectedSubcategories={setSelectedSubcategories}
-    errors={errors}
-    subcategoryRef={subcategoryRef}
-  />
+<ServicesSection
+  selectedSubcategories={selectedSubcategories}
+  setSelectedSubcategories={setSelectedSubcategories}
+  selectedServices={selectedServices}
+  setSelectedServices={setSelectedServices}
+  errors={errors}
+  subcategoryRef={subcategoryRef}
+/>
 
   <AdditionalDetailsSection />
 
@@ -231,4 +221,3 @@ return (
   </Container>
 );
 }
-

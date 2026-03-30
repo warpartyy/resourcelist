@@ -6,6 +6,9 @@ import SubcategorySection from "../../components/SubcategorySection";
 import { notFound } from "next/navigation";
 import { buildResourceQuery } from "@/lib/queries/buildResourceQuery";
 import FiltersBar from "../../components/filters/FiltersBar";
+import TagFilter from "../../components/filters/TagFilter";
+import ServicesFilter from "../../components/filters/ServicesFilter";
+import ClearFilters from "@/components/filters/ClearFilters";
 
 export default async function CategoryPage({
   params,
@@ -16,6 +19,7 @@ export default async function CategoryPage({
     q?: string;
     sub?: string;
     tags?: string;
+    services?: string;
     county?: string;
     state?: string;
   }>;
@@ -52,13 +56,9 @@ const filters = await searchParams;
     SUBCATEGORIES.find((sub) => sub.value === category)?.label;
 
 
-
 if (!isParentCategory && !isSubcategory) {
   notFound();
 }
-
-
-  
 
 let resources: any[] = [];
 let error: any = null;
@@ -76,6 +76,17 @@ resources = data || [];
 const availableTags = Array.from(
   new Set(resources.flatMap((r) => r.tags || []))
 ).sort();
+
+const availableServices = Array.from(
+  new Set(
+    resources
+      .flatMap((r) => r.services || [])
+      .filter((s): s is string => !!s && s.trim().length > 0)
+  )
+).sort();
+
+const selectedServices =
+  filters.services?.split(",") ?? [];
 
 const selectedTags =
   filters.tags?.split(",") ?? [];
@@ -182,11 +193,20 @@ const displayTitle =
   </div>
 )}
 
-<FiltersBar
-  availableTags={availableTags}
-  selectedTags={selectedTags}
-  searchParams={filters as any}
-/>
+
+
+<div className="mb-4 flex justify-end gap-3 flex-wrap">
+  <ClearFilters />
+  <TagFilter
+    availableTags={availableTags}
+    selectedTags={selectedTags}
+  />
+
+  <ServicesFilter
+    availableServices={availableServices}
+    selectedServices={selectedServices}
+  />
+</div>
 
 {/* Divider */}
 <div className="relative left-1/2 right-1/2 -mx-[48vw] w-[96vw] border-b border-border mb-2 md:mb-4" />

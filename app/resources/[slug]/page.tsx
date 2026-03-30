@@ -151,11 +151,6 @@ const services = resource.services || [];
 
   <div className="border-b border-border mb-8" />
 
-
-
-
-
-
   {/* ---------------- Description ---------------- */}
   <div className="mb-6 md:mb-10 max-w-3xl">
 
