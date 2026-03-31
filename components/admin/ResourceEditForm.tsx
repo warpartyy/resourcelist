@@ -24,6 +24,7 @@ setAdditionalLocations: (data: any[]) => void;
   COUNTY_OPTIONS: string[];
   onCancel: () => void;
   user: any;
+  highlightedCommentId?: string | null;
   
 };
 
@@ -36,6 +37,7 @@ export default function ResourceEditForm({
   COUNTY_OPTIONS,
   onCancel,
   user,
+  highlightedCommentId,
 }: Props) {
   const toggleArrayValue = (
   field: string,
@@ -105,10 +107,13 @@ export default function ResourceEditForm({
     setEditedSubmission={setEditedSubmission}
   />
 
+{editedSubmission?.id && (
   <CommentsSection
-  resourceId={editedSubmission.id}
-  user={user}
-/>
+    resourceId={editedSubmission.id}
+    user={user}
+    highlightedCommentId={highlightedCommentId}
+  />
+)}
   
   <AdminNotesSection
     editedSubmission={editedSubmission}

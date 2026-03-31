@@ -1,7 +1,7 @@
 "use client";
 import { Trash } from "lucide-react";
 import { useState } from "react";
-import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight, MessageSquare, RefreshCw  } from "lucide-react";
+import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight, MessageSquare, RefreshCw, Bell  } from "lucide-react";
 import AdminControls from "@/components/admin/AdminControls";
 import { Settings } from "lucide-react";
 import { useEffect } from "react";
@@ -19,7 +19,8 @@ type AdminSection =
   | "rejected"
   | "settings"
   | "events"
-  | "messages";
+  | "messages"
+  | "notifications";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
@@ -29,6 +30,7 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   settings: "Settings",
   events: "Pending Events",
   messages: "Messages",
+  notifications: "Notifications",
 };
 
 const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
@@ -51,6 +53,7 @@ const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
 
   settings:
     "Manage admin settings and system configuration.",
+    notifications: "Notifications",
 };
 
 type Props = {
@@ -68,6 +71,8 @@ type Props = {
   setSearch: (value: string) => void;
   sortOrder: "az" | "za" | "newest" | "oldest";
   setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
+  notificationsCount?: number;
+
 };
 
 export default function AdminLayout({
@@ -83,6 +88,7 @@ export default function AdminLayout({
   setSearch,
   sortOrder,
   setSortOrder,
+  notificationsCount,
 }: Props){
 
   const [collapsed, setCollapsed] = useState(false);
@@ -207,6 +213,7 @@ return (
         {navItem("Rejected", "rejected", XCircle, rejectedCount)}
         {navItem("Events", "events", Calendar)}
         {navItem("Messages", "messages", MessageSquare)}
+        {navItem("Notifications", "notifications", Bell, notificationsCount)}
         {navItem("Settings", "settings", Settings)}
       </div>
 

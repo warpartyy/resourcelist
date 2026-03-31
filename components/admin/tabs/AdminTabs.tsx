@@ -7,7 +7,7 @@ import AdminSettingsPage from "@/app/admin/settings/page";
 import EventsTab from "./EventsTab";
 import MessagesTab from "@/app/admin/components/MessagesTab";
 import UpdateRequestsTab from "./UpdateRequestsTab";
-
+import NotificationsPanel from "@/components/admin/NotificationsPanel";
 
 type Props = {
 adminSection:
@@ -17,7 +17,8 @@ adminSection:
   | "resources"
   | "settings"
   | "events"
-  | "messages";
+  | "messages"
+  | "notifications";
 
   editingId: string | null;
   setEditingId: (id: string | null) => void;
@@ -31,6 +32,9 @@ adminSection:
   search: string;
   setSearch: (value: string) => void;
   onUpdateRequestHandled?: () => void;
+  user: any;
+  highlightedCommentId?: string | null;
+  selectedResourceId?: string | null;
 };
 
 export default function AdminTabs(props: Props) {
@@ -80,7 +84,7 @@ export default function AdminTabs(props: Props) {
       />
     );
   }
-
+ 
 if (adminSection === "resources") {
   return (
     <ResourcesTab
@@ -92,6 +96,13 @@ if (adminSection === "resources") {
       setSortOrder={setSortOrder}
       onSuccess={onSuccess}
       search={search}
+
+      // 🔥 CRITICAL FIX
+      editingId={editingId}
+      setEditingId={setEditingId}
+
+      highlightedCommentId={props.highlightedCommentId}
+      selectedResourceId={editingId} 
     />
   );
 }
@@ -111,6 +122,10 @@ if (adminSection === "messages") {
 
 if (adminSection === "update-requests") {
   return <UpdateRequestsTab onHandled={props.onUpdateRequestHandled} />;
+}
+
+if (adminSection === "notifications") {
+  return <NotificationsPanel user={props.user} />;
 }
 
   return null;

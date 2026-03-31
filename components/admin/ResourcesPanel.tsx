@@ -24,6 +24,11 @@ type Props = {
   sortOrder: "az" | "za" | "newest" | "oldest";
   setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
   search: string;
+
+    editingId: string | null;
+  setEditingId: (id: string | null) => void;
+  highlightedCommentId?: string | null;
+
 };
 
 export default function ResourcesPanel({
@@ -34,8 +39,10 @@ export default function ResourcesPanel({
   sortOrder,
   setSortOrder,
   search,
+    editingId,          // ✅ ADD
+  setEditingId,       // ✅ ADD
+  highlightedCommentId,
 }: Props) {
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [editedResource, setEditedResource] = useState<any>({});
   const [user, setUser] = useState<any>(null);
   const [additionalLocations, setAdditionalLocations] = useState([
@@ -98,6 +105,19 @@ const filteredResources = [...resources] // ✅ IMPORTANT
     return 0;
   });
 
+  useEffect(() => {
+  if (!editingId || resources.length === 0) return;
+
+  const resourceToEdit = resources.find(
+    (r) => r.id === editingId
+  );
+
+  if (resourceToEdit) {
+    setEditedResource(resourceToEdit);
+  }
+}, [editingId, resources]);
+
+
   return (
     <>
       {filteredResources.length === 0 ? (
@@ -125,6 +145,7 @@ const filteredResources = [...resources] // ✅ IMPORTANT
                 COUNTY_OPTIONS={COUNTY_OPTIONS}
                 onCancel={() => setEditingId(null)}
                 user={user}
+                highlightedCommentId={highlightedCommentId}
               />
             ) : (
               <>

@@ -12,6 +12,10 @@ type Props = {
   setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
   onSuccess?: () => void;
   search: string;
+  editingId: string | null;
+  setEditingId: (id: string | null) => void;
+  highlightedCommentId?: string | null;
+  selectedResourceId?: string | null;
 };
 
 export default function ResourcesTab({
@@ -22,6 +26,10 @@ export default function ResourcesTab({
   setSortOrder,
   onSuccess,
   search,
+  editingId,
+  setEditingId,
+  highlightedCommentId,
+  selectedResourceId
 }: Props) {
   const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +44,16 @@ const status = "approved";
 
     setLoading(false);
   };
+
+
+  useEffect(() => {
+  if (!selectedResourceId || resources.length === 0) return;
+
+  // 🔥 ensure edit mode triggers AFTER data loads
+  setEditingId(selectedResourceId);
+}, [selectedResourceId, resources]);
+
+
 
   useEffect(() => {
     loadData();
@@ -65,6 +83,9 @@ const status = "approved";
       sortOrder={sortOrder}
       setSortOrder={setSortOrder}
       search={search}
+editingId={editingId}
+setEditingId={setEditingId}
+highlightedCommentId={highlightedCommentId}
     />
   );
 }

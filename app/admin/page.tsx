@@ -6,6 +6,7 @@ import AdminTabs from "@/components/admin/tabs/AdminTabs";
 import {fetchAdminCounts} from "@/lib/services/adminService";
 import { COUNTY_OPTIONS_BY_STATE } from "@/lib/geography/counties";
 import { getSupabase } from "@/lib/supabase";
+import { useSearchParams } from "next/navigation";
 
 const CATEGORY_OPTIONS = [
   { label: "Mental Health", value: "mental-health" },
@@ -24,6 +25,7 @@ export default function AdminPage({
   displayName?: string | null;
 }) {
 
+const searchParams = useSearchParams();
 
   // Counts
 const [counts, setCounts] = useState({
@@ -31,6 +33,7 @@ const [counts, setCounts] = useState({
   rejected: 0,
   resources: 0,
   updateRequests: 0,
+  notifications: 0,
 });
 
   const [resourceSortOrder, setResourceSortOrder] =
@@ -38,7 +41,10 @@ const [counts, setCounts] = useState({
 
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const resourceFromUrl = searchParams.get("resource");
   const [editedSubmission, setEditedSubmission] = useState<any>({});
+const sectionFromUrl = searchParams.get("section");
+
 const [adminSection, setAdminSection] = useState<
   | "resources"
   | "pending"
@@ -47,8 +53,22 @@ const [adminSection, setAdminSection] = useState<
   | "events"
   | "messages"
   | "update-requests"
->("pending");
+  | "notifications"
+>(() => (sectionFromUrl as any) || "pending");
 
+const [user, setUser] = useState<any>(null);
+useEffect(() => {
+  const loadUser = async () => {
+    const supabase = getSupabase();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    setUser(user);
+  };
+
+  loadUser();
+}, []);
 
   const handleLogout = async () => {
     const supabase = getSupabase();
@@ -56,15 +76,47 @@ const [adminSection, setAdminSection] = useState<
     router.push("/login");
   };
 
+const commentFromUrl = searchParams.get("comment");
 
   const refreshAll = async () => {
   await fetchCounts();
 };
 
+useEffect(() => {
+  if (resourceFromUrl) {
+    setAdminSection("resources");
+
+    // force re-trigger
+    setEditingId(null);
+
+    setTimeout(() => {
+      setEditingId(resourceFromUrl);
+    }, 0);
+  }
+}, [resourceFromUrl]);
+
 const fetchCounts = async () => {
   try {
+    const supabase = getSupabase(); // ✅ MOVE HERE
+
     const counts = await fetchAdminCounts();
-    setCounts(counts);
+
+    // 🔥 MERGE instead of replace
+    setCounts((prev) => ({
+      ...prev,
+      ...counts,
+    }));
+
+    const { count: notificationCount } = await supabase
+      .from("notifications")
+      .select("id", { count: "exact", head: true })
+      .eq("read", false);
+
+    setCounts((prev) => ({
+      ...prev,
+      notifications: notificationCount || 0,
+      
+    }));
   } catch (err) {
     console.error("Failed to fetch counts", err);
   }
@@ -79,11 +131,9 @@ const decrementUpdateRequests = () => {
 
 const [search, setSearch] = useState("");
 
-
   useEffect(() => {
   fetchCounts();
 }, []);
-
 
 
   return (
@@ -99,6 +149,7 @@ const [search, setSearch] = useState("");
   setSearch={setSearch}
   sortOrder={resourceSortOrder}
   setSortOrder={setResourceSortOrder}
+  notificationsCount={counts.notifications}
 >
     <AdminTabs
       adminSection={adminSection}
@@ -114,6 +165,8 @@ const [search, setSearch] = useState("");
       search={search}
       setSearch={setSearch}
       onUpdateRequestHandled={decrementUpdateRequests}
+      user={user}
+      highlightedCommentId={commentFromUrl}
     />
   </AdminLayout>
 );
