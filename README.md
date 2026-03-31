@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 npm run dev
 
 git add .
-git commit -m "fix display for tags to fix dash"
+git commit -m "fixed parent tags derivied from subcat"
 git push
 
 

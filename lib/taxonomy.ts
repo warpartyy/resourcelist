@@ -32,8 +32,6 @@ export const PARENT_CATEGORIES = [
 ];
 
 
-
-
 export const SUBCATEGORIES = [
   {
     label: "Mental Health Services",
@@ -157,7 +155,6 @@ export const SUBCATEGORY_PARENT_MAP: Record<string, string> = {
   "transportation-services": "essential-support",
   "utility-rental-assistance": "essential-support",
 
-
   "employment-job-support": "work-money-legal",
   "financial-benefits-assistance": "work-money-legal",
   "legal-assistance": "work-money-legal",
@@ -206,22 +203,16 @@ export const TAG_GROUPS = {
     "Women only",
     "Men Only",
     "referral-required",
-    "walk-in-available",
     "appointment-required",
     "income-based",
   ],
 
-  logistics: [
-    "spanish-available",
-    "evening-hours",
-    "weekend-hours",
-    "same-day-service",
-  ],
     programlength: [
     "30 days",
     "45 days",
     "60 days",
     "90 days",
+    "120 days",    
     "6 months",
     "12 months",
   ],

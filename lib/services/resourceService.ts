@@ -109,9 +109,9 @@ export async function updateResource(id: string, data: ResourceUpdate) {
     }
   }
 
-  const derivedParents = deriveParentCategories(
-    data.subcategories || []
-  );
+const subcats = data.subcategories ?? existing.subcategories ?? [];
+
+const derivedParents = deriveParentCategories(subcats);
 
   const now = new Date().toISOString();
 
@@ -122,10 +122,12 @@ const shouldUpdateVerification =
 const updatePayload: any = {
   organization: orgName,
   slug: newSlug,
+  
 
   status: data.status ?? existing.status,
 
-  subcategories: data.subcategories ?? existing.subcategories ?? [],
+  subcategories: subcats,
+  parent_categories: derivedParents,
   tags: data.tags ?? existing.tags ?? [],
   counties_served: data.counties_served ?? existing.counties_served ?? [],
   phone: data.phone ?? existing.phone ?? null,
