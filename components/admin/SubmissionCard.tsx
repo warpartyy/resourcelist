@@ -493,10 +493,10 @@ const mergedParentCategories = Array.from(new Set([
   }
 
   // 🗑️ 5. Remove submission
-  await supabase
-    .from("resources")
-    .update({ status: "deleted" })
-    .eq("id", submission.id);
+await supabase
+  .from("resources")
+  .delete()
+  .eq("id", submission.id);
 
   // 🔄 6. Refresh UI
   setPossibleMatches([]);

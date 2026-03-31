@@ -15,7 +15,6 @@ adminSection:
   | "update-requests"
   | "rejected"
   | "resources"
-  | "deleted"
   | "settings"
   | "events"
   | "messages";
@@ -82,7 +81,7 @@ export default function AdminTabs(props: Props) {
     );
   }
 
-if (adminSection === "resources" || adminSection === "deleted") {
+if (adminSection === "resources") {
   return (
     <ResourcesTab
       key={`${adminSection}-${sortOrder}-${search}`}

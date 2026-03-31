@@ -25,9 +25,6 @@ const handleReject = async () => {
   try {
     const supabase = getSupabase();
 
-
-
-
 const {
   data: { user },
 } = await supabase.auth.getUser();
@@ -45,17 +42,16 @@ const { data: profile } = await supabase
   .single();
 
 // 🔁 Updated payload
+const now = new Date().toISOString();
+
 const { error } = await updateResource(resource.id, {
   status: "rejected",
+  rejected_at: now,
   last_edited_by: user.id,
   last_edited_email: user.email,
   last_edited_name: profile?.display_name || user.email,
-  last_edited_at: new Date().toISOString(),
+  last_edited_at: now,
 });
-
-
-
-
 
     if (error) {
       console.error(error);
@@ -63,7 +59,7 @@ const { error } = await updateResource(resource.id, {
       return;
     }
 
-    toast.success("Moved to rejected");
+    toast.success("Submission rejected");
     onSuccess?.();
   } finally {
     setIsLoading(false);

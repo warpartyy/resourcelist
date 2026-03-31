@@ -30,7 +30,6 @@ const [counts, setCounts] = useState({
   pending: 0,
   rejected: 0,
   resources: 0,
-  deleted: 0,
   updateRequests: 0,
 });
 
@@ -42,7 +41,6 @@ const [counts, setCounts] = useState({
   const [editedSubmission, setEditedSubmission] = useState<any>({});
 const [adminSection, setAdminSection] = useState<
   | "resources"
-  | "deleted"
   | "pending"
   | "rejected"
   | "settings"
@@ -96,7 +94,6 @@ const [search, setSearch] = useState("");
   pendingCount={counts.pending}
   resourceCount={counts.resources}
   rejectedCount={counts.rejected}
-  deletedCount={counts.deleted}
   updateRequestsCount={counts.updateRequests}
   search={search}
   setSearch={setSearch}

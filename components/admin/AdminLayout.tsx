@@ -17,7 +17,6 @@ type AdminSection =
   | "update-requests"
   | "resources"
   | "rejected"
-  | "deleted"
   | "settings"
   | "events"
   | "messages";
@@ -27,10 +26,31 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   "update-requests": "Update Requests", // ✅ NEW
   resources: "Approved Resources",
   rejected: "Rejected",
-  deleted: "Deleted Resources",
   settings: "Settings",
   events: "Pending Events",
   messages: "Messages",
+};
+
+const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
+  pending: "Review and approve new submissions before they are added to the directory.",
+
+  "update-requests":
+    "Review requested updates to existing resources and apply approved changes.",
+
+  resources:
+    "Approved resources currently visible in the public directory.",
+
+  rejected:
+    "Submissions that were not approved. These will be permanently deleted after 30 days.",
+
+  events:
+    "Review and manage submitted events before they are published.",
+
+  messages:
+    "View and respond to messages or inquiries from users.",
+
+  settings:
+    "Manage admin settings and system configuration.",
 };
 
 type Props = {
@@ -40,7 +60,6 @@ type Props = {
   pendingCount?: number;
   resourceCount?: number;
   rejectedCount?: number;
-  deletedCount?: number;
   updateRequestsCount?: number;
   children: React.ReactNode;
 
@@ -58,7 +77,6 @@ export default function AdminLayout({
   pendingCount,
   resourceCount,
   rejectedCount,
-  deletedCount,
   updateRequestsCount,
   children,
   search,
@@ -187,7 +205,6 @@ return (
         {navItem("Update Requests", "update-requests", RefreshCw, updateRequestsCount)}
         {navItem("Approved Resources", "resources", Database, resourceCount)}
         {navItem("Rejected", "rejected", XCircle, rejectedCount)}
-        {navItem("Deleted Resources", "deleted", Trash, deletedCount)}
         {navItem("Events", "events", Calendar)}
         {navItem("Messages", "messages", MessageSquare)}
         {navItem("Settings", "settings", Settings)}
@@ -226,9 +243,18 @@ return (
             <ChevronRight size={18} />
           </button>
 
-          <h1 className="text-xl md:text-2xl font-semibold">
-            {SECTION_TITLES[adminSection]}
-          </h1>
+<div>
+  <h1 className="text-xl md:text-2xl font-semibold">
+    {SECTION_TITLES[adminSection]}
+  </h1>
+
+  {SECTION_DESCRIPTIONS[adminSection] && (
+    <p className="text-sm text-text-muted mt-1">
+      {SECTION_DESCRIPTIONS[adminSection]}
+    </p>
+  )}
+</div>
+
         </div>
       </div>
 

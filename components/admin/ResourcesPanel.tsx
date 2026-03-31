@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import ResourceEditForm from "./ResourceEditForm";
 import {
   updateResource,
-  softDeleteResource,
   restoreResource,
   hardDeleteResource,
 } from "@/lib/services/resourceService";
@@ -327,7 +326,6 @@ onClick={async () => {
 
     <DeleteButton
       resource={resource}
-      variant="hard"
       onSuccess={fetchData}
     />
   </>

@@ -80,17 +80,6 @@ const filteredSubmissions = [...submissions]
   });
 return (
   <>
-    <div className="mb-4 mt-0">
-      <p className="text-text-primary text-base font-medium">
-        {section === "pending" &&
-          "Review and approve new submissions."}
-        {section === "approved" &&
-          "Previously approved submissions."}
-        {section === "rejected" &&
-          "Submissions that were not approved."}
-      </p>
-    </div>
-
     {filteredSubmissions.length === 0 ? (
       <div className="text-text-muted">
         No {section} submissions.

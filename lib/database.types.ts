@@ -140,6 +140,41 @@ export type Database = {
         }
         Relationships: []
       }
+      resource_comments: {
+        Row: {
+          comment: string
+          created_at: string | null
+          created_by: string | null
+          created_by_email: string | null
+          id: string
+          resource_id: string | null
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          created_by?: string | null
+          created_by_email?: string | null
+          id?: string
+          resource_id?: string | null
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          created_by?: string | null
+          created_by_email?: string | null
+          id?: string
+          resource_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_comments_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resource_locations: {
         Row: {
           address: string | null
@@ -196,6 +231,50 @@ export type Database = {
           },
         ]
       }
+      resource_submissions: {
+        Row: {
+          id: string
+          message: string | null
+          resource_id: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string | null
+          submitted_at: string | null
+          suggested_changes: Json | null
+          type: string
+        }
+        Insert: {
+          id?: string
+          message?: string | null
+          resource_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          suggested_changes?: Json | null
+          type: string
+        }
+        Update: {
+          id?: string
+          message?: string | null
+          resource_id?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          submitted_at?: string | null
+          suggested_changes?: Json | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resource_submissions_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       resources: {
         Row: {
           address: string | null
@@ -216,6 +295,7 @@ export type Database = {
           organization: string | null
           parent_categories: string[] | null
           phone: string | null
+          rejected_at: string | null
           services: string[] | null
           slug: string
           source_submission_id: string | null
@@ -248,6 +328,7 @@ export type Database = {
           organization?: string | null
           parent_categories?: string[] | null
           phone?: string | null
+          rejected_at?: string | null
           services?: string[] | null
           slug: string
           source_submission_id?: string | null
@@ -280,6 +361,7 @@ export type Database = {
           organization?: string | null
           parent_categories?: string[] | null
           phone?: string | null
+          rejected_at?: string | null
           services?: string[] | null
           slug?: string
           source_submission_id?: string | null

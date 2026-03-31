@@ -5,7 +5,7 @@ import ResourcesPanel from "../ResourcesPanel";
 import { fetchResourcesByStatus } from "@/lib/services/adminService";
 
 type Props = {
-  adminSection: "resources" | "deleted";
+  adminSection: "resources";
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   sortOrder: "az" | "za" | "newest" | "oldest";
@@ -29,8 +29,7 @@ export default function ResourcesTab({
   const loadData = async () => {
     setLoading(true);
 
-    const status =
-      adminSection === "deleted" ? "deleted" : "approved";
+const status = "approved";
 
     const data = await fetchResourcesByStatus(status);
     setResources(data || []);
@@ -40,7 +39,7 @@ export default function ResourcesTab({
 
   useEffect(() => {
     loadData();
-  }, [adminSection, sortOrder, search]);
+}, [sortOrder, search]);
 
   // 🔁 keeps behavior consistent with other tabs
   const handleSuccess = async () => {
@@ -48,12 +47,11 @@ export default function ResourcesTab({
     onSuccess?.();
   };
 
-  const isDeleted = adminSection === "deleted";
 
   if (loading) {
     return (
       <div className="text-sm text-text-muted">
-        {isDeleted ? "Loading deleted resources..." : "Loading resources..."}
+        Loading resources...
       </div>
     );
   }

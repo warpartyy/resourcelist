@@ -1,6 +1,6 @@
 import { getSupabase } from "@/lib/supabase";
 import { deriveParentCategories } from "./categoryService";
-
+import { Database } from "@/lib/database.types";
 
 function generateSlug(name: string) {
   return name
@@ -15,34 +15,9 @@ function generateSlug(name: string) {
 // ==============================
 // Resource Update Type
 // ==============================
-type ResourceUpdate = {
-  organization?: string
-  status?: string
-  subcategories?: string[]
-  tags?: string[]
-  counties_served?: string[]
-  phone?: string | null
-  email?: string | null
-  website?: string | null
-  application_link?: string | null
-  address?: string | null
-  city?: string | null
-  state?: string | null
-  zip?: string | null
-  description?: string | null
-  services?: string[]
-  eligibility?: string | null
-  is_tribal?: boolean
-  tribe?: string | null
-  tribal_eligibility?: string | null
-  admin_notes?: string | null
-  last_edited_by?: string | null
-  last_edited_email?: string | null
-  last_edited_at?: string | null
-  last_edited_name?: string | null
-  last_verified?: string | null
-}
 
+type ResourceUpdate =
+  Database["public"]["Tables"]["resources"]["Update"];
 
 /**
  * Update an existing approved resource
@@ -119,7 +94,7 @@ const shouldUpdateVerification =
   data.status === "approved" || existing.status === "approved";
 
   // ✅ Build update payload safely
-const updatePayload: any = {
+const updatePayload: ResourceUpdate = {
   organization: orgName,
   slug: newSlug,
   
@@ -169,27 +144,6 @@ const result = await supabase
 }
 
 
-export async function softDeleteResource(
-  id: string,
-  audit: {
-    last_edited_by: string;
-    last_edited_email: string;
-    last_edited_name: string;
-  }
-) {
-  const supabase = getSupabase();
-
-  return await supabase
-    .from("resources")
-    .update({
-      status: "deleted",
-      last_edited_by: audit.last_edited_by,
-      last_edited_email: audit.last_edited_email,
-      last_edited_name: audit.last_edited_name,
-      last_edited_at: new Date().toISOString(),
-    })
-    .eq("id", id);
-}
 
 export async function restoreResource(
   id: string,

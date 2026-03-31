@@ -28,9 +28,9 @@ export default function RejectedTab(props: Props) {
     setLoading(false);
   };
 
-  useEffect(() => {
-    loadData();
-  }, []);
+useEffect(() => {
+  loadData();
+}, [props.search, props.sortOrder]);
 
   // Refresh after actions
   const handleSuccess = async () => {
