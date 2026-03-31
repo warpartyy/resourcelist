@@ -4,6 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ResourceLocationBlock } from "@/components/resources/ResourceLocationBlock";
 import UpdateSuccessBanner from '@/components/resources/UpdateSuccessBanner'
+import { ResourceLocationLite } from "@/lib/types/location-display";
+import ResourceLocationsSidebar from "@/components/resources/ResourceLocationsSidebar";
 
 export default async function ResourcePage({
   params,
@@ -101,9 +103,18 @@ const services = resource.services || [];
   )}
 </p>
 
-<div className="mt-2">
-  <ResourceLocationBlock resource={resource} />
+<div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-4">
+  
+  {/* MAIN CONTENT */}
+  <div className="md:col-span-2 space-y-6">
+    <ResourceLocationBlock resource={resource} />
+    
+    {/* keep your existing description/services here */}
+  </div>
+
 </div>
+
+
 
 {/* Application Link */}
 {resource.application_link && (
@@ -208,6 +219,10 @@ const services = resource.services || [];
   </div>
 )}
 
+  <div>
+    <ResourceLocationsSidebar resource={resource} />
+  </div>
+  
 <div className="mt-6 pt-4 border-t border-border flex flex-col md:flex-row md:items-center md:justify-between text-xs text-text-muted gap-3">
 
 <Link href={`/resources/${resource.slug}/suggest-update`}>
@@ -224,6 +239,10 @@ const services = resource.services || [];
       "Verification date not recorded."
       )}
   </p>
+
+    {/* SIDEBAR */}
+
+
 </div>
 </Container>
   );

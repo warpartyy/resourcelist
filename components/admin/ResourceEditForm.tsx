@@ -12,7 +12,7 @@ import {
   AdminNotesSection,
   TribalSection,
 } from "@/components/admin/resource-edit";
-import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
+import { EditableLocation } from "@/lib/types/location";
 import CommentsSection from "@/components/admin/CommentsSection";
 
 type Props = {

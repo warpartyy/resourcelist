@@ -1,19 +1,9 @@
 // components/admin/resource-edit/AdditionalLocationsSection.tsx
-
-import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
-
-type Location = {
-  address: string
-  city: string
-  state: string
-  zip: string
-  is_primary: boolean
-  location_name: string
-}
+import { EditableLocation } from "@/lib/types/location";
 
 type Props = {
-  locations: Location[]
-  setLocations: (locations: Location[]) => void
+  locations: EditableLocation[]
+  setLocations: (locations: EditableLocation[]) => void
 }
 
 export default function AdditionalLocationsSection({
@@ -22,7 +12,14 @@ export default function AdditionalLocationsSection({
 }: Props) {
 const updateLocation = (
   index: number,
-  field: "address" | "city" | "state" | "zip" | "location_name",
+  field:
+  | "address"
+  | "city"
+  | "state"
+  | "zip"
+  | "location_name"
+  | "phone"
+  | "email",
   value: string
 ) => {
     const updated = [...locations]
@@ -34,13 +31,15 @@ const addLocation = () => {
   setLocations([
     ...locations,
     {
-  address: "",
-  city: "",
-  state: "OK",
-  zip: "",
-  is_primary: false,
-  location_name: ""
-},
+      address: "",
+      city: "",
+      state: "OK",
+      zip: "",
+      is_primary: false,
+      location_name: "",
+      phone: "",
+      email: "",
+    },
   ])
 }
 
@@ -70,6 +69,23 @@ const addLocation = () => {
   className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
 />
 
+<input
+  value={loc.phone || ""}
+  onChange={(e) =>
+    updateLocation(index, "phone", e.target.value)
+  }
+  placeholder="Phone number (optional)"
+  className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
+/>
+
+<input
+  value={loc.email || ""}
+  onChange={(e) =>
+    updateLocation(index, "email", e.target.value)
+  }
+  placeholder="Email (optional)"
+  className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary mb-2"
+/>
 
           <input
             value={loc.address}

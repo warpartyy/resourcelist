@@ -10,6 +10,9 @@ type Resource = {
   city?: string;
   state?: string;
   description?: string;
+  resource_locations?: {
+    is_primary: boolean | null;
+  }[];
 };
 
 export default function ResourceCard({
@@ -31,10 +34,15 @@ export default function ResourceCard({
     }
   }
 
+  const additionalCount =
+    resource.resource_locations?.filter(
+      (loc) => loc.is_primary === false
+    ).length || 0;
+
+    
   return (
     <Card>
       <div className="p-6">
-
         {/* Clickable content (internal navigation) */}
         <Link
           href={`/resources/${resource.slug}`}
@@ -47,10 +55,19 @@ export default function ResourceCard({
 
           {/* Location */}
           {resource.city && (
-            <p className="mt-2 text-sm text-text-muted">
-              📍 {resource.city}
-              {resource.state ? `, ${resource.state}` : ""}
-            </p>
+            <div className="mt-2">
+              <p className="text-sm text-text-muted">
+                📍 {resource.city}
+                {resource.state ? `, ${resource.state}` : ""}
+              </p>
+
+              {additionalCount > 0 && (
+                <p className="text-xs text-accent">
+                  + {additionalCount} more location
+                  {additionalCount > 1 ? "s" : ""}
+                </p>
+              )}
+            </div>
           )}
 
           {/* Phone */}
@@ -88,7 +105,6 @@ export default function ResourceCard({
             🌐 {formatWebsite(resource.website)}
           </a>
         )}
-
       </div>
     </Card>
   );

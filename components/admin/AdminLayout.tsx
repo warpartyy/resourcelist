@@ -23,7 +23,7 @@ type AdminSection =
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   pending: "Pending Suggestions",
-  "update-requests": "Update Requests", // ✅ NEW
+  "update-requests": "Update Requests",
   resources: "Approved Resources",
   rejected: "Rejected",
   settings: "Settings",

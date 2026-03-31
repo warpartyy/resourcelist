@@ -21,7 +21,12 @@ const { q, parent, sub, tags, services, county, state, status } = filters;
 
 let query = supabase
   .from("resources")
-  .select("*");
+  .select(`
+  *,
+  resource_locations (
+    is_primary
+  )
+`);
 
 // ✅ apply status filter FIRST
 if (status) {

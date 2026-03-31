@@ -14,7 +14,7 @@ import RestoreButton from "./actions/RestoreButton";
 import { moveResourceToPending } from "@/lib/services/resourceService";
 import MoveSubmissionToPendingButton from "./actions/MoveToPendingButton";
 import { getSupabase } from "@/lib/supabase";
-import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
+import { EditableLocation } from "@/lib/types/location";
 
 type Props = {
   resources: any[];

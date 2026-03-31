@@ -4,12 +4,12 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { getSupabase } from "@/lib/supabase";
 import { updateResource } from "@/lib/services/resourceService";
-import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
+import { EditableLocation } from "@/lib/types/location";
 
 type Props = {
   resourceId: string;
   editedData: any;
-  additionalLocations: ResourceLocation[]; // ✅ NEW
+  additionalLocations: EditableLocation[];
   onSuccess?: () => void;
 };
 
@@ -82,6 +82,8 @@ const primaryLocation = {
   zip: editedData.zip || "",
   is_primary: true,
   location_name: null,
+  phone: editedData.phone || null, 
+  email: editedData.email || null, 
 };
 
 const additional = additionalLocations.map((loc) => ({
@@ -91,7 +93,9 @@ const additional = additionalLocations.map((loc) => ({
   state: loc.state,
   zip: loc.zip,
   is_primary: false,
-  location_name: loc.location_name || null, // ✅ THIS FIXES IT
+  location_name: loc.location_name || null,
+  phone: loc.phone || null,
+  email: loc.email || null,
 }));
 
 const allLocations = [primaryLocation, ...additional].filter(

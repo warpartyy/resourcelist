@@ -1,65 +1,60 @@
 // components/resources/ResourceLocationBlock.tsx
 
 import { getPrimaryLocation } from "@/lib/resources/getPrimaryLocation"
-import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
+
+import { Database } from "@/lib/database.types";
+
+type ResourceLocationLite = {
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  is_primary: boolean | null;
+  location_name: string | null;
+  phone?: string | null;
+  email?: string | null;
+};
 
 type ResourceWithLocations = {
   address: string | null;
   city: string | null;
   state: string | null;
   zip: string | null;
-  resource_locations?: ResourceLocation[];
+  resource_locations?: ResourceLocationLite[];
 };
 
 export function ResourceLocationBlock({ resource }: { resource: ResourceWithLocations }) {
   const primary = getPrimaryLocation(resource)
 
-  const additionalLocations =
-    resource.resource_locations?.filter((loc: ResourceLocation) => !loc.is_primary) ?? []
+const primaryLocation =
+  resource.resource_locations?.find((loc) => loc.is_primary) ?? null;
+
+const additionalLocations =
+  resource.resource_locations?.filter((loc) => !loc.is_primary) ?? [];
+
+const additionalCount = additionalLocations.length;
+
 
   return (
-    <div className="space-y-4">
-      {/* Primary Location */}
-      <div>
-        <h3 className="font-semibold">Location</h3>
-        <p>{primary.address}</p>
-        <p>
-          {primary.city}, {primary.state} {primary.zip}
-        </p>
-      </div>
+  <div className="space-y-4">
+    {/* Primary Location */}
+    <div>
+      <h3 className="font-semibold">Location</h3>
 
-      {/* Additional Locations */}
-      {additionalLocations.length > 0 && (
-        <div>
-          <h3 className="font-semibold">
-            Other Locations Available
-          </h3>
+      <p>{primary.address || "Address not provided"}</p>
 
-          <p className="text-sm text-muted-foreground">
-            Other locations may be closer to you
-          </p>
-
-          <ul className="mt-2 space-y-2">
-            {additionalLocations.map((loc: ResourceLocation, i: number) => (
-
-<li key={i}>
-  {loc.location_name && (
-    <p className="font-medium">{loc.location_name}</p>
-  )}
-
-  <p>{loc.address || "Address not provided"}</p>
-
-  <p>
-    {[loc.city, loc.state, loc.zip].filter(Boolean).join(", ") || "Location details not available"}
-  </p>
-</li>
-            
-            
-            
-            ))}
-          </ul>
-        </div>
-      )}
+      <p>
+        {[primary.city, primary.state, primary.zip]
+          .filter(Boolean)
+          .join(", ") || "Location details not available"}
+      </p>
     </div>
-  )
+    {additionalCount > 0 && (
+  <p className="text-sm text-text-muted mt-1">
+    + {additionalCount} more location{additionalCount > 1 ? "s" : ""} available
+  </p>
+)}
+
+  </div>
+);
 }

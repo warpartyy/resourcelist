@@ -7,9 +7,10 @@ import ApproveButton from "./actions/ApproveButton";
 import DeleteButton from "./actions/DeleteButton";
 import RejectButton from "./actions/RejectButton";
 import { useState, useEffect } from "react";
-import { ResourceLocation } from "@/lib/resources/getPrimaryLocation";
 import { getSupabase } from "@/lib/supabase";
 import CommentsPreview from "@/components/admin/resource-edit/CommentsPreview";
+import { EditableLocation } from "@/lib/types/location";
+
 
 type Props = {
   submission: any;
@@ -91,14 +92,16 @@ export default function SubmissionCard({
   section === "pending" && editingId === submission.id;
 
 
-const [additionalLocations, setAdditionalLocations] = useState([
+const [additionalLocations, setAdditionalLocations] = useState<EditableLocation[]>([
   {
     address: "",
     city: "",
     state: "OK",
     zip: "",
     is_primary: false,
-    location_name: "", // ✅ ADD THIS
+    location_name: "",
+    phone: "",
+    email: "",
   }
 ]);
 
@@ -204,19 +207,23 @@ const additional = (locations || [])
     state: loc.state || "OK",
     zip: loc.zip || "",
     is_primary: false,
-    location_name: loc.location_name || "", // ✅ ADD THIS
+    location_name: loc.location_name || "",
+    phone: loc.phone || "",
+    email: loc.email || "",
   }));
 
   setAdditionalLocations(
     additional.length > 0
       ? additional
-      : [{
+: [{
   address: "",
   city: "",
   state: "OK",
   zip: "",
   is_primary: false,
-  location_name: "", // ✅ ADD THIS
+  location_name: "",
+  phone: "",   // ✅ ADD
+  email: "",   // ✅ ADD (optional but consistent)
 }]
   );
 }}

@@ -10,6 +10,9 @@ type Resource = {
   organization: string;
   city?: string;
   state?: string;
+  resource_locations?: {
+    is_primary: boolean | null;
+  }[];
 };
 
 type Props = {
@@ -29,12 +32,11 @@ export default function SubcategorySection({
 
   return (
     <div className="rounded-lg border border-border bg-surface mb-4">
-
       {/* Subcategory Header */}
       <div
-  className="flex items-center justify-between cursor-pointer px-4 py-4 hover:bg-surface-hover transition"
-  onClick={() => setOpen(!open)}
->
+        className="flex items-center justify-between cursor-pointer px-4 py-4 hover:bg-surface-hover transition"
+        onClick={() => setOpen(!open)}
+      >
         <div>
           <Link
             href={`/${sub.value}`}
@@ -62,45 +64,56 @@ export default function SubcategorySection({
       {/* Resource List */}
       {open && (
         <div className="border-t border-border">
-
-
           {resources.length > 0 ? (
-            resources.map((resource) => (
-              <Link
-  key={resource.id}
-  href={`/resources/${resource.slug}`}
-  className="
-  group
-  flex items-center justify-between
-  px-4 py-3
-  border-b border-border last:border-b-0
-  hover:bg-surface-hover
-  transition-colors
-"
->
-  <div>
-  <div className="font-medium text-text-primary">
-    {resource.organization}
-  </div>
+            resources.map((resource) => {
+              const additionalCount =
+                resource.resource_locations?.filter(
+                  (loc) => loc.is_primary !== true
+                ).length || 0;
 
-  {resource.city && (
-    <div className="text-sm text-text-muted mt-1">
-      {resource.city}, {resource.state}
-    </div>
-  )}
-</div>
+              return (
+                <Link
+                  key={resource.id}
+                  href={`/resources/${resource.slug}`}
+                  className="
+                    group
+                    flex items-center justify-between
+                    px-4 py-3
+                    border-b border-border last:border-b-0
+                    hover:bg-surface-hover
+                    transition-colors
+                  "
+                >
+                  <div>
+                    <div className="font-medium text-text-primary">
+                      {resource.organization}
+                    </div>
 
-<span className="text-text-muted transition-transform group-hover:translate-x-1">
-  →
-</span>
+                    {resource.city && (
+                      <div className="text-sm text-text-muted mt-1">
+                        {resource.city}, {resource.state}
 
-</Link>
-            ))
+                        {additionalCount > 0 && (
+                          <div className="text-xs text-accent">
+                            + {additionalCount} more location
+                            {additionalCount > 1 ? "s" : ""}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+
+                  <span className="text-text-muted transition-transform group-hover:translate-x-1">
+                    →
+                  </span>
+                </Link>
+              );
+            })
           ) : (
             <div className="px-4 py-4 text-sm text-text-subtle">
               We’re adding more resources in this area.
               <br />
-                Help expand access by{" "}
+              Help expand access by{" "}
               <Link
                 href="/suggest-resource"
                 className="text-blue-400 hover:text-blue-300 underline underline-offset-2"
@@ -109,7 +122,6 @@ export default function SubcategorySection({
               </Link>
             </div>
           )}
-
         </div>
       )}
     </div>

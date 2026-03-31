@@ -225,8 +225,9 @@ const displayTitle =
               <ResourceCard
                 key={resource.id}
                 resource={{
-                  ...resource,
-                  countiesServed: resource.counties_served,
+  ...resource,
+  countiesServed: resource.counties_served,
+  resource_locations: resource.resource_locations, // 👈 ADD THIS
                 }}
               />
             ))}

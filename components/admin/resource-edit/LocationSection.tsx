@@ -39,7 +39,7 @@ export default function LocationSection({
         />
 
         <input
-          value={editedSubmission.state || "OK"}
+          value={editedSubmission.state || ""}
           onChange={(e) =>
             setEditedSubmission((prev: any) => ({
               ...prev,
