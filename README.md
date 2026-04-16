@@ -1,24 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Resource Directory Admin System
+
+This project is a full-stack community resource directory built with:
+
+* Next.js (App Router)
+* Supabase (Postgres + Auth)
+* TypeScript
+* Tailwind CSS
+* mfm-ui
+
+It supports:
+
+* Public-facing resource directory
+* Admin dashboard for reviewing and managing submissions
+
+---
+
+## 🚀 Development
+
+Start the dev server:
 
 ```bash
 npm run dev
+```
 
+---
+
+## 📦 Deployment
+
+Standard Git workflow:
+
+```bash
 git add .
-git commit -m "roll back notifications and modularize"
+git commit -m "your message"
 git push
+```
 
+---
 
+## 🛠️ Useful Commands (Personal Dev Notes)
 
+### Supabase
 
+```bash
 npx supabase login
 npx supabase projects list
+```
 
+---
 
+### Dependencies
+
+```bash
 npm update @mfm/ui
+```
 
+---
 
+### Fix TypeScript Issues
+
+```bash
+# VS Code
 Ctrl + Shift + P → "TypeScript: Restart TS Server"
+```
 
-This  uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for
+---
 
-'''
+## 🧠 Notes
+
+* All resource data is dynamic (no hardcoded data)
+* Uses a single-table `resources` model
+* Admin actions (approve/reject/delete) update existing records — no duplicate inserts
+* Routing is slug-based (`/resources/[slug]`)
+
+---
