@@ -17,6 +17,7 @@ type Props = {
   onSuccess: () => void;
   search: string;
   sortOrder: "az" | "za" | "newest" | "oldest";
+  highlightedCommentId?: string | null;
 };
 
 export default function SubmissionsPanel({
@@ -31,6 +32,7 @@ export default function SubmissionsPanel({
   onSuccess,
   search,
   sortOrder,
+  highlightedCommentId,
 }: Props) {
 
 const searchText = (search || "").toLowerCase();
@@ -99,6 +101,7 @@ return (
             COUNTY_OPTIONS={COUNTY_OPTIONS}
             onSuccess={onSuccess}
             user={user}
+            highlightedCommentId={highlightedCommentId}
           />
         ))}
       </div>

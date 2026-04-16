@@ -5,10 +5,20 @@ import { getSupabase } from "@/lib/supabase";
 import toast from "react-hot-toast";
 import { extractMentions } from "@/lib/utils/extractMentions";
 
+
+function mapStatusToSection(status: string) {
+  if (status === "approved") return "resources";
+  if (status === "pending") return "pending";
+  if (status === "rejected") return "rejected";
+  return "pending";
+}
+
 type Props = {
-  resourceId: string;
+  resourceId?: string;
+  submissionId?: string;
   user: any;
-  highlightedCommentId?: string | null; // ✅ ADD THIS
+  highlightedCommentId?: string | null;
+  status: "pending" | "approved" | "rejected";
 };
 
 type Comment = {
@@ -21,6 +31,7 @@ type Comment = {
 
 export default function CommentsSection({
   resourceId,
+  submissionId,
   user,
   highlightedCommentId,
 }: Props) {
@@ -37,7 +48,6 @@ export default function CommentsSection({
   const [showMentions, setShowMentions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
-
 
 
 
@@ -66,24 +76,28 @@ useEffect(() => {
 
 
 
-
-
-  useEffect(() => {
+useEffect(() => {
   const fetchComments = async () => {
     const supabase = getSupabase();
 
-    const { data } = await supabase
-      .from("resource_comments")
-      .select("*")
-      .eq("resource_id", resourceId)
-      .order("created_at", { ascending: true });
+const column = resourceId
+
+if (!resourceId) return;
+
+const { data } = await supabase
+  .from("resource_comments")
+  .select("*")
+  .eq("resource_id", resourceId as string) // ✅ FIX
+  .order("created_at", { ascending: true });
 
     setComments(data || []);
     setLoading(false);
   };
 
   fetchComments();
-}, [resourceId]);
+}, [resourceId, submissionId]);
+
+
 
   // 🔹 fetch mention users
   useEffect(() => {
@@ -106,6 +120,10 @@ useEffect(() => {
 
     if (showMentions) fetchUsers();
   }, [mentionQuery, showMentions]);
+
+
+
+
 
   // 🔹 select mention
   const handleSelectMention = (name: string) => {
@@ -130,12 +148,12 @@ useEffect(() => {
 
     const { data, error } = await supabase
       .from("resource_comments")
-      .insert({
-        resource_id: resourceId,
-        comment: newComment.trim(),
-        created_by: user.id,
-        created_by_email: displayName,
-      })
+.insert({
+resource_id: resourceId, // 🔥 ALWAYS use this
+  comment: newComment.trim(),
+  created_by: user.id,
+  created_by_email: displayName,
+})
       .select()
       .single();
 
@@ -149,12 +167,6 @@ useEffect(() => {
       setComments((prev) => [...prev, data]);
     }
     
-
-
-
-
-
-
 
 // 🔹 mentions → notifications
 const mentions = extractMentions(newComment.trim());
@@ -171,26 +183,42 @@ if (mentions.length > 0) {
 
   if (users) {
     // 🔥 NEW: get resource name
-    const { data: resource } = await supabase
-      .from("resources")
-      .select("organization")
-      .eq("id", resourceId)
-      .single();
+let resourceName = "a resource";
 
-    const notifications = users.map((u) => ({
-      user_id: u.id,
-      type: "mention",
-      resource_id: resourceId,
-      comment_id: data.id,
-message: `${displayName} mentioned you on ${
-  resource?.organization || "a resource"
-}`,
-comment_preview: newComment.trim(),
-    }));
+if (resourceId) {
+  const { data: resource } = await supabase
+    .from("resources")
+    .select("organization")
+    .eq("id", resourceId)
+    .single();
+
+  if (resource?.organization) {
+    resourceName = resource.organization;
+  }
+}
+
+function mapStatusToSection(status: string) {
+  if (status === "approved") return "resources";
+  if (status === "pending") return "pending";
+  if (status === "rejected") return "rejected";
+  return "pending";
+}
+
+const notifications = users.map((u) => ({
+  user_id: u.id,
+  type: "mention",
+  resource_id: resourceId || null,
+  comment_id: data.id,
+  message: `${displayName} mentioned you on ${resourceName}`,
+  comment_preview: newComment.trim(),
+  section: mapStatusToSection(status), // ✅ NOW SAFE
+}));
 
     if (notifications.length > 0) {
+      console.log("CREATING NOTIFICATIONS:", notifications);
       await supabase.from("notifications").insert(notifications);
     }
+
   }
 }
 
@@ -237,14 +265,11 @@ comment_preview: newComment.trim(),
           const isMe = c.created_by === user?.id;
           const isEditing = editingId === c.id;
 
-
-
-
           return (
             
 <div
   key={c.id}
-  id={`comment-${c.id}`} // ✅ ADD THIS LINE
+  id={`comment-${c.id}`}
   className={`p-3 rounded-lg border ${
     isMe
       ? "bg-blue-50 border-blue-200 ml-6"

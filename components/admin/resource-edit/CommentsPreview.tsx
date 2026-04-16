@@ -4,7 +4,8 @@ import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 
 type Props = {
-  resourceId: string;
+  resourceId?: string;
+  submissionId?: string;
 };
 
 type Comment = {
@@ -14,24 +15,26 @@ type Comment = {
   created_by_email: string | null;
 };
 
-export default function CommentsPreview({ resourceId }: Props) {
+export default function CommentsPreview({ resourceId, submissionId }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
 
   useEffect(() => {
     const fetch = async () => {
       const supabase = getSupabase();
 
-      const { data } = await supabase
-        .from("resource_comments")
-        .select("*")
-        .eq("resource_id", resourceId)
-        .order("created_at", { ascending: true });
+if (!resourceId) return;
+
+const { data } = await supabase
+  .from("resource_comments")
+  .select("*")
+  .eq("resource_id", resourceId as string)
+  .order("created_at", { ascending: true });
 
       setComments(data || []);
     };
 
     fetch();
-  }, [resourceId]);
+}, [resourceId, submissionId]);
 
   if (comments.length === 0) return null;
 

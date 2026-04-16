@@ -25,6 +25,7 @@ setAdditionalLocations: (data: any[]) => void;
   onCancel: () => void;
   user: any;
   highlightedCommentId?: string | null;
+  submissionStatus: "pending" | "approved" | "rejected";
   
 };
 
@@ -38,6 +39,7 @@ export default function ResourceEditForm({
   onCancel,
   user,
   highlightedCommentId,
+  submissionStatus,
 }: Props) {
   const toggleArrayValue = (
   field: string,
@@ -108,11 +110,12 @@ export default function ResourceEditForm({
   />
 
 {editedSubmission?.id && (
-  <CommentsSection
-    resourceId={editedSubmission.id}
-    user={user}
-    highlightedCommentId={highlightedCommentId}
-  />
+<CommentsSection
+  resourceId={editedSubmission.id}
+  user={user}
+  highlightedCommentId={highlightedCommentId}
+  status={submissionStatus} // ✅ USE REAL STATUS
+/>
 )}
   
   <AdminNotesSection

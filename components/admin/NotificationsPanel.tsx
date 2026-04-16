@@ -13,9 +13,10 @@ type Notification = {
   message: string | null;
   read: boolean | null;
   created_at: string | null;
-    resource_id: string | null;
+  resource_id: string | null;
   comment_id: string | null;
-    comment_preview?: string | null;
+  section?: "pending" | "resources" | "rejected"; // optional
+  comment_preview?: string | null; // ✅ ADD THIS
 };
 
 export default function NotificationsPanel({ user }: Props) {
@@ -27,9 +28,7 @@ export default function NotificationsPanel({ user }: Props) {
 
 
 const handleNotificationClick = async (n: Notification) => {
-  console.log("HANDLER START");
-
-  // 🔥 1. OPTIMISTIC UPDATE (instant UI)
+  // ✅ optimistic UI
   setNotifications((prev) =>
     prev.map((notif) =>
       notif.id === n.id ? { ...notif, read: true } : notif
@@ -38,32 +37,14 @@ const handleNotificationClick = async (n: Notification) => {
 
   const supabase = getSupabase();
 
-  // 🔥 2. FIRE AND FORGET DB UPDATE
-  const updatePromise = supabase
+  const { error } = await supabase
     .from("notifications")
     .update({ read: true })
     .eq("id", n.id);
 
-  if (!n.resource_id) {
-    console.error("Missing resource_id on notification", n);
-    return;
+  if (error) {
+    console.error("Failed to mark notification as read:", error);
   }
-
-  const url = `/admin?section=resources&resource=${n.resource_id}${
-    n.comment_id ? `&comment=${n.comment_id}` : ""
-  }`;
-
-  console.log("NAVIGATING TO:", url);
-
-  // 🔥 3. NAVIGATE IMMEDIATELY
-  window.location.assign(url);
-
-  // 🔍 4. HANDLE ERROR LATER
-  updatePromise.then(({ error }) => {
-    if (error) {
-      console.error("Failed to mark notification as read:", error);
-    }
-  });
 };
 
 
@@ -81,28 +62,37 @@ function formatRelativeTime(dateString: string) {
 }
 
 
-  useEffect(() => {
-    const fetchNotifications = async () => {
-      const supabase = getSupabase();
+useEffect(() => {
+  const fetchNotifications = async () => {
+    if (!user?.id) {
+      setLoading(false); // 🔥 FIX: stop loading if no user yet
+      return;
+    }
 
-      const { data, error } = await supabase
-        .from("notifications")
-        .select("*")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false });
+    const supabase = getSupabase();
 
-      if (error) {
-        console.error("Error fetching notifications:", error);
-        setLoading(false);
-        return;
-      }
+    const { data, error } = await supabase
+      .from("notifications")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
 
-      setNotifications(data || []);
+    if (error) {
+      console.error("Error fetching notifications:", error);
       setLoading(false);
-    };
+      return;
+    }
 
-    fetchNotifications();
-  }, [user.id]);
+    console.log("NOTIFICATIONS:", data);
+
+    setNotifications(data || []);
+    setLoading(false); // 🔥 ensure this always runs
+  };
+
+  fetchNotifications();
+}, [user?.id]);
+
+
 
   if (loading) {
     return <div className="text-sm text-gray-500">Loading notifications...</div>;
@@ -112,19 +102,11 @@ function formatRelativeTime(dateString: string) {
     return <div className="text-sm text-gray-500">No notifications yet.</div>;
   }
 
-
-
-
-
   return (
   <div className="space-y-3">
     {notifications.map((n) => (
       <div
         key={n.id}
-        onClick={(e) => {
-          e.stopPropagation();
-          handleNotificationClick(n);
-        }}
         className={`group relative p-4 rounded-xl border cursor-pointer transition
           ${
             n.read

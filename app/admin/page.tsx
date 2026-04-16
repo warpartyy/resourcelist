@@ -41,9 +41,19 @@ const [counts, setCounts] = useState({
 
   const router = useRouter();
   const [editingId, setEditingId] = useState<string | null>(null);
-  const resourceFromUrl = searchParams.get("resource");
+  const rawResource = searchParams.get("resource");
+
+const resourceFromUrl =
+  rawResource && rawResource !== "null" ? rawResource : null;
+  const submissionFromUrl = searchParams.get("submission");
   const [editedSubmission, setEditedSubmission] = useState<any>({});
 const sectionFromUrl = searchParams.get("section");
+
+useEffect(() => {
+  if (!sectionFromUrl) return;
+
+  setAdminSection(sectionFromUrl as any);
+}, [sectionFromUrl]);
 
 const [adminSection, setAdminSection] = useState<
   | "resources"
@@ -82,18 +92,23 @@ const commentFromUrl = searchParams.get("comment");
   await fetchCounts();
 };
 
+
+
 useEffect(() => {
-  if (resourceFromUrl) {
-    setAdminSection("resources");
+  if (!resourceFromUrl) return;
 
-    // force re-trigger
-    setEditingId(null);
+  // open the resource
+  setEditingId(null);
 
-    setTimeout(() => {
-      setEditingId(resourceFromUrl);
-    }, 0);
-  }
+  setTimeout(() => {
+    setEditingId(resourceFromUrl);
+  }, 0);
 }, [resourceFromUrl]);
+
+
+
+
+
 
 const fetchCounts = async () => {
   try {
