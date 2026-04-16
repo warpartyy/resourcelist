@@ -146,6 +146,7 @@ const filteredResources = [...resources] // ✅ IMPORTANT
                 onCancel={() => setEditingId(null)}
                 user={user}
                 highlightedCommentId={highlightedCommentId}
+                submissionStatus={resource.status}
               />
             ) : (
               <>
