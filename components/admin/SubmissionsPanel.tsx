@@ -9,31 +9,25 @@ import { useAdminStore } from "@/lib/stores/adminStore";
 type Props = {
   submissions: any[];
   section: "pending" | "approved" | "rejected";
-  editingId: string | null;
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess: () => void;
-  search: string;
-  sortOrder: "az" | "za" | "newest" | "oldest";
   highlightedCommentId?: string | null;
 };
 
 export default function SubmissionsPanel({
   submissions,
   section,
-  editingId,
   editedSubmission,
   setEditedSubmission,
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
   onSuccess,
-  search,
-  sortOrder,
   highlightedCommentId,
 }: Props) {
-  const { setEditingId } = useAdminStore();
+  const { setEditingId, editingId, search, sortOrder } = useAdminStore();
 
 const searchText = (search || "").toLowerCase();
 
@@ -93,8 +87,6 @@ return (
             key={submission.id}
             submission={submission}
             section={section}
-            editingId={editingId}
-            setEditingId={setEditingId}
             editedSubmission={editedSubmission}
             setEditedSubmission={setEditedSubmission}
             CATEGORY_OPTIONS={CATEGORY_OPTIONS}

@@ -36,14 +36,11 @@ export default function AdminTabs(props: Props) {
   if (adminSection === "pending") {
     return (
       <PendingTab
-        editingId={editingId}
         editedSubmission={editedSubmission}
         setEditedSubmission={setEditedSubmission}
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onSuccess={onSuccess}
-        search={search}
-        sortOrder={sortOrder}
       />
     );
   }
@@ -51,14 +48,11 @@ export default function AdminTabs(props: Props) {
   if (adminSection === "rejected") {
     return (
       <RejectedTab
-        editingId={editingId}
         editedSubmission={editedSubmission}
         setEditedSubmission={setEditedSubmission}
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onSuccess={onSuccess}
-        search={search}
-        sortOrder={sortOrder}
       />
     );
   }
@@ -69,11 +63,7 @@ if (adminSection === "resources") {
       key={`${adminSection}-${sortOrder}-${search}`}
       CATEGORY_OPTIONS={CATEGORY_OPTIONS}
       COUNTY_OPTIONS={COUNTY_OPTIONS}
-      sortOrder={sortOrder}
-      setSortOrder={setSortOrder}
       onSuccess={onSuccess}
-      search={search}
-      editingId={editingId}
       highlightedCommentId={props.highlightedCommentId}
       selectedResourceId={editingId} 
     />

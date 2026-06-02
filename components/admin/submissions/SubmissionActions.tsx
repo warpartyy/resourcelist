@@ -8,11 +8,12 @@ import DeleteButton from "../actions/DeleteButton";
 import RejectButton from "../actions/RejectButton";
 import { EditableLocation } from "@/lib/types/location";
 
+import { useAdminStore } from "@/lib/stores/adminStore";
+
 type Props = {
   submission: any;
   section: "pending" | "approved" | "rejected";
   isEditing: boolean;
-  setEditingId: (id: string | null) => void;
   setEditedSubmission: (data: any) => void;
   additionalLocations: EditableLocation[];
   setAdditionalLocations: (locs: EditableLocation[]) => void;
@@ -24,13 +25,13 @@ export default function SubmissionActions({
   submission,
   section,
   isEditing,
-  setEditingId,
   setEditedSubmission,
   additionalLocations,
   setAdditionalLocations,
   editedSubmission,
   onSuccess,
 }: Props) {
+  const { setEditingId } = useAdminStore();
   if (!isEditing) {
     return (
       <>

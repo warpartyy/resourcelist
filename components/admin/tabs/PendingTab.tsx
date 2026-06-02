@@ -5,14 +5,11 @@ import SubmissionsPanel from "../SubmissionsPanel";
 import { fetchSubmissionsByStatus } from "@/lib/services/adminService";
 
 type Props = {
-  editingId: string | null;
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
-  search: string;
-  sortOrder: "az" | "za" | "newest" | "oldest";
 };
 
 export default function PendingTab(props: Props) {
@@ -46,8 +43,6 @@ const handleSuccess = async () => {
       submissions={submissions}
       section="pending"
       onSuccess={handleSuccess}
-      search={props.search}
-      sortOrder={props.sortOrder}
     />
   );
 }

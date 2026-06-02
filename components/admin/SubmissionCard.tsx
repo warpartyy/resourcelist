@@ -15,7 +15,6 @@ import { useAdminStore } from "@/lib/stores/adminStore";
 type Props = {
   submission: any;
   section: "pending" | "approved" | "rejected";
-  editingId: string | null;
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
@@ -79,7 +78,6 @@ function getMissingFields(submission: any): string[] {
 export default function SubmissionCard({
   submission,
   section,
-  editingId,
   editedSubmission,
   setEditedSubmission,
   CATEGORY_OPTIONS,
@@ -88,7 +86,7 @@ export default function SubmissionCard({
   highlightedCommentId,
   user,
 }: Props) {
-  const { setEditingId } = useAdminStore();
+  const { editingId, setEditingId } = useAdminStore();
   const isEditing =
   section === "pending" && editingId === submission.id;
 
@@ -187,7 +185,6 @@ function normalizeOrgName(name: string = "") {
     submission={submission}
     section={section}
     isEditing={isEditing}
-    setEditingId={setEditingId}
     setEditedSubmission={setEditedSubmission}
     additionalLocations={additionalLocations}
     setAdditionalLocations={setAdditionalLocations}
@@ -229,7 +226,6 @@ function normalizeOrgName(name: string = "") {
           possibleMatches={possibleMatches}
           submission={submission}
           setPossibleMatches={setPossibleMatches}
-          setEditingId={setEditingId}
           onSuccess={onSuccess}
         />
 

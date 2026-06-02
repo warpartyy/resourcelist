@@ -22,11 +22,6 @@ type Props = {
   fetchData: () => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
-  sortOrder: "az" | "za" | "newest" | "oldest";
-  setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
-  search: string;
-
-    editingId: string | null;
   highlightedCommentId?: string | null;
 
 };
@@ -36,13 +31,9 @@ export default function ResourcesPanel({
   fetchData,
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
-  sortOrder,
-  setSortOrder,
-  search,
-    editingId,          // ✅ ADD
   highlightedCommentId,
 }: Props) {
-  const { setEditingId } = useAdminStore();
+  const { sortOrder, setSortOrder, search, editingId, setEditingId } = useAdminStore();
   const [editedResource, setEditedResource] = useState<any>({});
   const [user, setUser] = useState<any>(null);
   const [additionalLocations, setAdditionalLocations] = useState([

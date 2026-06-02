@@ -8,11 +8,7 @@ import { useAdminStore } from "@/lib/stores/adminStore";
 type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
-  sortOrder: "az" | "za" | "newest" | "oldest";
-  setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
   onSuccess?: () => void;
-  search: string;
-  editingId: string | null;
   highlightedCommentId?: string | null;
   selectedResourceId?: string | null;
 };
@@ -20,15 +16,11 @@ type Props = {
 export default function ResourcesTab({
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
-  sortOrder,
-  setSortOrder,
   onSuccess,
-  search,
-  editingId,
   highlightedCommentId,
   selectedResourceId
 }: Props) {
-  const { setEditingId } = useAdminStore();
+  const { sortOrder, setSortOrder, search, editingId, setEditingId } = useAdminStore();
   const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -78,10 +70,6 @@ const status = "approved";
       fetchData={handleSuccess}
       CATEGORY_OPTIONS={CATEGORY_OPTIONS}
       COUNTY_OPTIONS={COUNTY_OPTIONS}
-      sortOrder={sortOrder}
-      setSortOrder={setSortOrder}
-      search={search}
-      editingId={editingId}
       highlightedCommentId={highlightedCommentId}
     />
   );

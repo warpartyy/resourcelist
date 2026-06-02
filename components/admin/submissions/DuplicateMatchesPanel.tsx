@@ -1,13 +1,13 @@
 // /components/admin/submissions/DuplicateMatchesPanel.tsx
 
 import { getSupabase } from "@/lib/supabase";
+import { useAdminStore } from "@/lib/stores/adminStore";
 
 type Props = {
   section: "pending" | "approved" | "rejected";
   possibleMatches: any[];
   submission: any;
   setPossibleMatches: (matches: any[]) => void;
-  setEditingId: (id: string | null) => void;
   onSuccess: () => void;
 };
 
@@ -16,9 +16,9 @@ export default function DuplicateMatchesPanel({
   possibleMatches,
   submission,
   setPossibleMatches,
-  setEditingId,
   onSuccess,
 }: Props) {
+  const { setEditingId } = useAdminStore();
   if (section !== "pending" || possibleMatches.length === 0) {
     return null;
   }

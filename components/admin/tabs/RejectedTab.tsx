@@ -5,14 +5,11 @@ import SubmissionsPanel from "../SubmissionsPanel";
 import { fetchSubmissionsByStatus } from "@/lib/services/adminService";
 
 type Props = {
-  editingId: string | null;
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
-  search: string;
-  sortOrder: "az" | "za" | "newest" | "oldest";
 };
 
 export default function RejectedTab(props: Props) {
@@ -29,7 +26,7 @@ export default function RejectedTab(props: Props) {
 
 useEffect(() => {
   loadData();
-}, [props.search, props.sortOrder]);
+}, []);
 
   // Refresh after actions
   const handleSuccess = async () => {
@@ -51,8 +48,6 @@ useEffect(() => {
       submissions={submissions}
       section="rejected"
       onSuccess={handleSuccess}
-      search={props.search}
-      sortOrder={props.sortOrder}
     />
   );
 }
