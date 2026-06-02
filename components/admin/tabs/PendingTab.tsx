@@ -6,7 +6,6 @@ import { fetchSubmissionsByStatus } from "@/lib/services/adminService";
 
 type Props = {
   editingId: string | null;
-  setEditingId: (id: string | null) => void;
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];

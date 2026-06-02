@@ -2,6 +2,7 @@
 
 import SubmissionCard from "./SubmissionCard";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
+import { useAdminStore } from "@/lib/stores/adminStore";
 
 
 
@@ -9,7 +10,6 @@ type Props = {
   submissions: any[];
   section: "pending" | "approved" | "rejected";
   editingId: string | null;
-  setEditingId: (id: string | null) => void;
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
@@ -24,7 +24,6 @@ export default function SubmissionsPanel({
   submissions,
   section,
   editingId,
-  setEditingId,
   editedSubmission,
   setEditedSubmission,
   CATEGORY_OPTIONS,
@@ -34,6 +33,7 @@ export default function SubmissionsPanel({
   sortOrder,
   highlightedCommentId,
 }: Props) {
+  const { setEditingId } = useAdminStore();
 
 const searchText = (search || "").toLowerCase();
 

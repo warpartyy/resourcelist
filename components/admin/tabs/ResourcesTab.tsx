@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import ResourcesPanel from "../ResourcesPanel";
 import { fetchResourcesByStatus } from "@/lib/services/adminService";
+import { useAdminStore } from "@/lib/stores/adminStore";
 
 type Props = {
-  adminSection: "resources";
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   sortOrder: "az" | "za" | "newest" | "oldest";
@@ -13,13 +13,11 @@ type Props = {
   onSuccess?: () => void;
   search: string;
   editingId: string | null;
-  setEditingId: (id: string | null) => void;
   highlightedCommentId?: string | null;
   selectedResourceId?: string | null;
 };
 
 export default function ResourcesTab({
-  adminSection,
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
   sortOrder,
@@ -27,10 +25,10 @@ export default function ResourcesTab({
   onSuccess,
   search,
   editingId,
-  setEditingId,
   highlightedCommentId,
   selectedResourceId
 }: Props) {
+  const { setEditingId } = useAdminStore();
   const [resources, setResources] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -51,7 +49,7 @@ const status = "approved";
 
   // 🔥 ensure edit mode triggers AFTER data loads
   setEditingId(selectedResourceId);
-}, [selectedResourceId, resources]);
+}, [selectedResourceId, resources, setEditingId]);
 
 
 
@@ -83,9 +81,8 @@ const status = "approved";
       sortOrder={sortOrder}
       setSortOrder={setSortOrder}
       search={search}
-editingId={editingId}
-setEditingId={setEditingId}
-highlightedCommentId={highlightedCommentId}
+      editingId={editingId}
+      highlightedCommentId={highlightedCommentId}
     />
   );
 }

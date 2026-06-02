@@ -15,6 +15,7 @@ import { moveResourceToPending } from "@/lib/services/resourceService";
 import MoveSubmissionToPendingButton from "./actions/MoveToPendingButton";
 import { getSupabase } from "@/lib/supabase";
 import { EditableLocation } from "@/lib/types/location";
+import { useAdminStore } from "@/lib/stores/adminStore";
 
 type Props = {
   resources: any[];
@@ -26,7 +27,6 @@ type Props = {
   search: string;
 
     editingId: string | null;
-  setEditingId: (id: string | null) => void;
   highlightedCommentId?: string | null;
 
 };
@@ -40,9 +40,9 @@ export default function ResourcesPanel({
   setSortOrder,
   search,
     editingId,          // ✅ ADD
-  setEditingId,       // ✅ ADD
   highlightedCommentId,
 }: Props) {
+  const { setEditingId } = useAdminStore();
   const [editedResource, setEditedResource] = useState<any>({});
   const [user, setUser] = useState<any>(null);
   const [additionalLocations, setAdditionalLocations] = useState([

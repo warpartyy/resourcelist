@@ -7,6 +7,8 @@ import {fetchAdminCounts} from "@/lib/services/adminService";
 import { COUNTY_OPTIONS_BY_STATE } from "@/lib/geography/counties";
 import { getSupabase } from "@/lib/supabase";
 import { useSearchParams } from "next/navigation";
+import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
+import { useAdminStore } from "@/lib/stores/adminStore";
 
 const CATEGORY_OPTIONS = [
   { label: "Mental Health", value: "mental-health" },
@@ -36,11 +38,7 @@ const [counts, setCounts] = useState({
   notifications: 0,
 });
 
-  const [resourceSortOrder, setResourceSortOrder] =
-  useState<"az" | "za" | "newest" | "oldest">("newest");
-
   const router = useRouter();
-  const [editingId, setEditingId] = useState<string | null>(null);
   const rawResource = searchParams.get("resource");
 
 const resourceFromUrl =
@@ -49,36 +47,23 @@ const resourceFromUrl =
   const [editedSubmission, setEditedSubmission] = useState<any>({});
 const sectionFromUrl = searchParams.get("section");
 
+const { 
+  adminSection, 
+  setAdminSection, 
+  search, 
+  setSearch, 
+  sortOrder, 
+  setSortOrder, 
+  editingId, 
+  setEditingId 
+} = useAdminStore();
+
 useEffect(() => {
   if (!sectionFromUrl) return;
-
   setAdminSection(sectionFromUrl as any);
-}, [sectionFromUrl]);
+}, [sectionFromUrl, setAdminSection]);
 
-const [adminSection, setAdminSection] = useState<
-  | "resources"
-  | "pending"
-  | "rejected"
-  | "settings"
-  | "events"
-  | "messages"
-  | "update-requests"
-  | "notifications"
->(() => (sectionFromUrl as any) || "pending");
-
-const [user, setUser] = useState<any>(null);
-useEffect(() => {
-  const loadUser = async () => {
-    const supabase = getSupabase();
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    setUser(user);
-  };
-
-  loadUser();
-}, []);
+const { user, loading } = useCurrentUser();
 
   const handleLogout = async () => {
     const supabase = getSupabase();
@@ -103,7 +88,7 @@ useEffect(() => {
   setTimeout(() => {
     setEditingId(resourceFromUrl);
   }, 0);
-}, [resourceFromUrl]);
+}, [resourceFromUrl, setEditingId]);
 
 
 
@@ -144,8 +129,6 @@ const decrementUpdateRequests = () => {
   }))
 }
 
-const [search, setSearch] = useState("");
-
   useEffect(() => {
   fetchCounts();
 }, []);
@@ -160,25 +143,14 @@ const [search, setSearch] = useState("");
   resourceCount={counts.resources}
   rejectedCount={counts.rejected}
   updateRequestsCount={counts.updateRequests}
-  search={search}
-  setSearch={setSearch}
-  sortOrder={resourceSortOrder}
-  setSortOrder={setResourceSortOrder}
   notificationsCount={counts.notifications}
 >
     <AdminTabs
-      adminSection={adminSection}
-      editingId={editingId}
-      setEditingId={setEditingId}
       editedSubmission={editedSubmission}
       setEditedSubmission={setEditedSubmission}
       CATEGORY_OPTIONS={CATEGORY_OPTIONS}
       COUNTY_OPTIONS={COUNTY_OPTIONS}
       onSuccess={refreshAll}
-      sortOrder={resourceSortOrder}
-      setSortOrder={setResourceSortOrder}
-      search={search}
-      setSearch={setSearch}
       onUpdateRequestHandled={decrementUpdateRequests}
       user={user}
       highlightedCommentId={commentFromUrl}

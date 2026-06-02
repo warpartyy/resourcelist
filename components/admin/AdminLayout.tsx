@@ -7,6 +7,7 @@ import { Settings } from "lucide-react";
 import { useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { Calendar } from "lucide-react";
+import { useAdminStore } from "@/lib/stores/adminStore";
 
 type Profile = {
   display_name: string | null;
@@ -65,12 +66,6 @@ type Props = {
   rejectedCount?: number;
   updateRequestsCount?: number;
   children: React.ReactNode;
-
-  // NEW
-  search: string;
-  setSearch: (value: string) => void;
-  sortOrder: "az" | "za" | "newest" | "oldest";
-  setSortOrder: (value: "az" | "za" | "newest" | "oldest") => void;
   notificationsCount?: number;
 
 };
@@ -84,12 +79,9 @@ export default function AdminLayout({
   rejectedCount,
   updateRequestsCount,
   children,
-  search,
-  setSearch,
-  sortOrder,
-  setSortOrder,
   notificationsCount,
 }: Props){
+  const { search, setSearch, sortOrder, setSortOrder } = useAdminStore();
 
   const [collapsed, setCollapsed] = useState(false);
   const [displayName, setDisplayName] = useState<string | null>(null);

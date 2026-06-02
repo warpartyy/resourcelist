@@ -10,12 +10,12 @@ import SubmissionDetailsSection from "@/components/admin/submissions/SubmissionD
 import MissingFieldsAlert from "@/components/admin/submissions/MissingFieldsAlert";
 import DuplicateMatchesPanel from "@/components/admin/submissions/DuplicateMatchesPanel";
 import SubmissionActions from "@/components/admin/submissions/SubmissionActions";
+import { useAdminStore } from "@/lib/stores/adminStore";
 
 type Props = {
   submission: any;
   section: "pending" | "approved" | "rejected";
   editingId: string | null;
-  setEditingId: (id: string | null) => void;
   editedSubmission: any;
   setEditedSubmission: (data: any) => void;
   CATEGORY_OPTIONS: any[];
@@ -80,7 +80,6 @@ export default function SubmissionCard({
   submission,
   section,
   editingId,
-  setEditingId,
   editedSubmission,
   setEditedSubmission,
   CATEGORY_OPTIONS,
@@ -89,6 +88,7 @@ export default function SubmissionCard({
   highlightedCommentId,
   user,
 }: Props) {
+  const { setEditingId } = useAdminStore();
   const isEditing =
   section === "pending" && editingId === submission.id;
 
