@@ -3,7 +3,6 @@ export { default as LocationSection } from "./LocationSection";
 export { default as ContactSection } from "./ContactSection";
 export { default as DescriptionSection } from "./DescriptionSection";
 export { default as CountiesSection } from "./CountiesSection";
-export { default as AdminNotesSection } from "./AdminNotesSection";
 export { default as CategoriesSection } from "./CategoriesSection";
 export { default as TagsSection } from "./TagsSection";
 export { default as TribalSection } from "./TribalSection";

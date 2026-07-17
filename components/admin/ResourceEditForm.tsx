@@ -9,7 +9,6 @@ import {
   TagsSection,
   CountiesSection,
   DescriptionSection,
-  AdminNotesSection,
   TribalSection,
 } from "@/components/admin/resource-edit";
 import { EditableLocation } from "@/lib/types/location";
@@ -118,10 +117,7 @@ export default function ResourceEditForm({
 />
 )}
   
-  <AdminNotesSection
-    editedSubmission={editedSubmission}
-    setEditedSubmission={setEditedSubmission}
-  />
-</>
+
+  </>
   );
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { PARENT_CATEGORIES, SUBCATEGORIES } from "@/lib/taxonomy";
 import { usePathname } from "next/navigation";
+import GenerateResourceGuideButton from "@/components/filters/GenerateResourceGuideButton";
 
 export default function SearchFilters() {
   const router = useRouter();
@@ -154,6 +155,8 @@ export default function SearchFilters() {
           Clear
         </button>
       </div>
+
+      <GenerateResourceGuideButton className="button button-secondary w-full text-center" />
     </div>
   </div>
 );

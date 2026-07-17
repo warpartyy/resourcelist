@@ -5,10 +5,10 @@ import {PARENT_CATEGORIES, SUBCATEGORIES, SUBCATEGORY_PARENT_MAP,} from "@/lib/t
 import SubcategorySection from "../../components/SubcategorySection";
 import { notFound } from "next/navigation";
 import { buildResourceQuery } from "@/lib/queries/buildResourceQuery";
-import FiltersBar from "../../components/filters/FiltersBar";
 import TagFilter from "../../components/filters/TagFilter";
 import ServicesFilter from "../../components/filters/ServicesFilter";
 import ClearFilters from "@/components/filters/ClearFilters";
+import GenerateResourceGuideButton from "@/components/filters/GenerateResourceGuideButton";
 
 export default async function CategoryPage({
   params,
@@ -197,6 +197,16 @@ const displayTitle =
 
 <div className="mb-4 flex justify-end gap-3 flex-wrap">
   <ClearFilters />
+  <GenerateResourceGuideButton
+    forcedParams={
+      isParentCategory
+        ? { parent: category }
+        : isSubcategory
+        ? { sub: category }
+        : undefined
+    }
+    className="button button-secondary px-4 py-2 text-sm"
+  />
   <TagFilter
     availableTags={availableTags}
     selectedTags={selectedTags}
