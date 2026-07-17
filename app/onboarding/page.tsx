@@ -18,8 +18,10 @@ export default function OnboardingPage() {
   const [displayName, setDisplayName] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [isOAuthUser, setIsOAuthUser] = useState(false);
   const passwordsDoNotMatch =
   confirmPassword.length > 0 && password !== confirmPassword;
+  const requiresPassword = !isOAuthUser;
 
 
   useEffect(() => {
@@ -34,6 +36,14 @@ export default function OnboardingPage() {
       const user = sessionData.session.user;
       setUserId(user.id);
       setEmail(user.email || "");
+      const provider = user.app_metadata?.provider;
+      const providers = user.app_metadata?.providers;
+      const signedInWithOAuth =
+        provider === "google" ||
+        provider === "azure" ||
+        (Array.isArray(providers) &&
+          providers.some((p) => p === "google" || p === "azure"));
+      setIsOAuthUser(signedInWithOAuth);
 
 const { data: profile, error } = await supabase
   .from("profiles")
@@ -69,7 +79,7 @@ if (profile?.display_name) {
     return;
   }
 
-  if (!password || password !== confirmPassword) {
+  if (requiresPassword && (!password || password !== confirmPassword)) {
     toast.error("Passwords do not match");
     return;
   }
@@ -77,11 +87,14 @@ if (profile?.display_name) {
   setSaving(true);
 
   try {
-    const updatedProfile = await updateAccountClient({
-      userId,
-      displayName: cleanDisplayName, // ✅ use trimmed version
-      password,
-    });
+    const accountPayload = requiresPassword
+      ? {
+          userId,
+          displayName: cleanDisplayName,
+          password,
+        }
+      : { userId, displayName: cleanDisplayName };
+    const updatedProfile = await updateAccountClient(accountPayload);
 
     toast.success("Setup complete");
 
@@ -128,44 +141,48 @@ if (loading) return <p className="p-6">Loading...</p>;
             </p>
         </div>
 
-<div>
-  <label className="block text-sm mb-1">Password</label>
-  <input
-    type="password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    placeholder="Enter password"
-    className="w-full border rounded p-2"
-  />
-    <p className="text-xs text-gray-500 mt-1">
-        You can change this later in settings
-    </p>
-</div>
+{requiresPassword && (
+  <>
+    <div>
+      <label className="block text-sm mb-1">Password</label>
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Enter password"
+        className="w-full border rounded p-2"
+      />
+        <p className="text-xs text-gray-500 mt-1">
+            You can change this later in settings
+        </p>
+    </div>
 
-<div>
-  <label className="block text-sm mb-1">Confirm Password</label>
-  <input
-    type="password"
-    value={confirmPassword}
-    onChange={(e) => setConfirmPassword(e.target.value)}
-    placeholder="Confirm password"
-    className="w-full border rounded p-2"
-  />
+    <div>
+      <label className="block text-sm mb-1">Confirm Password</label>
+      <input
+        type="password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+        placeholder="Confirm password"
+        className="w-full border rounded p-2"
+      />
 
-  {passwordsDoNotMatch && (
-    <p className="text-sm text-red-500 mt-1">
-      Passwords do not match
-    </p>
-  )}
-</div>
+      {passwordsDoNotMatch && (
+        <p className="text-sm text-red-500 mt-1">
+          Passwords do not match
+        </p>
+      )}
+    </div>
+  </>
+)}
 
         <button
           onClick={handleSave}
           disabled={
             saving ||
             !displayName.trim() ||
-            !password ||
-            password !== confirmPassword
+            (requiresPassword && !password) ||
+            (requiresPassword && password !== confirmPassword)
           }
           className="button button-primary"
         >
