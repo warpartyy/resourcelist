@@ -35,6 +35,7 @@ export async function updateResource(id: string, data: ResourceUpdate) {
   organization,
   slug,
   status,
+    rejected_at,
   subcategories,
   tags,
   counties_served,
@@ -93,6 +94,10 @@ const derivedParents = deriveParentCategories(subcats);
 const shouldUpdateVerification =
   data.status === "approved" || existing.status === "approved";
 
+const nextStatus = data.status ?? existing.status;
+const movedToRejected = existing.status !== "rejected" && nextStatus === "rejected";
+const movedOffRejected = existing.status === "rejected" && nextStatus !== "rejected";
+
   // ✅ Build update payload safely
 const updatePayload: ResourceUpdate = {
   organization: orgName,
@@ -100,6 +105,12 @@ const updatePayload: ResourceUpdate = {
   
 
   status: data.status ?? existing.status,
+  rejected_at:
+    movedToRejected
+      ? now
+      : movedOffRejected
+      ? null
+      : data.rejected_at ?? existing.rejected_at ?? null,
 
   subcategories: subcats,
   parent_categories: derivedParents,
@@ -158,6 +169,7 @@ export async function restoreResource(
     .from("resources")
     .update({
   status: "pending",
+  rejected_at: null,
   last_edited_by: audit.last_edited_by,
   last_edited_email: audit.last_edited_email,
   last_edited_name: audit.last_edited_name,
@@ -192,6 +204,7 @@ export async function approveResource(id: string) {
     .from("resources")
     .update({
       status: "approved",
+      rejected_at: null,
       last_verified: now,
       last_edited_at: now,
     })
@@ -200,10 +213,15 @@ export async function approveResource(id: string) {
 
 export async function rejectResource(id: string) {
   const supabase = getSupabase();
+  const now = new Date().toISOString();
 
   return await supabase
     .from("resources")
-    .update({ status: "rejected" })
+    .update({
+      status: "rejected",
+      rejected_at: now,
+      last_edited_at: now,
+    })
     .eq("id", id);
 }
 
@@ -221,6 +239,7 @@ export async function moveResourceToPending(
     .from("resources")
     .update({
       status: "pending",
+      rejected_at: null,
       last_edited_by: audit.last_edited_by,
       last_edited_email: audit.last_edited_email,
       last_edited_name: audit.last_edited_name,
