@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import Container from "../../components/ui/Container";
 import "@mfm/ui/src/components/button.css";
 import { useEffect } from "react";
+import OAuthButtons from "@/components/auth/OAuthButtons";
+import toast from "react-hot-toast";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -44,7 +46,7 @@ const handleLogin = async (e: any) => {
   if (!error) {
     router.replace("/admin");
   } else {
-    alert(error.message || "Login failed.");
+    toast.error(error.message || "Login failed.");
   }
 
   setLoading(false);
@@ -56,6 +58,12 @@ const handleLogin = async (e: any) => {
       <h1 className="text-4xl font-bold mb-6">
         Admin Login
       </h1>
+
+<OAuthButtons />
+
+<div className="text-center text-sm text-text-secondary my-4">
+  or sign in with email
+</div>
 
       <form
         onSubmit={handleLogin}

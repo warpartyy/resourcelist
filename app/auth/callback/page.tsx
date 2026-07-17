@@ -9,25 +9,41 @@ export default function AuthCallbackPage() {
 
   useEffect(() => {
     const handleAuth = async () => {
-      const supabase = getSupabase();
+      try {
+        const supabase = getSupabase();
+        const url = new URL(window.location.href);
+        const code = url.searchParams.get("code");
+        const callbackError =
+          url.searchParams.get("error_description") || url.searchParams.get("error");
 
-      // 🔑 THIS is the key line
-      const { data, error } = await supabase.auth.getSession();
+        if (callbackError) {
+          console.error("OAuth callback error:", callbackError);
+          router.replace("/login");
+          return;
+        }
 
-      if (error) {
-        console.error("Auth error:", error);
-        router.replace("/login");
-        return;
-      }
+        if (code) {
+          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(code);
+          if (exchangeError) {
+            console.error("OAuth exchange error:", exchangeError);
+            router.replace("/login");
+            return;
+          }
+        }
 
-      // 🔥 This forces Supabase to read the hash
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
+        const {
+          data: { session },
+          error: sessionError,
+        } = await supabase.auth.getSession();
 
-      if (session) {
+        if (sessionError || !session) {
+          if (sessionError) console.error("Session error:", sessionError);
+          router.replace("/login");
+          return;
+        }
         router.replace("/admin");
-      } else {
+      } catch (error) {
+        console.error("Auth callback failure:", error);
         router.replace("/login");
       }
     };
