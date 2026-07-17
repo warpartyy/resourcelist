@@ -6,10 +6,15 @@ export async function generateResourceGuidePdf({
   generatedAt,
   filters,
   resources,
-}: ResourceGuideData) {
+}: ResourceGuideData): Promise<ArrayBuffer> {
   const instance = pdf(
-    <ResourceGuideDocument generatedAt={generatedAt} filters={filters} resources={resources} />
+    <ResourceGuideDocument
+      generatedAt={generatedAt}
+      filters={filters}
+      resources={resources}
+    />
   );
 
-  return instance.toBuffer();
+  const blob = await instance.toBlob();
+  return await blob.arrayBuffer();
 }
