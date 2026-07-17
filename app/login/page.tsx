@@ -1,9 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
-import Container from "../../components/ui/Container";
 import "@mfm/ui/src/components/button.css";
 import { useEffect } from "react";
 import OAuthButtons from "@/components/auth/OAuthButtons";
@@ -54,46 +54,70 @@ const handleLogin = async (e: any) => {
 
 
   return (
-    <Container>
-      <h1 className="text-4xl font-bold mb-6">
-        Admin Login
-      </h1>
+    <div className="min-h-screen flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-3">
+            Community Resource Directory
+          </h1>
+          <p className="text-sm sm:text-base text-text-secondary">
+            Review, verify, and manage community resources for Native and
+            Indigenous communities.
+          </p>
+        </div>
 
-<OAuthButtons />
+        <div className="bg-surface border border-border rounded-2xl p-6 shadow-md">
+          <h2 className="text-2xl font-semibold mb-5 text-center">Admin Sign In</h2>
 
-<div className="text-center text-sm text-text-secondary my-4">
-  or sign in with email
-</div>
+          <OAuthButtons />
 
-      <form
-        onSubmit={handleLogin}
-        className="space-y-6 max-w-md bg-surface border border-border rounded-2xl p-6 shadow-md"
-      >
-        <input
-          type="email"
-          placeholder="Email"
-          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+          <div className="flex items-center gap-3 my-5">
+            <div className="h-px bg-border flex-1" />
+            <span className="text-xs font-medium tracking-widest text-text-secondary">
+              OR
+            </span>
+            <div className="h-px bg-border flex-1" />
+          </div>
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button
-          disabled={loading}
-          className="button button-primary w-full"
+          <form
+            onSubmit={handleLogin}
+            className="space-y-4"
           >
-          {loading ? "Logging in..." : "Login"}
-        </button>
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
 
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full bg-bg border border-border rounded-lg p-3 text-text-primary"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
 
-      </form>
-    </Container>
+            <button
+              disabled={loading}
+              className="button button-primary w-full"
+              >
+              {loading ? "Logging in..." : "Sign In"}
+            </button>
+          </form>
+
+          <div className="mt-4 text-center">
+            <Link href="/help" className="text-sm text-text-secondary hover:underline">
+              Forgot Password
+            </Link>
+          </div>
+
+          <p className="mt-4 text-center text-xs text-text-secondary">
+            Need access? Contact an administrator for an invitation.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }

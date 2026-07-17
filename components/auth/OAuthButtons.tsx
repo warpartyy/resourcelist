@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import { FcGoogle } from "react-icons/fc";
 import { getSupabase } from "@/lib/supabase";
 import toast from "react-hot-toast";
 
@@ -23,18 +25,25 @@ export default function OAuthButtons() {
     <div className="space-y-3">
       <button
         type="button"
-        className="button button-secondary w-full"
+        className="button button-secondary w-full flex items-center justify-center gap-3"
         onClick={() => signIn("google")}
       >
-        Continue with Google
+        <FcGoogle className="text-xl" />
+        <span>Continue with Google</span>
       </button>
 
       <button
         type="button"
-        className="button button-secondary w-full"
+        className="button button-secondary w-full flex items-center justify-center gap-3"
         onClick={() => signIn("azure")}
       >
-        Continue with Microsoft
+        <Image
+          src="/icons/microsoft.svg"
+          alt="Microsoft"
+          width={20}
+          height={20}
+        />
+        <span>Continue with Microsoft</span>
       </button>
     </div>
   );
