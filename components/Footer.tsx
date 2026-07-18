@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Footer() {
   return (
@@ -21,6 +22,15 @@ export default function Footer() {
               © {new Date().getFullYear()} Motive For Movement
             </p>
           </div>
+
+
+          
+
+<nav className="flex flex-col gap-2 text-sm">
+  <Link href="/resources">Browse Resources</Link>
+  <Link href="/submit">Submit a Resource</Link>
+  <Link href="/admin">Admin Dashboard</Link>
+</nav>
 
           {/* Right: 988 Logo */}
           <div className="hidden md:flex items-center justify-end">

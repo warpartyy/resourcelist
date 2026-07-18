@@ -10,6 +10,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
+  highlightedCommentId?: string | null;
 };
 
 export default function RejectedTab(props: Props) {
@@ -48,6 +49,7 @@ useEffect(() => {
       submissions={submissions}
       section="rejected"
       onSuccess={handleSuccess}
+      highlightedCommentId={props.highlightedCommentId}
     />
   );
 }

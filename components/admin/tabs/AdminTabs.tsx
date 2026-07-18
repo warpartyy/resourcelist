@@ -41,6 +41,7 @@ export default function AdminTabs(props: Props) {
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onSuccess={onSuccess}
+        highlightedCommentId={props.highlightedCommentId}
       />
     );
   }
@@ -53,6 +54,7 @@ export default function AdminTabs(props: Props) {
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onSuccess={onSuccess}
+        highlightedCommentId={props.highlightedCommentId}
       />
     );
   }

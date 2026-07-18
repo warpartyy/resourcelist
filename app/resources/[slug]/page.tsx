@@ -4,8 +4,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ResourceLocationBlock } from "@/components/resources/ResourceLocationBlock";
 import UpdateSuccessBanner from '@/components/resources/UpdateSuccessBanner'
-import { ResourceLocationLite } from "@/lib/types/location-display";
 import ResourceLocationsSidebar from "@/components/resources/ResourceLocationsSidebar";
+import ResourceCommentsAnchorList from "@/components/resources/ResourceCommentsAnchorList";
 
 export default async function ResourcePage({
   params,
@@ -222,6 +222,8 @@ const services = resource.services || [];
   <div>
     <ResourceLocationsSidebar resource={resource} />
   </div>
+
+<ResourceCommentsAnchorList resourceId={resource.id} />
   
 <div className="mt-6 pt-4 border-t border-border flex flex-col md:flex-row md:items-center md:justify-between text-xs text-text-muted gap-3">
 

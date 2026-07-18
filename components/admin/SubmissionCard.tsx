@@ -10,6 +10,7 @@ import SubmissionDetailsSection from "@/components/admin/submissions/SubmissionD
 import MissingFieldsAlert from "@/components/admin/submissions/MissingFieldsAlert";
 import DuplicateMatchesPanel from "@/components/admin/submissions/DuplicateMatchesPanel";
 import SubmissionActions from "@/components/admin/submissions/SubmissionActions";
+import CommentsSection from "@/components/admin/CommentsSection";
 import { useAdminStore } from "@/lib/stores/adminStore";
 
 type Props = {
@@ -252,6 +253,15 @@ function normalizeOrgName(name: string = "") {
 <CommentsPreview
   resourceId={submission.id}
 />
+
+{section !== "pending" && editingId === submission.id && (
+  <CommentsSection
+    resourceId={submission.id}
+    user={user}
+    highlightedCommentId={highlightedCommentId}
+    status={submission.status}
+  />
+)}
         
       </>
     )}

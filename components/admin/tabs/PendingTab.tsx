@@ -10,6 +10,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
+  highlightedCommentId?: string | null;
 };
 
 export default function PendingTab(props: Props) {
@@ -43,6 +44,7 @@ const handleSuccess = async () => {
       submissions={submissions}
       section="pending"
       onSuccess={handleSuccess}
+      highlightedCommentId={props.highlightedCommentId}
     />
   );
 }
