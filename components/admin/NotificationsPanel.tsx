@@ -93,27 +93,27 @@ const handleNotificationClick = async (n: Notification) => {
 };
 
 const handleViewNotification = async (n: Notification) => {
-  await handleNotificationClick(n);
-
   if (!n.resource_id || !n.comment_id) {
     return;
   }
 
-  let tabFromNotification = n.section;
+  const { data, error } = await getResourceStatusById(n.resource_id);
 
-  if (!tabFromNotification) {
-    const { data, error } = await getResourceStatusById(n.resource_id);
-
-    if (error) {
-      console.error("Failed to resolve notification resource status:", error);
-      toast.error("Unable to open notification");
-      return;
-    }
-
-    tabFromNotification = mapStatusToTab(data?.status);
+  if (error || !data?.status) {
+    console.error("Failed to resolve notification resource status:", error);
+    toast.error("Unable to open notification");
+    return;
   }
 
-  const tab = tabFromNotification || "pending";
+  const status = data.status;
+  if (status !== "approved" && status !== "pending" && status !== "rejected") {
+    toast.error("Unable to open notification");
+    return;
+  }
+
+  await handleNotificationClick(n);
+
+  const tab = mapStatusToTab(status);
 
   router.push(`/admin?tab=${tab}&resource=${n.resource_id}&comment=${n.comment_id}`);
 };
@@ -237,7 +237,7 @@ useEffect(() => {
 
   return (
   <div className="space-y-3">
-    <div className="bg-surface border border-border rounded-xl p-3 flex flex-wrap items-center gap-3">
+    <div className="bg-surface border border-border rounded-xl p-3 flex flex-wrap items-center gap-4">
       <label className="inline-flex items-center gap-2 text-sm text-text-primary">
         <input
           type="checkbox"
@@ -247,6 +247,10 @@ useEffect(() => {
         />
         <span>Select All</span>
       </label>
+
+      <div className="text-sm text-text-muted">
+        {notifications.length} {notifications.length === 1 ? "notification" : "notifications"}
+      </div>
 
       <button
         type="button"
@@ -270,21 +274,19 @@ useEffect(() => {
     {notifications.map((n) => (
       <div
         key={n.id}
-        className={`group relative p-4 rounded-xl border cursor-pointer transition
+        className={`relative p-4 rounded-xl border transition
           ${
             n.read
-              ? "bg-surface border-border hover:bg-muted"
-              : "bg-yellow-50 border-yellow-200 hover:bg-yellow-100"
+              ? "bg-surface border-border"
+              : "bg-yellow-50 border-yellow-200"
           }
         `}
-        onClick={() => handleNotificationClick(n)}
       >
         <div className="absolute right-3 top-3 z-10">
           <input
             type="checkbox"
             checked={selectedIds.includes(n.id)}
             onChange={() => toggleSelected(n.id)}
-            onClick={(e) => e.stopPropagation()}
             className="h-4 w-4"
           />
         </div>
@@ -294,42 +296,44 @@ useEffect(() => {
           <span className="absolute left-2 top-4 w-2 h-2 bg-yellow-500 rounded-full" />
         )}
 
-        <div className="flex justify-between items-start gap-4">
-          {/* Message */}
-<div className="text-sm text-text-primary leading-relaxed flex-1">
-  <div>{n.message || "New notification"}</div>
+        <div className="flex justify-between items-start gap-4 pr-7">
+          <div className={`text-sm leading-relaxed flex-1 ${n.read ? "text-text-primary" : "text-text-primary font-semibold"}`}>
+            {n.message || "New notification"}
+          </div>
 
-  {(n.comment_id && n.resource_id) && (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        handleViewNotification(n);
-      }}
-      className="mt-2 text-xs text-accent hover:underline"
-    >
-      View Notification
-    </button>
-  )}
-</div>
-
-{n.comment_preview && (
-  <div className="text-sm text-text-muted mt-1 line-clamp-2">
-    “{n.comment_preview}”
-  </div>
-)}
-
-          {/* Time */}
-          <div className="text-xs text-text-muted whitespace-nowrap">
+          <div className="text-xs text-text-muted whitespace-nowrap pt-0.5">
             {n.created_at
               ? formatRelativeTime(n.created_at)
               : ""}
           </div>
         </div>
 
-        {/* Subtle action hint */}
-        <div className="text-xs text-text-muted mt-2 opacity-0 group-hover:opacity-100 transition">
-          Click to view →
+        {n.comment_preview && (
+          <div className="mt-3 rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-muted line-clamp-3">
+            “{n.comment_preview}”
+          </div>
+        )}
+
+        <div className="mt-3 flex items-center gap-3">
+          {(n.comment_id && n.resource_id) && (
+            <button
+              type="button"
+              onClick={() => handleViewNotification(n)}
+              className="text-xs text-accent hover:underline"
+            >
+              View Comment →
+            </button>
+          )}
+
+          {!n.read && (
+            <button
+              type="button"
+              onClick={() => handleNotificationClick(n)}
+              className="text-xs text-text-muted hover:underline"
+            >
+              Mark as Read
+            </button>
+          )}
         </div>
       </div>
     ))}

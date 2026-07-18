@@ -37,11 +37,7 @@ const isValidTab = (value: string | null): value is AdminSection => {
   return VALID_TABS.includes(value as AdminSection);
 };
 
-export default function AdminPage({
-  displayName,
-}: {
-  displayName?: string | null;
-}) {
+export default function AdminPage() {
   const searchParams = useSearchParams();
 
   const [counts, setCounts] = useState({
@@ -55,7 +51,7 @@ export default function AdminPage({
   const router = useRouter();
   const rawResource = searchParams.get("resource");
   const resourceFromUrl = rawResource && rawResource !== "null" ? rawResource : null;
-  const [editedSubmission, setEditedSubmission] = useState<any>({});
+  const [editedSubmission, setEditedSubmission] = useState<Record<string, unknown>>({});
   const tabFromUrl = searchParams.get("tab");
   const sectionFromUrl = searchParams.get("section");
   const resolvedTab = isValidTab(tabFromUrl)
@@ -67,11 +63,6 @@ export default function AdminPage({
   const {
     adminSection,
     setAdminSection,
-    search,
-    setSearch,
-    sortOrder,
-    setSortOrder,
-    editingId,
     setEditingId,
   } = useAdminStore();
 
@@ -80,7 +71,7 @@ export default function AdminPage({
     setAdminSection(resolvedTab);
   }, [resolvedTab, setAdminSection]);
 
-  const { user, loading } = useCurrentUser();
+  const { user } = useCurrentUser();
 
   const handleLogout = async () => {
     const supabase = getSupabase();
