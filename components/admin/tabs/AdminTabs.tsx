@@ -8,22 +8,24 @@ import EventsTab from "./EventsTab";
 import MessagesTab from "@/app/admin/components/MessagesTab";
 import UpdateRequestsTab from "./UpdateRequestsTab";
 import NotificationsPanel from "@/components/admin/NotificationsPanel";
+import SuggestedImprovementsPanel from "@/components/admin/improvements/SuggestedImprovementsPanel";
 import { useAdminStore } from "@/lib/stores/adminStore";
+import DashboardOverview from "@/components/admin/dashboard/DashboardOverview";
 
 type Props = {
-  editedSubmission: any;
-  setEditedSubmission: (data: any) => void;
-  CATEGORY_OPTIONS: any[];
+  editedSubmission: Record<string, unknown>;
+  setEditedSubmission: (data: Record<string, unknown>) => void;
+  CATEGORY_OPTIONS: Array<{ label: string; value: string }>;
   COUNTY_OPTIONS: string[];
   onSuccess: () => void;
   onUpdateRequestHandled?: () => void;
-  user: any;
+  user: unknown;
   highlightedCommentId?: string | null;
   selectedResourceId?: string | null;
 };
 
 export default function AdminTabs(props: Props) {
-  const { adminSection, editingId, setEditingId, search, sortOrder, setSortOrder } = useAdminStore();
+  const { adminSection, resourcesSubtab, messagesSubtab, editingId, search, sortOrder } = useAdminStore();
 
   const {
     editedSubmission,
@@ -33,44 +35,52 @@ export default function AdminTabs(props: Props) {
     onSuccess,
   } = props;
 
-  if (adminSection === "pending") {
+  if (adminSection === "dashboard") {
+    return <DashboardOverview />;
+  }
+
+  if (adminSection === "resources") {
+    if (resourcesSubtab === "pending") {
+      return (
+        <PendingTab
+          editedSubmission={editedSubmission}
+          setEditedSubmission={setEditedSubmission}
+          CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+          COUNTY_OPTIONS={COUNTY_OPTIONS}
+          onSuccess={onSuccess}
+          highlightedCommentId={props.highlightedCommentId}
+        />
+      );
+    }
+
+    if (resourcesSubtab === "rejected") {
+      return (
+        <RejectedTab
+          editedSubmission={editedSubmission}
+          setEditedSubmission={setEditedSubmission}
+          CATEGORY_OPTIONS={CATEGORY_OPTIONS}
+          COUNTY_OPTIONS={COUNTY_OPTIONS}
+          onSuccess={onSuccess}
+          highlightedCommentId={props.highlightedCommentId}
+        />
+      );
+    }
+
     return (
-      <PendingTab
-        editedSubmission={editedSubmission}
-        setEditedSubmission={setEditedSubmission}
+      <ResourcesTab
+        key={`${adminSection}-${resourcesSubtab}-${sortOrder}-${search}`}
         CATEGORY_OPTIONS={CATEGORY_OPTIONS}
         COUNTY_OPTIONS={COUNTY_OPTIONS}
         onSuccess={onSuccess}
         highlightedCommentId={props.highlightedCommentId}
+        selectedResourceId={editingId}
       />
     );
   }
 
-  if (adminSection === "rejected") {
-    return (
-      <RejectedTab
-        editedSubmission={editedSubmission}
-        setEditedSubmission={setEditedSubmission}
-        CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-        COUNTY_OPTIONS={COUNTY_OPTIONS}
-        onSuccess={onSuccess}
-        highlightedCommentId={props.highlightedCommentId}
-      />
-    );
+  if (adminSection === "quality" || adminSection === "improvements") {
+    return <SuggestedImprovementsPanel />;
   }
- 
-if (adminSection === "resources") {
-  return (
-    <ResourcesTab
-      key={`${adminSection}-${sortOrder}-${search}`}
-      CATEGORY_OPTIONS={CATEGORY_OPTIONS}
-      COUNTY_OPTIONS={COUNTY_OPTIONS}
-      onSuccess={onSuccess}
-      highlightedCommentId={props.highlightedCommentId}
-      selectedResourceId={editingId} 
-    />
-  );
-}
 
 if (adminSection === "settings") {
   return <AdminSettingsPage />;
@@ -81,6 +91,14 @@ if (adminSection === "events") {
 }
 
 if (adminSection === "messages") {
+  if (messagesSubtab === "admin-team") {
+    return (
+      <div className="bg-surface border border-border rounded-xl p-5 text-sm text-text-muted">
+        Internal admin messaging is coming soon.
+      </div>
+    );
+  }
+
   return <MessagesTab />;
 }
 

@@ -76,6 +76,14 @@ function getMissingFields(submission: any): string[] {
   return missing;
 }
 
+function normalizeOrgName(name: string = "") {
+  return name
+    .toLowerCase()
+    .replace(/behavioral health|services|outpatient|clinic|center|office|mat|program|unit/gi, "")
+    .replace(/[^a-z0-9 ]/g, "")
+    .trim();
+}
+
 export default function SubmissionCard({
   submission,
   section,
@@ -88,6 +96,7 @@ export default function SubmissionCard({
   user,
 }: Props) {
   const { editingId, setEditingId } = useAdminStore();
+  const isActiveResource = editingId === submission.id;
   const isEditing =
   section === "pending" && editingId === submission.id;
 
@@ -155,17 +164,24 @@ useEffect(() => {
 }, [submission]);
 
   const missingFields = getMissingFields(submission);
-
-function normalizeOrgName(name: string = "") {
-  return name
-    .toLowerCase()
-    .replace(/behavioral health|services|outpatient|clinic|center|office|mat|program|unit/gi, "")
-    .replace(/[^a-z0-9 ]/g, "")
-    .trim();
-}
   
  return (
-  <div className="bg-surface border border-border p-4 md:p-6 rounded-xl mb-4 md:mb-6 shadow-sm">
+  <div
+    data-resource-card-id={submission.id}
+    className={`p-4 md:p-6 rounded-xl mb-4 md:mb-6 shadow-sm transition-colors duration-300 ${
+      isActiveResource
+        ? "bg-green-50 border-green-200 border-l-4 border-l-green-500"
+        : "bg-surface border border-border"
+    }`}
+  >
+
+    {isActiveResource && (
+      <div className="mb-3">
+        <span className="inline-flex items-center rounded-full border border-green-200 bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+          Currently Editing
+        </span>
+      </div>
+    )}
 
     {/* TOP ROW (ALWAYS VISIBLE) */}
     <div className="flex flex-col md:flex-row md:justify-between md:items-start mb-3 gap-3">

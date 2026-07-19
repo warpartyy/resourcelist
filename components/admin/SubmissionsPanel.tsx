@@ -3,6 +3,7 @@
 import SubmissionCard from "./SubmissionCard";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { useAdminStore } from "@/lib/stores/adminStore";
+import { useScrollToActiveResourceCard } from "@/lib/hooks/useScrollToActiveResourceCard";
 
 
 
@@ -74,6 +75,9 @@ const filteredSubmissions = [...submissions]
 
     return 0;
   });
+
+useScrollToActiveResourceCard(editingId, filteredSubmissions.length);
+
 return (
   <>
     {filteredSubmissions.length === 0 ? (

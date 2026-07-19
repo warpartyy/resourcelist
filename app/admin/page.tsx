@@ -8,7 +8,12 @@ import { fetchAdminCounts } from "@/lib/services/adminService";
 import { COUNTY_OPTIONS_BY_STATE } from "@/lib/geography/counties";
 import { getSupabase } from "@/lib/supabase";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
-import { AdminSection, useAdminStore } from "@/lib/stores/adminStore";
+import {
+  AdminSection,
+  MessagesSubtab,
+  ResourcesSubtab,
+  useAdminStore,
+} from "@/lib/stores/adminStore";
 
 const CATEGORY_OPTIONS = [
   { label: "Mental Health", value: "mental-health" },
@@ -22,19 +27,37 @@ const CATEGORY_OPTIONS = [
 const COUNTY_OPTIONS = COUNTY_OPTIONS_BY_STATE["OK"] ?? [];
 
 const VALID_TABS: AdminSection[] = [
-  "pending",
+  "dashboard",
   "update-requests",
   "resources",
-  "rejected",
+  "quality",
   "settings",
   "events",
   "messages",
   "notifications",
 ];
 
+const RESOURCE_SUBTABS: ResourcesSubtab[] = ["pending", "approved", "rejected"];
+const MESSAGE_SUBTABS: MessagesSubtab[] = ["community", "admin-team"];
+
+const isResourceSubtab = (value: string | null): value is ResourcesSubtab => {
+  if (!value) return false;
+  return RESOURCE_SUBTABS.includes(value as ResourcesSubtab);
+};
+
+const isMessagesSubtab = (value: string | null): value is MessagesSubtab => {
+  if (!value) return false;
+  return MESSAGE_SUBTABS.includes(value as MessagesSubtab);
+};
+
 const isValidTab = (value: string | null): value is AdminSection => {
   if (!value) return false;
   return VALID_TABS.includes(value as AdminSection);
+};
+
+const isLegacyTab = (value: string | null): value is "pending" | "rejected" | "improvements" => {
+  if (!value) return false;
+  return value === "pending" || value === "rejected" || value === "improvements";
 };
 
 export default function AdminPage() {
@@ -49,27 +72,84 @@ export default function AdminPage() {
   });
 
   const router = useRouter();
+  const subtabFromUrl = searchParams.get("subtab");
   const rawResource = searchParams.get("resource");
   const resourceFromUrl = rawResource && rawResource !== "null" ? rawResource : null;
   const [editedSubmission, setEditedSubmission] = useState<Record<string, unknown>>({});
   const tabFromUrl = searchParams.get("tab");
   const sectionFromUrl = searchParams.get("section");
-  const resolvedTab = isValidTab(tabFromUrl)
+  const requestedTab = isValidTab(tabFromUrl)
     ? tabFromUrl
-    : isValidTab(sectionFromUrl)
-      ? sectionFromUrl
-      : null;
+    : isLegacyTab(tabFromUrl)
+      ? tabFromUrl
+      : isValidTab(sectionFromUrl)
+        ? sectionFromUrl
+        : isLegacyTab(sectionFromUrl)
+          ? sectionFromUrl
+          : null;
+
+  const resolvedTab: AdminSection = (() => {
+    if (!requestedTab) return "dashboard";
+
+    if (requestedTab === "improvements") return "quality";
+    if (requestedTab === "pending") return "resources";
+    if (requestedTab === "rejected") return "resources";
+
+    return requestedTab;
+  })();
+
+  const resolvedResourcesSubtab: ResourcesSubtab = (() => {
+    if (requestedTab === "pending") return "pending";
+    if (requestedTab === "rejected") return "rejected";
+
+    if (resolvedTab === "resources") {
+      if (isResourceSubtab(subtabFromUrl)) {
+        return subtabFromUrl;
+      }
+      return "approved";
+    }
+
+    return "pending";
+  })();
+
+  const resolvedMessagesSubtab: MessagesSubtab = (() => {
+    if (resolvedTab !== "messages") {
+      return "community";
+    }
+
+    if (isMessagesSubtab(subtabFromUrl)) {
+      return subtabFromUrl;
+    }
+
+    return "community";
+  })();
 
   const {
     adminSection,
     setAdminSection,
+    resourcesSubtab,
+    setResourcesSubtab,
+    messagesSubtab,
+    setMessagesSubtab,
+    qualitySubtab,
+    setQualitySubtab,
     setEditingId,
   } = useAdminStore();
 
   useEffect(() => {
-    if (!resolvedTab) return;
     setAdminSection(resolvedTab);
-  }, [resolvedTab, setAdminSection]);
+    setResourcesSubtab(resolvedResourcesSubtab);
+    setMessagesSubtab(resolvedMessagesSubtab);
+    setQualitySubtab("improvements");
+  }, [
+    resolvedTab,
+    resolvedResourcesSubtab,
+    resolvedMessagesSubtab,
+    setAdminSection,
+    setResourcesSubtab,
+    setMessagesSubtab,
+    setQualitySubtab,
+  ]);
 
   const { user } = useCurrentUser();
 
@@ -93,6 +173,36 @@ export default function AdminPage() {
 
     setEditingId(resourceFromUrl);
   }, [resourceFromUrl, setEditingId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("tab", adminSection);
+
+    if (adminSection === "resources") {
+      params.set("subtab", resourcesSubtab);
+    } else if (adminSection === "messages") {
+      params.set("subtab", messagesSubtab);
+    } else if (adminSection === "quality") {
+      params.set("subtab", qualitySubtab);
+    } else {
+      params.delete("subtab");
+    }
+
+    const nextQuery = params.toString();
+    const currentQuery = searchParams.toString();
+
+    if (nextQuery !== currentQuery) {
+      router.replace(`/admin?${nextQuery}`);
+    }
+  }, [
+    adminSection,
+    resourcesSubtab,
+    messagesSubtab,
+    qualitySubtab,
+    router,
+    searchParams,
+  ]);
 
   const fetchCounts = async () => {
     try {
@@ -138,7 +248,6 @@ export default function AdminPage() {
       pendingCount={counts.pending}
       resourceCount={counts.resources}
       rejectedCount={counts.rejected}
-      updateRequestsCount={counts.updateRequests}
       notificationsCount={counts.notifications}
     >
       <AdminTabs

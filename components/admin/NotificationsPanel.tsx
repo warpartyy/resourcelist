@@ -7,8 +7,8 @@ import { useRouter } from "next/navigation";
 import {
   deleteAllNotifications,
   deleteNotifications,
-  getResourceStatusById,
 } from "@/lib/services/comments/notificationService";
+import { navigateToAdminResource } from "@/lib/services/admin/resourceNavigationService";
 
 type Props = {
   user: {
@@ -27,12 +27,6 @@ type Notification = {
   section?: "pending" | "resources" | "rejected"; // optional
   comment_preview?: string | null; // ✅ ADD THIS
 };
-
-function mapStatusToTab(status: string | null | undefined): "pending" | "resources" | "rejected" {
-  if (status === "approved") return "resources";
-  if (status === "rejected") return "rejected";
-  return "pending";
-}
 
 export default function NotificationsPanel({ user }: Props) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -97,25 +91,18 @@ const handleViewNotification = async (n: Notification) => {
     return;
   }
 
-  const { data, error } = await getResourceStatusById(n.resource_id);
+  const navigation = await navigateToAdminResource({
+    router,
+    resourceId: n.resource_id,
+    commentId: n.comment_id,
+  });
 
-  if (error || !data?.status) {
-    console.error("Failed to resolve notification resource status:", error);
-    toast.error("Unable to open notification");
-    return;
-  }
-
-  const status = data.status;
-  if (status !== "approved" && status !== "pending" && status !== "rejected") {
+  if (!navigation.ok) {
     toast.error("Unable to open notification");
     return;
   }
 
   await handleNotificationClick(n);
-
-  const tab = mapStatusToTab(status);
-
-  router.push(`/admin?tab=${tab}&resource=${n.resource_id}&comment=${n.comment_id}`);
 };
 
 

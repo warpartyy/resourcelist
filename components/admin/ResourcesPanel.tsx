@@ -16,6 +16,7 @@ import MoveSubmissionToPendingButton from "./actions/MoveToPendingButton";
 import { getSupabase } from "@/lib/supabase";
 import { EditableLocation } from "@/lib/types/location";
 import { useAdminStore } from "@/lib/stores/adminStore";
+import { useScrollToActiveResourceCard } from "@/lib/hooks/useScrollToActiveResourceCard";
 
 type Props = {
   resources: any[];
@@ -108,6 +109,8 @@ const filteredResources = [...resources] // ✅ IMPORTANT
   }
 }, [editingId, resources]);
 
+useScrollToActiveResourceCard(editingId, filteredResources.length);
+
 
   return (
     <>
@@ -123,8 +126,21 @@ const filteredResources = [...resources] // ✅ IMPORTANT
           return (
             <div
               key={resource.id}
-              className="bg-surface border border-border p-6 rounded-xl mb-6"
+              data-resource-card-id={resource.id}
+              className={`border p-6 rounded-xl mb-6 transition-colors duration-300 ${
+                isEditing
+                  ? "bg-green-50 border-green-200 border-l-4 border-l-green-500"
+                  : "bg-surface border-border"
+              }`}
             >
+
+            {isEditing && (
+              <div className="mb-3">
+                <span className="inline-flex items-center rounded-full border border-green-200 bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                  Currently Editing
+                </span>
+              </div>
+            )}
 
             {isEditing ? (
               <ResourceEditForm

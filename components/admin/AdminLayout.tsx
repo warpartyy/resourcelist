@@ -1,12 +1,21 @@
 "use client";
-import { Trash } from "lucide-react";
 import { useState } from "react";
-import { Clock, Database, XCircle, LogOut, ChevronLeft, ChevronRight, MessageSquare, RefreshCw, Bell  } from "lucide-react";
+import {
+  Home,
+  Folder,
+  LogOut,
+  ChevronLeft,
+  ChevronRight,
+  MessageSquare,
+  Bell,
+  Sparkles,
+  Calendar,
+  Settings,
+} from "lucide-react";
+import type { ComponentType } from "react";
 import AdminControls from "@/components/admin/AdminControls";
-import { Settings } from "lucide-react";
 import { useEffect } from "react";
 import { getSupabase } from "@/lib/supabase";
-import { Calendar } from "lucide-react";
 import { useAdminStore } from "@/lib/stores/adminStore";
 
 type Profile = {
@@ -14,47 +23,38 @@ type Profile = {
 };
 
 type AdminSection =
-  | "pending"
-  | "update-requests"
+  | "dashboard"
   | "resources"
-  | "rejected"
+  | "quality"
+  | "update-requests"
   | "settings"
   | "events"
   | "messages"
-  | "notifications";
+  | "notifications"
+  | "improvements";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
-  pending: "Pending Suggestions",
+  dashboard: "Dashboard",
+  resources: "Resources",
+  quality: "Quality",
   "update-requests": "Update Requests",
-  resources: "Approved Resources",
-  rejected: "Rejected",
-  settings: "Settings",
-  events: "Pending Events",
+  improvements: "Suggested Improvements",
   messages: "Messages",
+  events: "Events",
   notifications: "Notifications",
+  settings: "Settings",
 };
 
 const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
-  pending: "Review and approve new submissions before they are added to the directory.",
-
-  "update-requests":
-    "Review requested updates to existing resources and apply approved changes.",
-
-  resources:
-    "Approved resources currently visible in the public directory.",
-
-  rejected:
-    "Submissions that were not approved. These will be permanently deleted after 30 days.",
-
-  events:
-    "Review and manage submitted events before they are published.",
-
-  messages:
-    "View and respond to messages or inquiries from users.",
-
-  settings:
-    "Manage admin settings and system configuration.",
-    notifications: "Notifications",
+  dashboard: "Your command center for admin activity and quick actions.",
+  resources: "Review pending, approved, and rejected resources.",
+  quality: "Improve resource quality with focused tasks.",
+  messages: "Review community messages and team communication.",
+  events: "Review and manage submitted events.",
+  notifications: "Notifications",
+  settings: "Manage admin settings and system configuration.",
+  "update-requests": "Review requested updates to existing resources.",
+  improvements: "Actionable resource improvement tasks.",
 };
 
 type Props = {
@@ -64,7 +64,6 @@ type Props = {
   pendingCount?: number;
   resourceCount?: number;
   rejectedCount?: number;
-  updateRequestsCount?: number;
   children: React.ReactNode;
   notificationsCount?: number;
 
@@ -77,11 +76,21 @@ export default function AdminLayout({
   pendingCount,
   resourceCount,
   rejectedCount,
-  updateRequestsCount,
   children,
   notificationsCount,
 }: Props){
-  const { search, setSearch, sortOrder, setSortOrder } = useAdminStore();
+  const {
+    search,
+    setSearch,
+    sortOrder,
+    setSortOrder,
+    resourcesSubtab,
+    setResourcesSubtab,
+    messagesSubtab,
+    setMessagesSubtab,
+    qualitySubtab,
+    setQualitySubtab,
+  } = useAdminStore();
 
   const [collapsed, setCollapsed] = useState(false);
   const [displayName, setDisplayName] = useState<string | null>(null);
@@ -115,7 +124,7 @@ useEffect(() => {
   const navItem = (
     label: string,
     value: AdminSection,
-    Icon: any,
+    Icon: ComponentType<{ size?: number; strokeWidth?: number }>,
     count?: number
   ) => {
     const isActive = adminSection === value;
@@ -155,6 +164,30 @@ return (
 );
 
 };
+
+  const subNavItem = (
+    label: string,
+    isActive: boolean,
+    onClick: () => void,
+    count?: number
+  ) => (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-3 w-full pl-10 pr-3 py-2 rounded-lg transition ${
+        isActive
+          ? "bg-bg text-text-primary"
+          : "hover:bg-bg text-text-muted"
+      }`}
+    >
+      <span className="flex-1 text-left text-sm">{label}</span>
+
+      {count !== undefined && (
+        <span className="text-xs bg-bg border border-border px-2 py-0.5 rounded-full text-text-muted">
+          {count}
+        </span>
+      )}
+    </button>
+  );
 
 return (
   <div className="h-screen flex overflow-hidden bg-bg text-text-primary relative">
@@ -199,13 +232,52 @@ return (
 
       {/* Navigation */}
       <div className="space-y-2">
-        {navItem("Pending Suggestions", "pending", Clock, pendingCount)}
-        {navItem("Update Requests", "update-requests", RefreshCw, updateRequestsCount)}
-        {navItem("Approved Resources", "resources", Database, resourceCount)}
-        {navItem("Rejected", "rejected", XCircle, rejectedCount)}
-        {navItem("Events", "events", Calendar)}
+        {navItem("Dashboard", "dashboard", Home)}
+
+        {navItem("Resources", "resources", Folder)}
+        {!collapsed && (
+          <div className="space-y-1">
+            {subNavItem("Pending", resourcesSubtab === "pending", () => {
+              setAdminSection("resources");
+              setResourcesSubtab("pending");
+            }, pendingCount)}
+            {subNavItem("Approved", resourcesSubtab === "approved", () => {
+              setAdminSection("resources");
+              setResourcesSubtab("approved");
+            }, resourceCount)}
+            {subNavItem("Rejected", resourcesSubtab === "rejected", () => {
+              setAdminSection("resources");
+              setResourcesSubtab("rejected");
+            }, rejectedCount)}
+          </div>
+        )}
+
+        {navItem("Quality", "quality", Sparkles)}
+        {!collapsed && (
+          <div className="space-y-1">
+            {subNavItem("Suggested Improvements", adminSection === "quality" && qualitySubtab === "improvements", () => {
+              setAdminSection("quality");
+              setQualitySubtab("improvements");
+            })}
+          </div>
+        )}
+
         {navItem("Messages", "messages", MessageSquare)}
+        {!collapsed && (
+          <div className="space-y-1">
+            {subNavItem("Community", messagesSubtab === "community", () => {
+              setAdminSection("messages");
+              setMessagesSubtab("community");
+            })}
+            {subNavItem("Admin Team", messagesSubtab === "admin-team", () => {
+              setAdminSection("messages");
+              setMessagesSubtab("admin-team");
+            })}
+          </div>
+        )}
+
         {navItem("Notifications", "notifications", Bell, notificationsCount)}
+        {navItem("Events", "events", Calendar)}
         {navItem("Settings", "settings", Settings)}
       </div>
 
@@ -258,12 +330,14 @@ return (
       </div>
 
       {/* Controls */}
-      <AdminControls
-        search={search}
-        setSearch={setSearch}
-        sortOrder={sortOrder}
-        setSortOrder={setSortOrder}
-      />
+      {adminSection === "resources" && (
+        <AdminControls
+          search={search}
+          setSearch={setSearch}
+          sortOrder={sortOrder}
+          setSortOrder={setSortOrder}
+        />
+      )}
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
