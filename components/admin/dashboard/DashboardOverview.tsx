@@ -7,6 +7,16 @@ import {
   type DashboardSummary,
 } from "@/lib/services/dashboardSummaryService";
 import { useAdminStore } from "@/lib/stores/adminStore";
+import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
+import {
+  getCommunityImpact,
+  getMyImpact,
+  getMyRecentActivity,
+  getRecentActivity,
+  type ActivityFeedItem,
+  type CommunityImpactSummary,
+  type ImpactSummary,
+} from "@/lib/services/impact/impactService";
 
 type DashboardCard = {
   id: string;
@@ -25,7 +35,22 @@ function getGreeting() {
 
 export default function DashboardOverview() {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [myImpact, setMyImpact] = useState<ImpactSummary>({
+    impactPoints: 0,
+    totalContributions: 0,
+    thisWeek: 0,
+  });
+  const [communityImpact, setCommunityImpact] = useState<CommunityImpactSummary>({
+    totalImpactPoints: 0,
+    totalImprovements: 0,
+    activeAdmins: 0,
+    directoryCompleteness: 0,
+  });
+  const [activityMode, setActivityMode] = useState<"my" | "team">("my");
+  const [activityFeed, setActivityFeed] = useState<ActivityFeedItem[]>([]);
+  const [activityLoading, setActivityLoading] = useState(true);
   const [loading, setLoading] = useState(true);
+  const { user } = useCurrentUser();
 
   const router = useRouter();
   const {
@@ -70,6 +95,52 @@ export default function DashboardOverview() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadImpact = async () => {
+      if (!user?.id) {
+        if (!cancelled) {
+          setActivityFeed([]);
+          setActivityLoading(false);
+        }
+        return;
+      }
+
+      setActivityLoading(true);
+
+      try {
+        const [my, community, myFeed, teamFeed] = await Promise.all([
+          getMyImpact(user.id),
+          getCommunityImpact(),
+          getMyRecentActivity(user.id),
+          getRecentActivity(10),
+        ]);
+
+        if (!cancelled) {
+          setMyImpact(my);
+          setCommunityImpact(community);
+          setActivityFeed(activityMode === "my" ? myFeed : teamFeed);
+        }
+      } catch (error) {
+        console.error("Failed to load impact dashboard:", error);
+        if (!cancelled) {
+          setActivityFeed([]);
+        }
+      } finally {
+        if (!cancelled) {
+          setActivityLoading(false);
+        }
+      }
+    };
+
+    loadImpact();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [activityMode, user?.id]);
 
   const cards = useMemo<DashboardCard[]>(() => {
     if (!summary) return [];
@@ -153,10 +224,100 @@ export default function DashboardOverview() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold">{getGreeting()} 👋</h2>
       </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-surface border border-border rounded-xl p-4">
+          <div className="text-sm font-medium text-text-primary">👤 My Impact</div>
+          <div className="mt-2 text-sm text-text-primary">Impact Points: {myImpact.impactPoints}</div>
+          <div className="mt-1 text-sm text-text-primary">Total Contributions: {myImpact.totalContributions}</div>
+          <div className="mt-1 text-sm text-text-primary">This Week: {myImpact.thisWeek}</div>
+
+          <button
+            type="button"
+            onClick={() => setActivityMode("my")}
+            className="mt-3 button button-secondary px-3 py-1.5 text-sm"
+          >
+            View My Activity →
+          </button>
+        </div>
+
+        <div className="bg-surface border border-border rounded-xl p-4">
+          <div className="text-sm font-medium text-text-primary">🤝 Community Impact</div>
+          <div className="mt-2 text-sm text-text-primary">
+            Total Impact Points: {communityImpact.totalImpactPoints}
+          </div>
+          <div className="mt-1 text-sm text-text-primary">
+            Total Improvements: {communityImpact.totalImprovements}
+          </div>
+          <div className="mt-1 text-sm text-text-primary">Active Admins: {communityImpact.activeAdmins}</div>
+          <div className="mt-1 text-sm text-text-primary">
+            Directory Completeness: {communityImpact.directoryCompleteness}%
+          </div>
+
+          <button
+            type="button"
+            onClick={() => setActivityMode("team")}
+            className="mt-3 button button-secondary px-3 py-1.5 text-sm"
+          >
+            View Team Activity →
+          </button>
+        </div>
+      </div>
+
+      <div className="bg-surface border border-border rounded-xl p-4">
+        <div className="flex items-center justify-between gap-3">
+          <h3 className="text-base font-semibold">Recent Activity</h3>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setActivityMode("my")}
+              className={`px-3 py-1 rounded-md text-sm border ${
+                activityMode === "my"
+                  ? "bg-bg text-text-primary border-border"
+                  : "text-text-muted border-border"
+              }`}
+            >
+              My Activity
+            </button>
+            <button
+              type="button"
+              onClick={() => setActivityMode("team")}
+              className={`px-3 py-1 rounded-md text-sm border ${
+                activityMode === "team"
+                  ? "bg-bg text-text-primary border-border"
+                  : "text-text-muted border-border"
+              }`}
+            >
+              Team Activity
+            </button>
+          </div>
+        </div>
+
+        {activityLoading ? (
+          <div className="text-sm text-text-muted mt-3">Loading activity...</div>
+        ) : activityFeed.length === 0 ? (
+          <div className="text-sm text-text-muted mt-3">No recent activity yet.</div>
+        ) : (
+          <div className="mt-3 divide-y divide-border">
+            {activityFeed.slice(0, 10).map((item) => (
+              <div key={item.id} className="py-3 flex items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-medium text-text-primary">{item.title}</div>
+                  <div className="text-sm text-text-muted mt-0.5">{item.organization}</div>
+                </div>
+                <div className="text-sm font-medium text-green-700">+{item.points}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <div>
+        <h3 className="text-base font-semibold mb-3">Operations Overview</h3>
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {cards.map((card) => (
@@ -174,6 +335,7 @@ export default function DashboardOverview() {
             </button>
           </div>
         ))}
+      </div>
       </div>
     </div>
   );

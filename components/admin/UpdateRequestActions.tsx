@@ -1,6 +1,7 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { getSupabase } from '@/lib/supabase'
+import { logImpactActivity } from '@/lib/services/impact/impactLogger'
 
 export default function UpdateRequestActions({
   id,
@@ -10,6 +11,14 @@ export default function UpdateRequestActions({
   onComplete: (id: string, status: 'approved' | 'rejected') => void
 }) {
   const handleAction = async (status: 'approved' | 'rejected') => {
+    const supabase = getSupabase()
+
+    const { data: submission } = await supabase
+      .from('resource_submissions')
+      .select('resource_id')
+      .eq('id', id)
+      .single()
+
     const res = await fetch('/api/update-request-status', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -21,16 +30,30 @@ export default function UpdateRequestActions({
       return
     }
 
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (user) {
+      try {
+        await logImpactActivity({
+          adminId: user.id,
+          resourceId: submission?.resource_id ?? null,
+          activityType: 'update_request_resolved',
+          activityKey: status,
+          metadata: {
+            submission_id: id,
+            resolution: status,
+          },
+        })
+      } catch (impactError) {
+        console.error('Failed to log update request impact:', impactError)
+      }
+    }
+
     // ✅ tell parent to remove item
     onComplete(id, status)
   }
-
-  const [toast, setToast] = useState<string | null>(null)
-
-  const showToast = (message: string) => {
-  setToast(message)
-  setTimeout(() => setToast(null), 2500)
-}
   return (
     <div className="flex gap-2">
       <button
@@ -47,12 +70,7 @@ export default function UpdateRequestActions({
         Reject
       </button>
 
-{toast && (
-  <div className="fixed bottom-6 right-6 bg-black text-white px-4 py-2 rounded shadow-lg">
-    {toast}
-  </div>
-)}
-      
+
     </div>
   )
 }

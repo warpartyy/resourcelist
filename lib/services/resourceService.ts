@@ -1,6 +1,10 @@
 import { getSupabase } from "@/lib/supabase";
 import { deriveParentCategories } from "./categoryService";
 import { Database } from "@/lib/database.types";
+import {
+  logCompletedResourceImprovements,
+  logImpactActivity,
+} from "@/lib/services/impact/impactLogger";
 
 function generateSlug(name: string) {
   return name
@@ -54,6 +58,7 @@ export async function updateResource(id: string, data: ResourceUpdate) {
   tribe,
   tribal_eligibility,
   admin_notes,
+  last_verified,
   last_edited_by,
   last_edited_email,
   last_edited_name,
@@ -148,6 +153,73 @@ const result = await supabase
   .update(updatePayload)
   .eq("id", id)
   .select();
+
+  if (!result.error && updatePayload.last_edited_by) {
+    try {
+      const adminId = updatePayload.last_edited_by;
+
+      if (existing.status !== "approved" && nextStatus === "approved") {
+        await logImpactActivity({
+          adminId,
+          resourceId: id,
+          activityType: "resource_approved",
+          activityKey: "approved",
+          metadata: {
+            from_status: existing.status,
+            to_status: nextStatus,
+          },
+        });
+      }
+
+      const beforeVerified = existing.last_verified ?? null;
+      const afterVerified = updatePayload.last_verified ?? existing.last_verified ?? null;
+
+      if (!beforeVerified && afterVerified) {
+        await logImpactActivity({
+          adminId,
+          resourceId: id,
+          activityType: "resource_verified",
+          activityKey: "verified",
+          metadata: {
+            verified_at: afterVerified,
+          },
+        });
+      }
+
+      await logCompletedResourceImprovements({
+        adminId,
+        resourceId: id,
+        before: {
+          phone: existing.phone,
+          website: existing.website,
+          services: existing.services,
+          description: existing.description,
+          eligibility: existing.eligibility,
+          counties_served: existing.counties_served,
+          email: existing.email,
+          application_link: existing.application_link,
+          tags: existing.tags,
+          subcategories: existing.subcategories,
+          last_verified: existing.last_verified,
+        },
+        after: {
+          phone: updatePayload.phone ?? null,
+          website: updatePayload.website ?? null,
+          services: updatePayload.services ?? [],
+          description: updatePayload.description ?? null,
+          eligibility: updatePayload.eligibility ?? null,
+          counties_served: updatePayload.counties_served ?? [],
+          email: updatePayload.email ?? null,
+          application_link: updatePayload.application_link ?? null,
+          tags: updatePayload.tags ?? [],
+          subcategories: updatePayload.subcategories ?? [],
+          last_verified: updatePayload.last_verified ?? existing.last_verified ?? null,
+        },
+      });
+    } catch (impactError) {
+      console.error("Failed to log impact:", impactError);
+    }
+  }
 
   console.log("Update result:", result);
 

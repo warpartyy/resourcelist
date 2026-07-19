@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      impact_log: {
+        Row: {
+          activity_key: string
+          activity_type: string
+          admin_id: string
+          created_at: string
+          id: string
+          metadata: Json
+          points: number
+          resource_id: string | null
+        }
+        Insert: {
+          activity_key: string
+          activity_type: string
+          admin_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          points?: number
+          resource_id?: string | null
+        }
+        Update: {
+          activity_key?: string
+          activity_type?: string
+          admin_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json
+          points?: number
+          resource_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "impact_log_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "impact_log_resource_id_fkey"
+            columns: ["resource_id"]
+            isOneToOne: false
+            referencedRelation: "resources"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           address: string | null

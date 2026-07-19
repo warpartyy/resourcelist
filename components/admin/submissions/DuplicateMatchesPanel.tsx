@@ -2,12 +2,33 @@
 
 import { getSupabase } from "@/lib/supabase";
 import { useAdminStore } from "@/lib/stores/adminStore";
+import { logImpactActivity } from "@/lib/services/impact/impactLogger";
+
+type MatchResource = {
+  id: string;
+  organization: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+};
+
+type SubmissionLike = {
+  id: string;
+  organization: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip: string | null;
+  subcategories: string[] | null;
+  tags: string[] | null;
+  parent_categories: string[] | null;
+};
 
 type Props = {
   section: "pending" | "approved" | "rejected";
-  possibleMatches: any[];
-  submission: any;
-  setPossibleMatches: (matches: any[]) => void;
+  possibleMatches: MatchResource[];
+  submission: SubmissionLike;
+  setPossibleMatches: (matches: MatchResource[]) => void;
   onSuccess: () => void;
 };
 
@@ -132,6 +153,26 @@ export default function DuplicateMatchesPanel({
                   .from("resources")
                   .delete()
                   .eq("id", submission.id);
+
+                const {
+                  data: { user },
+                } = await supabase.auth.getUser();
+
+                if (user) {
+                  try {
+                    await logImpactActivity({
+                      adminId: user.id,
+                      resourceId: match.id,
+                      activityType: "duplicate_merged",
+                      activityKey: "resource_location_attached",
+                      metadata: {
+                        merged_resource_id: submission.id,
+                      },
+                    });
+                  } catch (impactError) {
+                    console.error("Failed to log duplicate merge impact:", impactError);
+                  }
+                }
 
                 setPossibleMatches([]);
                 setEditingId(null);
