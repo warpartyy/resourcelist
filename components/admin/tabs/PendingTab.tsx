@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import SubmissionsPanel from "../SubmissionsPanel";
 import { fetchSubmissionsByStatus } from "@/lib/services/adminService";
+import type { User } from "@supabase/supabase-js";
 
 type Props = {
   editedSubmission: any;
@@ -10,6 +11,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
+  user: User | null;
   highlightedCommentId?: string | null;
 };
 
@@ -32,6 +34,7 @@ export default function PendingTab(props: Props) {
   // Optional: refresh after actions (approve/reject/etc)
 const handleSuccess = async () => {
   await loadData();
+  props.onSuccess?.();
 };
 
   if (loading) {
@@ -44,7 +47,6 @@ const handleSuccess = async () => {
       submissions={submissions}
       section="pending"
       onSuccess={handleSuccess}
-      highlightedCommentId={props.highlightedCommentId}
     />
   );
 }

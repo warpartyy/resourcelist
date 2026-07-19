@@ -17,6 +17,7 @@ import { getSupabase } from "@/lib/supabase";
 import { EditableLocation } from "@/lib/types/location";
 import { useAdminStore } from "@/lib/stores/adminStore";
 import { useScrollToActiveResourceCard } from "@/lib/hooks/useScrollToActiveResourceCard";
+import toast from "react-hot-toast";
 
 type Props = {
   resources: any[];
@@ -40,6 +41,22 @@ export default function ResourcesPanel({
   const [additionalLocations, setAdditionalLocations] = useState([
   { address: "", city: "", state: "OK", zip: "", is_primary: false }
 ]);
+
+  const showUpdateSuccessToast = (impact?: { points: number; improvements: string[] }) => {
+    if (!impact || impact.points <= 0 || impact.improvements.length === 0) {
+      toast.success("✅ Resource updated successfully.");
+      return;
+    }
+
+    if (impact.improvements.length === 1) {
+      const label = impact.improvements[0].toLowerCase();
+      toast.success(`🎉 +${impact.points} Community Impact\n\nAdded a missing ${label}.`);
+      return;
+    }
+
+    const list = impact.improvements.map((item) => `• ${item}`).join("\n");
+    toast.success(`🌟 +${impact.points} Community Impact\n\nCompleted:\n${list}`);
+  };
 
 useEffect(() => {
   const fetchUser = async () => {
@@ -250,19 +267,21 @@ onClick={async () => {
     .eq("id", user.id)
     .single();
 
-  const { error } = await updateResource(resource.id, {
+  const { error, impact } = await updateResource(resource.id, {
     ...editedResource,
     last_verified: resource.last_verified ?? editedResource.last_verified,
     last_edited_by: user.id,
     last_edited_email: user.email,
     last_edited_name: profile?.display_name || user.email,
     last_edited_at: new Date().toISOString(),
-  });
+  }, user.id);
 
         if (error) {
-          alert("Update failed.");
+          toast.error("Update failed.");
           return;
         }
+
+        showUpdateSuccessToast(impact);
 
         setEditingId(null);
         fetchData();

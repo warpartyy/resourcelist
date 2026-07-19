@@ -5,6 +5,8 @@ import {
   logCompletedResourceImprovements,
   logImpactActivity,
 } from "@/lib/services/impact/impactLogger";
+import { getImprovementDisplayLabel } from "@/lib/services/impact/impactRules";
+import type { ImprovementActivityKey } from "@/lib/services/impact/impactTypes";
 
 function generateSlug(name: string) {
   return name
@@ -23,11 +25,26 @@ function generateSlug(name: string) {
 type ResourceUpdate =
   Database["public"]["Tables"]["resources"]["Update"];
 
+type UpdateResourceImpact = {
+  points: number;
+  improvements: string[];
+};
+
+export type UpdateResourceResult = {
+  data?: unknown;
+  error: unknown;
+  impact?: UpdateResourceImpact;
+};
+
 /**
  * Update an existing approved resource
  */
 
-export async function updateResource(id: string, data: ResourceUpdate) {
+export async function updateResource(
+  id: string,
+  data: ResourceUpdate,
+  actorAdminId?: string | null
+): Promise<UpdateResourceResult> {
   const supabase = getSupabase();
 
   console.log("Updating resource with ID:", id);
@@ -154,9 +171,17 @@ const result = await supabase
   .eq("id", id)
   .select();
 
-  if (!result.error && updatePayload.last_edited_by) {
+  let impact: UpdateResourceImpact | undefined;
+  const impactAdminId =
+    actorAdminId ??
+    (typeof data.last_edited_by === "string" ? data.last_edited_by : null) ??
+    existing.last_edited_by ??
+    null;
+
+  if (!result.error && impactAdminId) {
+
     try {
-      const adminId = updatePayload.last_edited_by;
+      const adminId = impactAdminId;
 
       if (existing.status !== "approved" && nextStatus === "approved") {
         await logImpactActivity({
@@ -188,13 +213,14 @@ const result = await supabase
         });
       }
 
-      await logCompletedResourceImprovements({
+      const completed = await logCompletedResourceImprovements({
         adminId,
         resourceId: id,
         source: "manual",
         before: {
           phone: existing.phone,
           website: existing.website,
+          address: existing.address,
           services: existing.services,
           description: existing.description,
           eligibility: existing.eligibility,
@@ -208,6 +234,7 @@ const result = await supabase
         after: {
           phone: updatePayload.phone ?? null,
           website: updatePayload.website ?? null,
+          address: updatePayload.address ?? null,
           services: updatePayload.services ?? [],
           description: updatePayload.description ?? null,
           eligibility: updatePayload.eligibility ?? null,
@@ -219,14 +246,44 @@ const result = await supabase
           last_verified: updatePayload.last_verified ?? existing.last_verified ?? null,
         },
       });
+
+      const loggedImprovements = (completed || []).filter((item) => item.logged);
+
+      if (loggedImprovements.length > 0) {
+        const points = loggedImprovements.reduce((sum, item) => sum + item.points, 0);
+        const improvements = loggedImprovements.map((item) =>
+          getImprovementDisplayLabel(item.key as ImprovementActivityKey)
+        );
+
+        impact = {
+          points,
+          improvements,
+        };
+      }
     } catch (impactError) {
-      console.error("Failed to log impact:", impactError);
+      const supabaseError =
+        impactError && typeof impactError === "object" ? impactError : null;
+
+      console.error("Failed to log impact", {
+        message: supabaseError && "message" in supabaseError ? supabaseError.message : undefined,
+        details: supabaseError && "details" in supabaseError ? supabaseError.details : undefined,
+        hint: supabaseError && "hint" in supabaseError ? supabaseError.hint : undefined,
+        code: supabaseError && "code" in supabaseError ? supabaseError.code : undefined,
+        error: impactError,
+        context: {
+          resourceId: id,
+          adminId: impactAdminId,
+          fromStatus: existing.status,
+          toStatus: nextStatus,
+        },
+      });
     }
   }
 
-  console.log("Update result:", result);
-
-  return result;
+  return {
+    ...result,
+    impact,
+  };
 }
 
 

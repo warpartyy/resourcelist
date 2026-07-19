@@ -57,7 +57,7 @@ const { error } = await updateResource(resource.id, {
   last_edited_email: user.email,
   last_edited_name: profile?.display_name || user.email,
   last_edited_at: new Date().toISOString(),
-});
+}, user.id);
 
       if (error) {
         console.error(error);

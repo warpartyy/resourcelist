@@ -42,6 +42,12 @@ export const ImpactRules: Record<ImpactRuleKey, ImpactRule> = {
     description: "Completed missing contact information.",
     category: "improvement",
   },
+  address_added: {
+    points: 3,
+    title: "Added Address",
+    description: "Completed missing location information.",
+    category: "improvement",
+  },
   services_added: {
     points: 5,
     title: "Added Services",
@@ -101,6 +107,7 @@ export const ImpactRules: Record<ImpactRuleKey, ImpactRule> = {
 export const IMPROVEMENT_KEYS: ImprovementActivityKey[] = [
   "phone",
   "website",
+  "address",
   "services",
   "description",
   "eligibility",
@@ -115,6 +122,7 @@ export const IMPROVEMENT_KEYS: ImprovementActivityKey[] = [
 const IMPROVEMENT_RULE_KEYS: Record<ImprovementActivityKey, ImpactRuleKey> = {
   phone: "phone_added",
   website: "website_added",
+  address: "address_added",
   services: "services_added",
   description: "description_added",
   eligibility: "eligibility_added",
@@ -147,4 +155,23 @@ export function getImpactRule(activityType: ImpactType, activityKey: string) {
 
 export function getImpactPoints(activityType: ImpactType, activityKey: string): number {
   return getImpactRule(activityType, activityKey)?.points ?? 0;
+}
+
+const IMPROVEMENT_DISPLAY_LABELS: Record<ImprovementActivityKey, string> = {
+  phone: "Phone Number",
+  website: "Website",
+  address: "Address",
+  services: "Services",
+  description: "Description",
+  eligibility: "Eligibility",
+  counties: "Counties Served",
+  email: "Email",
+  application_link: "Application Link",
+  tags: "Tags",
+  subcategories: "Subcategories",
+  last_verified: "Verification Date",
+};
+
+export function getImprovementDisplayLabel(key: ImprovementActivityKey) {
+  return IMPROVEMENT_DISPLAY_LABELS[key] || key;
 }

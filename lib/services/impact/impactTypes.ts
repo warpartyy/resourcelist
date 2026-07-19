@@ -24,6 +24,7 @@ export type ImpactSource =
 export type ImprovementActivityKey =
   | "phone"
   | "website"
+  | "address"
   | "services"
   | "description"
   | "eligibility"
@@ -41,6 +42,7 @@ export type ImpactRuleKey =
   | "duplicate_merged"
   | "phone_added"
   | "website_added"
+  | "address_added"
   | "services_added"
   | "description_added"
   | "eligibility_added"

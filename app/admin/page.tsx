@@ -62,6 +62,7 @@ const isLegacyTab = (value: string | null): value is "pending" | "rejected" | "i
 
 export default function AdminPage() {
   const searchParams = useSearchParams();
+  const [dashboardRefreshVersion, setDashboardRefreshVersion] = useState(0);
 
   const [counts, setCounts] = useState({
     pending: 0,
@@ -163,6 +164,7 @@ export default function AdminPage() {
 
   const refreshAll = async () => {
     await fetchCounts();
+    setDashboardRefreshVersion((prev) => prev + 1);
   };
 
   useEffect(() => {
@@ -258,6 +260,7 @@ export default function AdminPage() {
         onSuccess={refreshAll}
         onUpdateRequestHandled={decrementUpdateRequests}
         user={user}
+        dashboardRefreshVersion={dashboardRefreshVersion}
         highlightedCommentId={commentFromUrl}
       />
     </AdminLayout>

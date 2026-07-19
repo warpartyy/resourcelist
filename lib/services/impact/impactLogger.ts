@@ -15,6 +15,7 @@ type ResourceSnapshot = Pick<
   Tables<"resources">,
   | "phone"
   | "website"
+  | "address"
   | "services"
   | "description"
   | "eligibility"
@@ -42,6 +43,7 @@ const isEmptyArray = (value: string[] | null | undefined) => !Array.isArray(valu
 function isMissing(snapshot: ResourceSnapshot, key: ImprovementActivityKey): boolean {
   if (key === "phone") return isBlank(snapshot.phone);
   if (key === "website") return isBlank(snapshot.website);
+  if (key === "address") return isBlank(snapshot.address);
   if (key === "services") return isEmptyArray(snapshot.services);
   if (key === "description") return isBlank(snapshot.description);
   if (key === "eligibility") return isBlank(snapshot.eligibility);
@@ -75,6 +77,20 @@ export async function logImpactActivity({
       .maybeSingle();
 
     if (existingError) {
+      console.error("Impact duplicate check failed", {
+        message: existingError?.message,
+        details: existingError?.details,
+        hint: existingError?.hint,
+        code: existingError?.code,
+        error: existingError,
+        context: {
+          adminId,
+          resourceId,
+          activityType,
+          activityKey,
+          source,
+        },
+      });
       throw existingError;
     }
 
@@ -84,22 +100,31 @@ export async function logImpactActivity({
   }
 
   const points = getImpactPoints(activityType, activityKey);
+  const payload = {
+    admin_id: adminId,
+    resource_id: resourceId ?? null,
+    activity_type: activityType,
+    activity_key: activityKey,
+    source,
+    points,
+    metadata,
+  };
 
   const { data, error } = await supabase
     .from("impact_log")
-    .insert({
-      admin_id: adminId,
-      resource_id: resourceId ?? null,
-      activity_type: activityType,
-      activity_key: activityKey,
-      points,
-      metadata,
-      source,
-    })
+    .insert(payload)
     .select("id")
     .single();
 
   if (error) {
+    console.error("Impact insert failed", {
+      message: error?.message,
+      details: error?.details,
+      hint: error?.hint,
+      code: error?.code,
+      error,
+      payload,
+    });
     throw error;
   }
 
@@ -121,12 +146,18 @@ export async function logCompletedResourceImprovements({
   after,
   source = "manual",
 }: LogResourceImprovementsArgs) {
-  const completedKeys = IMPROVEMENT_KEYS.filter(
+  const completedImprovements = IMPROVEMENT_KEYS.filter(
     (key) => isMissing(before, key) && !isMissing(after, key)
   );
 
-  for (const key of completedKeys) {
-    await logImpactActivity({
+  const results: Array<{
+    key: ImprovementActivityKey;
+    logged: boolean;
+    points: number;
+  }> = [];
+
+  for (const key of completedImprovements) {
+    const result = await logImpactActivity({
       adminId,
       resourceId,
       activityType: "resource_improved",
@@ -137,5 +168,13 @@ export async function logCompletedResourceImprovements({
       },
       source,
     });
+
+    results.push({
+      key,
+      logged: result.logged,
+      points: result.logged ? result.points : 0,
+    });
   }
+
+  return results;
 }

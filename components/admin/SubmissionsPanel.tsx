@@ -1,9 +1,9 @@
 "use client";
 
 import SubmissionCard from "./SubmissionCard";
-import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
 import { useAdminStore } from "@/lib/stores/adminStore";
 import { useScrollToActiveResourceCard } from "@/lib/hooks/useScrollToActiveResourceCard";
+import type { User } from "@supabase/supabase-js";
 
 
 
@@ -15,6 +15,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess: () => void;
+  user: User | null;
   highlightedCommentId?: string | null;
 };
 
@@ -26,13 +27,12 @@ export default function SubmissionsPanel({
   CATEGORY_OPTIONS,
   COUNTY_OPTIONS,
   onSuccess,
+  user,
   highlightedCommentId,
 }: Props) {
   const { setEditingId, editingId, search, sortOrder } = useAdminStore();
 
 const searchText = (search || "").toLowerCase();
-
-const { user, loading } = useCurrentUser();
 
 const filteredSubmissions = [...submissions]
   .filter((submission) => {

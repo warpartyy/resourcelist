@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import toast from "react-hot-toast";
 import { extractMentions } from "@/lib/utils/extractMentions";
+import type { User } from "@supabase/supabase-js";
 
 
 function mapStatusToSection(status: string) {
@@ -16,7 +17,7 @@ function mapStatusToSection(status: string) {
 type Props = {
   resourceId?: string;
   submissionId?: string;
-  user: any;
+  user: User | null;
   highlightedCommentId?: string | null;
   status: "pending" | "approved" | "rejected";
 };

@@ -21,6 +21,22 @@ export default function SaveButton({
 }: Props) {
   const [isLoading, setIsLoading] = useState(false);
 
+  const showSaveSuccessToast = (impact?: { points: number; improvements: string[] }) => {
+    if (!impact || impact.points <= 0 || impact.improvements.length === 0) {
+      toast.success("✅ Resource updated successfully.");
+      return;
+    }
+
+    if (impact.improvements.length === 1) {
+      const label = impact.improvements[0].toLowerCase();
+      toast.success(`🎉 +${impact.points} Community Impact\n\nAdded a missing ${label}.`);
+      return;
+    }
+
+    const list = impact.improvements.map((item) => `• ${item}`).join("\n");
+    toast.success(`🌟 +${impact.points} Community Impact\n\nCompleted:\n${list}`);
+  };
+
   const handleSave = async () => {
     if (isLoading) return;
 
@@ -46,13 +62,13 @@ const { data: profile } = await supabase
   .single();
 
 // 🔁 UPDATED payload
-const { error } = await updateResource(resourceId, {
+const { error, impact } = await updateResource(resourceId, {
   ...editedData,
   last_edited_by: user.id, // UUID stays
   last_edited_email: user.email,
   last_edited_name: profile?.display_name || user.email, // ✅ FIXED
   last_edited_at: new Date().toISOString(), // ✅ NEW
-});
+}, user.id);
 
 
       if (error) {
@@ -113,7 +129,7 @@ if (insertError) {
   return;
 }
 
-      toast.success("Changes saved");
+      showSaveSuccessToast(impact);
       onSuccess?.();
     } finally {
       setIsLoading(false);

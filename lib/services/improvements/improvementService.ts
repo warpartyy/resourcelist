@@ -10,6 +10,7 @@ export type ImprovementTask = {
 	type:
 		| "phone"
 		| "website"
+		| "address"
 		| "services"
 		| "description"
 		| "eligibility"
@@ -48,6 +49,13 @@ const RULES: Rule[] = [
 		title: "Add Website",
 		description: "This resource does not currently list a website.",
 		isMissing: (resource) => !resource.website || resource.website.trim().length === 0,
+	},
+	{
+		type: "address",
+		priority: "high",
+		title: "Add Address",
+		description: "This resource does not currently include a street address.",
+		isMissing: (resource) => !resource.address || resource.address.trim().length === 0,
 	},
 	{
 		type: "services",
@@ -138,7 +146,7 @@ export async function getSuggestedImprovementTasks(): Promise<ImprovementTask[]>
 	const { data, error } = await supabase
 		.from("resources")
 		.select(
-			"id, organization, status, phone, website, services, description, eligibility, counties_served, email, application_link, tags, subcategories, last_verified"
+			"id, organization, status, phone, website, address, services, description, eligibility, counties_served, email, application_link, tags, subcategories, last_verified"
 		)
 		.in("status", ["approved", "rejected"])
 		.order("organization", { ascending: true });

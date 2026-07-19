@@ -12,6 +12,7 @@ import DuplicateMatchesPanel from "@/components/admin/submissions/DuplicateMatch
 import SubmissionActions from "@/components/admin/submissions/SubmissionActions";
 import CommentsSection from "@/components/admin/CommentsSection";
 import { useAdminStore } from "@/lib/stores/adminStore";
+import type { User } from "@supabase/supabase-js";
 
 type Props = {
   submission: any;
@@ -21,7 +22,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess: () => void;
-  user: any;
+  user: User | null;
   highlightedCommentId?: string | null;
 };
 

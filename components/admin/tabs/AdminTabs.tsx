@@ -21,6 +21,7 @@ type Props = {
   onSuccess: () => void;
   onUpdateRequestHandled?: () => void;
   user: User | null;
+  dashboardRefreshVersion: number;
   highlightedCommentId?: string | null;
   selectedResourceId?: string | null;
 };
@@ -37,7 +38,12 @@ export default function AdminTabs(props: Props) {
   } = props;
 
   if (adminSection === "dashboard") {
-    return <DashboardOverview />;
+    return (
+      <DashboardOverview
+        user={props.user}
+        refreshVersion={props.dashboardRefreshVersion}
+      />
+    );
   }
 
   if (adminSection === "resources") {
@@ -49,6 +55,7 @@ export default function AdminTabs(props: Props) {
           CATEGORY_OPTIONS={CATEGORY_OPTIONS}
           COUNTY_OPTIONS={COUNTY_OPTIONS}
           onSuccess={onSuccess}
+          user={props.user}
           highlightedCommentId={props.highlightedCommentId}
         />
       );
@@ -62,6 +69,7 @@ export default function AdminTabs(props: Props) {
           CATEGORY_OPTIONS={CATEGORY_OPTIONS}
           COUNTY_OPTIONS={COUNTY_OPTIONS}
           onSuccess={onSuccess}
+          user={props.user}
           highlightedCommentId={props.highlightedCommentId}
         />
       );

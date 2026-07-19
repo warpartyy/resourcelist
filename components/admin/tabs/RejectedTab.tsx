@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import SubmissionsPanel from "../SubmissionsPanel";
 import { fetchSubmissionsByStatus } from "@/lib/services/adminService";
+import type { User } from "@supabase/supabase-js";
 
 type Props = {
   editedSubmission: any;
@@ -10,6 +11,7 @@ type Props = {
   CATEGORY_OPTIONS: any[];
   COUNTY_OPTIONS: string[];
   onSuccess?: () => void;
+  user: User | null;
   highlightedCommentId?: string | null;
 };
 
@@ -49,7 +51,6 @@ useEffect(() => {
       submissions={submissions}
       section="rejected"
       onSuccess={handleSuccess}
-      highlightedCommentId={props.highlightedCommentId}
     />
   );
 }

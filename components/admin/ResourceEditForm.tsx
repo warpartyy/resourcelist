@@ -13,6 +13,7 @@ import {
 } from "@/components/admin/resource-edit";
 import { EditableLocation } from "@/lib/types/location";
 import CommentsSection from "@/components/admin/CommentsSection";
+import type { User } from "@supabase/supabase-js";
 
 type Props = {
   editedSubmission: any;
@@ -22,7 +23,7 @@ setAdditionalLocations: (data: any[]) => void;
   CATEGORY_OPTIONS: { label: string; value: string }[];
   COUNTY_OPTIONS: string[];
   onCancel: () => void;
-  user: any;
+  user: User | null;
   highlightedCommentId?: string | null;
   submissionStatus: "pending" | "approved" | "rejected";
   
