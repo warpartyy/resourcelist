@@ -1,40 +1,14 @@
 import { getSupabase } from "@/lib/supabase";
 import {
-  getActivityLabel,
-  type ImpactActivityType,
+  getImpactRule,
 } from "@/lib/services/impact/impactRules";
-
-export type ImpactSummary = {
-  impactPoints: number;
-  totalContributions: number;
-  thisWeek: number;
-};
-
-export type CommunityImpactSummary = {
-  totalImpactPoints: number;
-  totalImprovements: number;
-  activeAdmins: number;
-  directoryCompleteness: number;
-};
-
-export type ActivityFeedItem = {
-  id: string;
-  title: string;
-  organization: string;
-  points: number;
-  createdAt: string;
-};
-
-export type DirectoryMetrics = {
-  approvedResources: number;
-  verifiedResources: number;
-  resourcesMissingPhone: number;
-  resourcesMissingWebsite: number;
-  resourcesMissingDescription: number;
-  resourcesMissingServices: number;
-  duplicateResourcesMerged: number;
-  completeness: number;
-};
+import type {
+  CommunityImpactSummary,
+  DashboardImpactSummary,
+  DirectoryMetrics,
+  RecentImpactItem,
+  ImpactType,
+} from "@/lib/services/impact/impactTypes";
 
 function getWeekBounds(now = new Date()) {
   const start = new Date(now);
@@ -89,7 +63,7 @@ async function fetchActivityRows(where?: { adminId?: string; limit?: number; sta
 
   let query = supabase
     .from("impact_log")
-    .select("id, admin_id, resource_id, activity_type, activity_key, points, created_at")
+    .select("id, admin_id, resource_id, activity_type, activity_key, points, source, created_at")
     .order("created_at", { ascending: false });
 
   if (where?.adminId) {
@@ -123,6 +97,7 @@ async function toFeedItems(rows: Array<{
   activity_type: string;
   activity_key: string;
   points: number;
+  source: string | null;
   created_at: string;
 }>) {
   const supabase = getSupabase();
@@ -147,10 +122,16 @@ async function toFeedItems(rows: Array<{
 
   return rows.map((row) => ({
     id: row.id,
-    title: getActivityLabel(row.activity_type as ImpactActivityType, row.activity_key),
+    title:
+      getImpactRule(row.activity_type as ImpactType, row.activity_key)?.title ||
+      "Impact Activity",
+    description:
+      getImpactRule(row.activity_type as ImpactType, row.activity_key)?.description ||
+      "An admin contributed to directory quality.",
     organization: row.resource_id ? resourceMap.get(row.resource_id) || "Unknown Resource" : "System",
     points: row.points,
     createdAt: row.created_at,
+    source: row.source,
   }));
 }
 
@@ -160,7 +141,7 @@ export async function getWeeklyImpact(adminId: string) {
   return rows.reduce((sum, row) => sum + (row.points || 0), 0);
 }
 
-export async function getMyImpact(adminId: string): Promise<ImpactSummary> {
+export async function getMyImpact(adminId: string): Promise<DashboardImpactSummary> {
   const rows = await fetchActivityRows({ adminId });
   const impactPoints = rows.reduce((sum, row) => sum + (row.points || 0), 0);
   const thisWeek = await getWeeklyImpact(adminId);
@@ -230,10 +211,10 @@ export async function getCommunityImpact(): Promise<CommunityImpactSummary> {
 
 export async function getRecentActivity(limit: number) {
   const rows = await fetchActivityRows({ limit });
-  return toFeedItems(rows);
+  return (await toFeedItems(rows)) as RecentImpactItem[];
 }
 
 export async function getMyRecentActivity(adminId: string) {
   const rows = await fetchActivityRows({ adminId, limit: 10 });
-  return toFeedItems(rows);
+  return (await toFeedItems(rows)) as RecentImpactItem[];
 }

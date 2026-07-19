@@ -165,6 +165,7 @@ export default function DuplicateMatchesPanel({
                       resourceId: match.id,
                       activityType: "duplicate_merged",
                       activityKey: "resource_location_attached",
+                      source: "duplicate_merge",
                       metadata: {
                         merged_resource_id: submission.id,
                       },

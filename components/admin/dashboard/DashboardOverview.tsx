@@ -3,20 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  fetchDashboardSummary,
-  type DashboardSummary,
-} from "@/lib/services/dashboardSummaryService";
+  getDashboardOverview,
+  type DashboardOverviewData,
+} from "@/lib/services/dashboard/dashboardService";
 import { useAdminStore } from "@/lib/stores/adminStore";
 import { useCurrentUser } from "@/lib/hooks/useCurrentUser";
-import {
-  getCommunityImpact,
-  getMyImpact,
-  getMyRecentActivity,
-  getRecentActivity,
-  type ActivityFeedItem,
-  type CommunityImpactSummary,
-  type ImpactSummary,
-} from "@/lib/services/impact/impactService";
+import type { RecentImpactItem } from "@/lib/services/impact/impactTypes";
 
 type DashboardCard = {
   id: string;
@@ -33,22 +25,19 @@ function getGreeting() {
   return "Good Evening";
 }
 
+function formatRelativeTime(value: string) {
+  const date = new Date(value);
+  const diffInSeconds = Math.floor((Date.now() - date.getTime()) / 1000);
+
+  if (diffInSeconds < 60) return "just now";
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`;
+  return `${Math.floor(diffInSeconds / 86400)} days ago`;
+}
+
 export default function DashboardOverview() {
-  const [summary, setSummary] = useState<DashboardSummary | null>(null);
-  const [myImpact, setMyImpact] = useState<ImpactSummary>({
-    impactPoints: 0,
-    totalContributions: 0,
-    thisWeek: 0,
-  });
-  const [communityImpact, setCommunityImpact] = useState<CommunityImpactSummary>({
-    totalImpactPoints: 0,
-    totalImprovements: 0,
-    activeAdmins: 0,
-    directoryCompleteness: 0,
-  });
+  const [dashboard, setDashboard] = useState<DashboardOverviewData | null>(null);
   const [activityMode, setActivityMode] = useState<"my" | "team">("my");
-  const [activityFeed, setActivityFeed] = useState<ActivityFeedItem[]>([]);
-  const [activityLoading, setActivityLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const { user } = useCurrentUser();
 
@@ -65,22 +54,24 @@ export default function DashboardOverview() {
 
     const run = async () => {
       setLoading(true);
-      try {
-        const next = await fetchDashboardSummary();
+
+      if (!user?.id) {
         if (!cancelled) {
-          setSummary(next);
+          setDashboard(null);
+          setLoading(false);
+        }
+        return;
+      }
+
+      try {
+        const next = await getDashboardOverview(user.id);
+        if (!cancelled) {
+          setDashboard(next);
         }
       } catch (error) {
-        console.error("Failed to load dashboard summary:", error);
+        console.error("Failed to load dashboard overview:", error);
         if (!cancelled) {
-          setSummary({
-            pendingResources: 0,
-            updateRequests: 0,
-            unreadNotifications: 0,
-            communityMessages: 0,
-            suggestedImprovements: 0,
-            upcomingEvents: 0,
-          });
+          setDashboard(null);
         }
       } finally {
         if (!cancelled) {
@@ -94,62 +85,21 @@ export default function DashboardOverview() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [user?.id]);
 
-  useEffect(() => {
-    let cancelled = false;
-
-    const loadImpact = async () => {
-      if (!user?.id) {
-        if (!cancelled) {
-          setActivityFeed([]);
-          setActivityLoading(false);
-        }
-        return;
-      }
-
-      setActivityLoading(true);
-
-      try {
-        const [my, community, myFeed, teamFeed] = await Promise.all([
-          getMyImpact(user.id),
-          getCommunityImpact(),
-          getMyRecentActivity(user.id),
-          getRecentActivity(10),
-        ]);
-
-        if (!cancelled) {
-          setMyImpact(my);
-          setCommunityImpact(community);
-          setActivityFeed(activityMode === "my" ? myFeed : teamFeed);
-        }
-      } catch (error) {
-        console.error("Failed to load impact dashboard:", error);
-        if (!cancelled) {
-          setActivityFeed([]);
-        }
-      } finally {
-        if (!cancelled) {
-          setActivityLoading(false);
-        }
-      }
-    };
-
-    loadImpact();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [activityMode, user?.id]);
+  const activityFeed: RecentImpactItem[] = useMemo(() => {
+    if (!dashboard) return [];
+    return activityMode === "my" ? dashboard.recentActivity.my : dashboard.recentActivity.team;
+  }, [dashboard, activityMode]);
 
   const cards = useMemo<DashboardCard[]>(() => {
-    if (!summary) return [];
+    if (!dashboard) return [];
 
     return [
       {
         id: "pending-resources",
         title: "Pending Resources",
-        countText: `${summary.pendingResources} awaiting review`,
+        countText: `${dashboard.pendingResources} awaiting review`,
         description: "Review and moderate incoming resource submissions.",
         onView: () => {
           setAdminSection("resources");
@@ -160,7 +110,7 @@ export default function DashboardOverview() {
       {
         id: "update-requests",
         title: "Update Requests",
-        countText: `${summary.updateRequests} pending requests`,
+        countText: `${dashboard.updateRequests} pending requests`,
         description: "Approve or reject update requests to existing resources.",
         onView: () => {
           setAdminSection("update-requests");
@@ -170,7 +120,7 @@ export default function DashboardOverview() {
       {
         id: "unread-notifications",
         title: "Unread Notifications",
-        countText: `${summary.unreadNotifications} unread`,
+        countText: `${dashboard.notifications} unread`,
         description: "See recent mentions, comments, and admin alerts.",
         onView: () => {
           setAdminSection("notifications");
@@ -180,7 +130,7 @@ export default function DashboardOverview() {
       {
         id: "community-messages",
         title: "Community Messages",
-        countText: `${summary.communityMessages} new messages`,
+        countText: `${dashboard.communityMessages} new messages`,
         description: "Respond to community messages and feedback.",
         onView: () => {
           setAdminSection("messages");
@@ -191,7 +141,7 @@ export default function DashboardOverview() {
       {
         id: "suggested-improvements",
         title: "Suggested Improvements",
-        countText: `${summary.suggestedImprovements} open tasks`,
+        countText: `${dashboard.suggestedImprovements} open tasks`,
         description: "Fix missing data fields to improve directory quality.",
         onView: () => {
           setAdminSection("quality");
@@ -202,7 +152,7 @@ export default function DashboardOverview() {
       {
         id: "upcoming-events",
         title: "Upcoming Events",
-        countText: `${summary.upcomingEvents} upcoming`,
+        countText: `${dashboard.events} upcoming`,
         description: "Review current and upcoming community events.",
         onView: () => {
           setAdminSection("events");
@@ -211,7 +161,7 @@ export default function DashboardOverview() {
       },
     ];
   }, [
-    summary,
+    dashboard,
     router,
     setAdminSection,
     setResourcesSubtab,
@@ -222,6 +172,19 @@ export default function DashboardOverview() {
   if (loading) {
     return <div className="text-sm text-text-muted">Loading dashboard...</div>;
   }
+
+  const myImpact = dashboard?.myImpact ?? {
+    impactPoints: 0,
+    totalContributions: 0,
+    thisWeek: 0,
+  };
+
+  const communityImpact = dashboard?.communityImpact ?? {
+    totalImpactPoints: 0,
+    totalImprovements: 0,
+    activeAdmins: 0,
+    directoryCompleteness: 0,
+  };
 
   return (
     <div className="space-y-6">
@@ -297,9 +260,7 @@ export default function DashboardOverview() {
           </div>
         </div>
 
-        {activityLoading ? (
-          <div className="text-sm text-text-muted mt-3">Loading activity...</div>
-        ) : activityFeed.length === 0 ? (
+        {activityFeed.length === 0 ? (
           <div className="text-sm text-text-muted mt-3">No recent activity yet.</div>
         ) : (
           <div className="mt-3 divide-y divide-border">
@@ -308,6 +269,7 @@ export default function DashboardOverview() {
                 <div>
                   <div className="text-sm font-medium text-text-primary">{item.title}</div>
                   <div className="text-sm text-text-muted mt-0.5">{item.organization}</div>
+                  <div className="text-xs text-text-subtle mt-0.5">{formatRelativeTime(item.createdAt)}</div>
                 </div>
                 <div className="text-sm font-medium text-green-700">+{item.points}</div>
               </div>
@@ -319,23 +281,23 @@ export default function DashboardOverview() {
       <div>
         <h3 className="text-base font-semibold mb-3">Operations Overview</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {cards.map((card) => (
-          <div key={card.id} className="bg-surface border border-border rounded-xl p-4">
-            <div className="text-sm font-medium text-text-primary">{card.title}</div>
-            <div className="mt-2 text-sm text-text-primary">{card.countText}</div>
-            <div className="mt-1 text-sm text-text-muted">{card.description}</div>
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          {cards.map((card) => (
+            <div key={card.id} className="bg-surface border border-border rounded-xl p-4">
+              <div className="text-sm font-medium text-text-primary">{card.title}</div>
+              <div className="mt-2 text-sm text-text-primary">{card.countText}</div>
+              <div className="mt-1 text-sm text-text-muted">{card.description}</div>
 
-            <button
-              type="button"
-              onClick={card.onView}
-              className="mt-3 button button-secondary px-3 py-1.5 text-sm"
-            >
-              View →
-            </button>
-          </div>
-        ))}
-      </div>
+              <button
+                type="button"
+                onClick={card.onView}
+                className="mt-3 button button-secondary px-3 py-1.5 text-sm"
+              >
+                View →
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

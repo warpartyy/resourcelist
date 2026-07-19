@@ -24,6 +24,7 @@ export type Database = {
           metadata: Json
           points: number
           resource_id: string | null
+          source: string | null
         }
         Insert: {
           activity_key: string
@@ -34,6 +35,7 @@ export type Database = {
           metadata?: Json
           points?: number
           resource_id?: string | null
+          source?: string | null
         }
         Update: {
           activity_key?: string
@@ -44,6 +46,7 @@ export type Database = {
           metadata?: Json
           points?: number
           resource_id?: string | null
+          source?: string | null
         }
         Relationships: [
           {

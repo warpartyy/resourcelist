@@ -2,11 +2,14 @@ import type { Tables } from "@/lib/database.types";
 import { getSupabase } from "@/lib/supabase";
 import {
   IMPROVEMENT_KEYS,
-  type ImprovementActivityKey,
-  type ImpactActivityType,
-  type ImpactMetadata,
   getImpactPoints,
 } from "@/lib/services/impact/impactRules";
+import type {
+  ImprovementActivityKey,
+  ImpactMetadata,
+  ImpactSource,
+  ImpactType,
+} from "@/lib/services/impact/impactTypes";
 
 type ResourceSnapshot = Pick<
   Tables<"resources">,
@@ -26,9 +29,10 @@ type ResourceSnapshot = Pick<
 type LogImpactArgs = {
   adminId: string;
   resourceId?: string | null;
-  activityType: ImpactActivityType;
+  activityType: ImpactType;
   activityKey: string;
   metadata?: ImpactMetadata;
+  source?: ImpactSource;
   preventDuplicate?: boolean;
 };
 
@@ -55,6 +59,7 @@ export async function logImpactActivity({
   activityType,
   activityKey,
   metadata = {},
+  source = "manual",
   preventDuplicate = false,
 }: LogImpactArgs) {
   const supabase = getSupabase();
@@ -89,6 +94,7 @@ export async function logImpactActivity({
       activity_key: activityKey,
       points,
       metadata,
+      source,
     })
     .select("id")
     .single();
@@ -105,6 +111,7 @@ type LogResourceImprovementsArgs = {
   resourceId: string;
   before: ResourceSnapshot;
   after: ResourceSnapshot;
+  source?: ImpactSource;
 };
 
 export async function logCompletedResourceImprovements({
@@ -112,6 +119,7 @@ export async function logCompletedResourceImprovements({
   resourceId,
   before,
   after,
+  source = "manual",
 }: LogResourceImprovementsArgs) {
   const completedKeys = IMPROVEMENT_KEYS.filter(
     (key) => isMissing(before, key) && !isMissing(after, key)
@@ -127,6 +135,7 @@ export async function logCompletedResourceImprovements({
       metadata: {
         improvement_key: key,
       },
+      source,
     });
   }
 }

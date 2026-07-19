@@ -41,6 +41,7 @@ export default function UpdateRequestActions({
           resourceId: submission?.resource_id ?? null,
           activityType: 'update_request_resolved',
           activityKey: status,
+          source: 'update_request',
           metadata: {
             submission_id: id,
             resolution: status,

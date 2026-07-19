@@ -9,11 +9,10 @@ import {
   deleteNotifications,
 } from "@/lib/services/comments/notificationService";
 import { navigateToAdminResource } from "@/lib/services/admin/resourceNavigationService";
+import type { User } from "@supabase/supabase-js";
 
 type Props = {
-  user: {
-    id: string;
-  };
+  user: User | null;
 };
 
 type Notification = {

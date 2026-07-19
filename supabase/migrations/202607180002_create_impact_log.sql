@@ -4,6 +4,7 @@ create table if not exists public.impact_log (
   resource_id uuid null,
   activity_type text not null,
   activity_key text not null,
+  source text,
   points integer not null default 0,
   metadata jsonb not null default '{}'::jsonb,
   created_at timestamptz not null default now(),

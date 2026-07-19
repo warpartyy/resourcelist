@@ -11,6 +11,7 @@ import NotificationsPanel from "@/components/admin/NotificationsPanel";
 import SuggestedImprovementsPanel from "@/components/admin/improvements/SuggestedImprovementsPanel";
 import { useAdminStore } from "@/lib/stores/adminStore";
 import DashboardOverview from "@/components/admin/dashboard/DashboardOverview";
+import type { User } from "@supabase/supabase-js";
 
 type Props = {
   editedSubmission: Record<string, unknown>;
@@ -19,7 +20,7 @@ type Props = {
   COUNTY_OPTIONS: string[];
   onSuccess: () => void;
   onUpdateRequestHandled?: () => void;
-  user: unknown;
+  user: User | null;
   highlightedCommentId?: string | null;
   selectedResourceId?: string | null;
 };

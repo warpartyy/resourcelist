@@ -164,6 +164,7 @@ const result = await supabase
           resourceId: id,
           activityType: "resource_approved",
           activityKey: "approved",
+          source: "manual",
           metadata: {
             from_status: existing.status,
             to_status: nextStatus,
@@ -180,6 +181,7 @@ const result = await supabase
           resourceId: id,
           activityType: "resource_verified",
           activityKey: "verified",
+          source: "manual",
           metadata: {
             verified_at: afterVerified,
           },
@@ -189,6 +191,7 @@ const result = await supabase
       await logCompletedResourceImprovements({
         adminId,
         resourceId: id,
+        source: "manual",
         before: {
           phone: existing.phone,
           website: existing.website,
