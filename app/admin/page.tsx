@@ -217,14 +217,21 @@ export default function AdminPage() {
         ...nextCounts,
       }));
 
-      const { count: notificationCount } = await supabase
-        .from("notifications")
-        .select("id", { count: "exact", head: true })
-        .eq("read", false);
+      let notificationCount = 0;
+
+      if (user?.id) {
+        const { count } = await supabase
+          .from("notifications")
+          .select("id", { count: "exact", head: true })
+          .eq("user_id", user.id)
+          .eq("read", false);
+
+        notificationCount = count || 0;
+      }
 
       setCounts((prev) => ({
         ...prev,
-        notifications: notificationCount || 0,
+        notifications: notificationCount,
       }));
     } catch (err) {
       console.error("Failed to fetch counts", err);
@@ -240,7 +247,7 @@ export default function AdminPage() {
 
   useEffect(() => {
     fetchCounts();
-  }, []);
+  }, [user?.id]);
 
   return (
     <AdminLayout

@@ -13,6 +13,7 @@ import type { User } from "@supabase/supabase-js";
 
 type Props = {
   user: User | null;
+  onNotificationsChanged?: () => void;
 };
 
 type Notification = {
@@ -27,7 +28,7 @@ type Notification = {
   comment_preview?: string | null; // ✅ ADD THIS
 };
 
-export default function NotificationsPanel({ user }: Props) {
+export default function NotificationsPanel({ user, onNotificationsChanged }: Props) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
@@ -82,7 +83,10 @@ const handleNotificationClick = async (n: Notification) => {
 
   if (error) {
     console.error("Failed to mark notification as read:", error);
+    return;
   }
+
+  await onNotificationsChanged?.();
 };
 
 const handleViewNotification = async (n: Notification) => {
@@ -153,6 +157,7 @@ const handleDeleteSelected = async () => {
   await refreshNotifications();
   setSelectedIds([]);
   toast.success("Selected notifications deleted");
+  await onNotificationsChanged?.();
   setDeletingSelected(false);
 };
 
@@ -174,6 +179,7 @@ const handleDeleteAll = async () => {
   setSelectedIds([]);
   setConfirmDeleteAllOpen(false);
   toast.success("All notifications deleted");
+  await onNotificationsChanged?.();
   setDeletingAll(false);
 };
 

@@ -28,7 +28,7 @@ export type DashboardOverviewData = {
 
 export async function getDashboardOverview(adminId: string): Promise<DashboardOverviewData> {
   const [summary, myImpact, communityImpact, directoryMetrics, myRecent, teamRecent] = await Promise.all([
-    fetchDashboardSummary(),
+    fetchDashboardSummary(adminId),
     getMyImpact(adminId),
     getCommunityImpact(),
     getDirectoryMetrics(),

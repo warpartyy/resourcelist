@@ -11,7 +11,7 @@ export type DashboardSummary = {
   upcomingEvents: number;
 };
 
-export async function fetchDashboardSummary(): Promise<DashboardSummary> {
+export async function fetchDashboardSummary(adminId: string): Promise<DashboardSummary> {
   const supabase = getSupabase();
   const counts = await fetchAdminCounts();
 
@@ -20,6 +20,7 @@ export async function fetchDashboardSummary(): Promise<DashboardSummary> {
       supabase
         .from("notifications")
         .select("id", { count: "exact", head: true })
+        .eq("user_id", adminId)
         .eq("read", false),
       supabase
         .from("messages")

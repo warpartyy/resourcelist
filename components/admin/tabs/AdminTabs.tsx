@@ -117,7 +117,7 @@ if (adminSection === "update-requests") {
 }
 
 if (adminSection === "notifications") {
-  return <NotificationsPanel user={props.user} />;
+  return <NotificationsPanel user={props.user} onNotificationsChanged={props.onSuccess} />;
 }
 
   return null;
