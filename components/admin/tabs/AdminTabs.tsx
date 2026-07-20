@@ -88,7 +88,12 @@ export default function AdminTabs(props: Props) {
   }
 
   if (adminSection === "quality" || adminSection === "improvements") {
-    return <SuggestedImprovementsPanel />;
+    return (
+      <SuggestedImprovementsPanel
+        user={props.user}
+        onDataChanged={props.onSuccess}
+      />
+    );
   }
 
 if (adminSection === "settings") {

@@ -15,7 +15,12 @@ export async function fetchDashboardSummary(adminId: string): Promise<DashboardS
   const supabase = getSupabase();
   const counts = await fetchAdminCounts();
 
-  const [{ count: unreadNotifications }, { count: communityMessages }, { count: upcomingEvents }, improvements] =
+  const [
+    { count: unreadNotifications, error: unreadNotificationsError },
+    { count: communityMessages, error: communityMessagesError },
+    { count: upcomingEvents, error: upcomingEventsError },
+    improvements,
+  ] =
     await Promise.all([
       supabase
         .from("notifications")
@@ -32,6 +37,39 @@ export async function fetchDashboardSummary(adminId: string): Promise<DashboardS
         .gte("date", new Date().toISOString().slice(0, 10)),
       getSuggestedImprovementTasks(),
     ]);
+
+  if (unreadNotificationsError) {
+    console.error("Supabase error", {
+      message: unreadNotificationsError.message,
+      details: unreadNotificationsError.details,
+      hint: unreadNotificationsError.hint,
+      code: unreadNotificationsError.code,
+      error: unreadNotificationsError,
+    });
+    throw unreadNotificationsError;
+  }
+
+  if (communityMessagesError) {
+    console.error("Supabase error", {
+      message: communityMessagesError.message,
+      details: communityMessagesError.details,
+      hint: communityMessagesError.hint,
+      code: communityMessagesError.code,
+      error: communityMessagesError,
+    });
+    throw communityMessagesError;
+  }
+
+  if (upcomingEventsError) {
+    console.error("Supabase error", {
+      message: upcomingEventsError.message,
+      details: upcomingEventsError.details,
+      hint: upcomingEventsError.hint,
+      code: upcomingEventsError.code,
+      error: upcomingEventsError,
+    });
+    throw upcomingEventsError;
+  }
 
   return {
     pendingResources: counts.pending,

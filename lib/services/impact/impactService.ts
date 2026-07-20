@@ -6,6 +6,7 @@ import type {
   CommunityImpactSummary,
   DashboardImpactSummary,
   DirectoryMetrics,
+  ImprovementActivityKey,
   RecentImpactItem,
   ImpactType,
 } from "@/lib/services/impact/impactTypes";
@@ -28,34 +29,50 @@ function toArray(value: string[] | null | undefined) {
   return Array.isArray(value) ? value : [];
 }
 
-function toCompleteScore(resource: {
-  phone: string | null;
-  website: string | null;
-  services: string[] | null;
-  description: string | null;
-  eligibility: string | null;
-  counties_served: string[] | null;
-  email: string | null;
-  application_link: string | null;
-  tags: string[] | null;
-  subcategories: string[] | null;
-  last_verified: string | null;
-}) {
-  let complete = 0;
+const COMPLETENESS_KEYS: ImprovementActivityKey[] = [
+  "phone",
+  "website",
+  "address",
+  "services",
+  "description",
+  "eligibility",
+  "counties",
+  "email",
+  "application_link",
+  "tags",
+  "subcategories",
+  "last_verified",
+];
 
-  if (resource.phone && resource.phone.trim()) complete += 1;
-  if (resource.website && resource.website.trim()) complete += 1;
-  if (toArray(resource.services).length > 0) complete += 1;
-  if (resource.description && resource.description.trim()) complete += 1;
-  if (resource.eligibility && resource.eligibility.trim()) complete += 1;
-  if (toArray(resource.counties_served).length > 0) complete += 1;
-  if (resource.email && resource.email.trim()) complete += 1;
-  if (resource.application_link && resource.application_link.trim()) complete += 1;
-  if (toArray(resource.tags).length > 0) complete += 1;
-  if (toArray(resource.subcategories).length > 0) complete += 1;
-  if (resource.last_verified && resource.last_verified.trim()) complete += 1;
-
-  return complete;
+function isCompleteForKey(
+  resource: {
+    phone: string | null;
+    website: string | null;
+    address: string | null;
+    services: string[] | null;
+    description: string | null;
+    eligibility: string | null;
+    counties_served: string[] | null;
+    email: string | null;
+    application_link: string | null;
+    tags: string[] | null;
+    subcategories: string[] | null;
+    last_verified: string | null;
+  },
+  key: ImprovementActivityKey
+) {
+  if (key === "phone") return Boolean(resource.phone && resource.phone.trim());
+  if (key === "website") return Boolean(resource.website && resource.website.trim());
+  if (key === "address") return Boolean(resource.address && resource.address.trim());
+  if (key === "services") return toArray(resource.services).length > 0;
+  if (key === "description") return Boolean(resource.description && resource.description.trim());
+  if (key === "eligibility") return Boolean(resource.eligibility && resource.eligibility.trim());
+  if (key === "counties") return toArray(resource.counties_served).length > 0;
+  if (key === "email") return Boolean(resource.email && resource.email.trim());
+  if (key === "application_link") return Boolean(resource.application_link && resource.application_link.trim());
+  if (key === "tags") return toArray(resource.tags).length > 0;
+  if (key === "subcategories") return toArray(resource.subcategories).length > 0;
+  return Boolean(resource.last_verified && resource.last_verified.trim());
 }
 
 async function fetchActivityRows(where?: { adminId?: string; limit?: number; startIso?: string; endIso?: string }) {
@@ -85,6 +102,13 @@ async function fetchActivityRows(where?: { adminId?: string; limit?: number; sta
   const { data, error } = await query;
 
   if (error) {
+    console.error("Supabase error", {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+      error,
+    });
     throw error;
   }
 
@@ -110,10 +134,21 @@ async function toFeedItems(rows: Array<{
   const resourceMap = new Map<string, string>();
 
   if (uniqueIds.length > 0) {
-    const { data: resources } = await supabase
+    const { data: resources, error } = await supabase
       .from("resources")
       .select("id, organization")
       .in("id", uniqueIds);
+
+    if (error) {
+      console.error("Supabase error", {
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code,
+        error,
+      });
+      throw error;
+    }
 
     (resources || []).forEach((resource) => {
       resourceMap.set(resource.id, resource.organization || "Unknown Resource");
@@ -156,11 +191,14 @@ export async function getMyImpact(adminId: string): Promise<DashboardImpactSumma
 export async function getDirectoryMetrics(): Promise<DirectoryMetrics> {
   const supabase = getSupabase();
 
-  const [{ data: approvedRows }, { count: duplicateMergedCount }] = await Promise.all([
+  const [
+    { data: approvedRows, error: approvedRowsError },
+    { count: duplicateMergedCount, error: duplicateMergedCountError },
+  ] = await Promise.all([
     supabase
       .from("resources")
       .select(
-        "id, phone, website, services, description, eligibility, counties_served, email, application_link, tags, subcategories, last_verified"
+        "id, phone, website, address, services, description, eligibility, counties_served, email, application_link, tags, subcategories, last_verified"
       )
       .eq("status", "approved"),
     supabase
@@ -169,17 +207,81 @@ export async function getDirectoryMetrics(): Promise<DirectoryMetrics> {
       .eq("activity_type", "duplicate_merged"),
   ]);
 
+  if (approvedRowsError) {
+    console.error("Supabase error", {
+      message: approvedRowsError.message,
+      details: approvedRowsError.details,
+      hint: approvedRowsError.hint,
+      code: approvedRowsError.code,
+      error: approvedRowsError,
+    });
+    throw approvedRowsError;
+  }
+
+  if (duplicateMergedCountError) {
+    console.error("Supabase error", {
+      message: duplicateMergedCountError.message,
+      details: duplicateMergedCountError.details,
+      hint: duplicateMergedCountError.hint,
+      code: duplicateMergedCountError.code,
+      error: duplicateMergedCountError,
+    });
+    throw duplicateMergedCountError;
+  }
+
   const resources = approvedRows || [];
+  const resourceIds = resources.map((resource) => resource.id);
+
+  const { data: overrideRows, error: overrideRowsError } =
+    resourceIds.length === 0
+      ? { data: [], error: null }
+      : await supabase
+          .from("resource_improvement_overrides")
+          .select("resource_id, improvement_key")
+          .eq("status", "not_applicable")
+          .in("resource_id", resourceIds);
+
+  if (overrideRowsError) {
+    console.error("Supabase error", {
+      message: overrideRowsError.message,
+      details: overrideRowsError.details,
+      hint: overrideRowsError.hint,
+      code: overrideRowsError.code,
+      error: overrideRowsError,
+    });
+    throw overrideRowsError;
+  }
+
+  const overrideSet = new Set(
+    (overrideRows || []).map((row) => `${row.resource_id}-${row.improvement_key}`)
+  );
+
+  const isOverridden = (resourceId: string, key: ImprovementActivityKey) =>
+    overrideSet.has(`${resourceId}-${key}`);
 
   const approvedResources = resources.length;
   const verifiedResources = resources.filter((row) => row.last_verified && row.last_verified.trim()).length;
-  const resourcesMissingPhone = resources.filter((row) => !row.phone || !row.phone.trim()).length;
-  const resourcesMissingWebsite = resources.filter((row) => !row.website || !row.website.trim()).length;
-  const resourcesMissingDescription = resources.filter((row) => !row.description || !row.description.trim()).length;
-  const resourcesMissingServices = resources.filter((row) => toArray(row.services).length === 0).length;
+  const resourcesMissingPhone = resources.filter((row) => !isOverridden(row.id, "phone") && (!row.phone || !row.phone.trim())).length;
+  const resourcesMissingWebsite = resources.filter((row) => !isOverridden(row.id, "website") && (!row.website || !row.website.trim())).length;
+  const resourcesMissingDescription = resources.filter((row) => !isOverridden(row.id, "description") && (!row.description || !row.description.trim())).length;
+  const resourcesMissingServices = resources.filter((row) => !isOverridden(row.id, "services") && toArray(row.services).length === 0).length;
 
-  const totalChecks = approvedResources * 11;
-  const completeChecks = resources.reduce((sum, row) => sum + toCompleteScore(row), 0);
+  let totalChecks = 0;
+  let completeChecks = 0;
+
+  for (const row of resources) {
+    for (const key of COMPLETENESS_KEYS) {
+      if (isOverridden(row.id, key)) {
+        continue;
+      }
+
+      totalChecks += 1;
+      if (isCompleteForKey(row, key)) {
+        completeChecks += 1;
+      }
+    }
+  }
+
   const completeness = totalChecks === 0 ? 0 : Math.round((completeChecks / totalChecks) * 100);
 
   return {
