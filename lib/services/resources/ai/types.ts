@@ -1,6 +1,7 @@
 import type {
   ResourceSearchResponse,
   ResourceSearchResult,
+  ResourceCandidateSelection,
 } from "@/lib/services/resources/intelligence/searchEngine";
 import type { ConversationContext } from "./context/types";
 import type { ResourceGuidePrompt as RegisteredResourceGuidePrompt } from "./prompts/types";
@@ -42,6 +43,7 @@ export type ResourceGuideAiMetadata = {
   highConfidenceCount: number;
   usesFallbackResults: boolean;
   selectionTier?: GroundedResourceSelectionTier;
+  candidateSelection?: ResourceCandidateSelection;
   responseTimeMs: number;
   normalizedQuery: string;
   detectedNeeds: string[];

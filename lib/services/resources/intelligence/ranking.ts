@@ -6,6 +6,7 @@ import type {
   NormalizedQuery,
   ResourceRow,
   ResourceSearchField,
+  HumanNeedId,
 } from "./types";
 
 export const RESOURCE_FIELD_WEIGHTS: Record<ResourceSearchField, number> = {
@@ -24,6 +25,116 @@ export const RESOURCE_FIELD_WEIGHTS: Record<ResourceSearchField, number> = {
 const INTENT_LABELS = Object.fromEntries(
   RESOURCE_INTENTS.map((intent) => [intent.id, intent.label])
 );
+
+export const INTENT_RELEVANCE_BOOST = 40;
+
+const INTENT_RELEVANCE_TERMS: Record<HumanNeedId, string[]> = {
+  healthcare: [
+    "hospital",
+    "clinic",
+    "medical",
+    "healthcare",
+    "health care",
+    "behavioral health",
+    "mental health",
+    "urgent care",
+    "emergency room",
+    "primary care",
+    "dental",
+    "dentist",
+    "surgery",
+    "imaging",
+  ],
+  mental_health: [
+    "behavioral health",
+    "mental health",
+    "therapy",
+    "therapist",
+    "counseling",
+    "counselor",
+    "psychiatric",
+    "psychiatry",
+    "psychologist",
+  ],
+  substance_use: [
+    "substance use",
+    "substance abuse",
+    "addiction",
+    "rehab",
+    "rehabilitation",
+    "detox",
+    "recovery",
+    "sober living",
+    "treatment",
+  ],
+  housing: [
+    "housing",
+    "rental assistance",
+    "rent assistance",
+    "eviction",
+    "eviction prevention",
+    "shelter",
+    "homeless",
+  ],
+  food: [
+    "food",
+    "pantry",
+    "food pantry",
+    "food bank",
+    "meals",
+    "groceries",
+    "grocery",
+    "food distribution",
+  ],
+  utilities: [
+    "utility",
+    "utilities",
+    "utility assistance",
+    "electric",
+    "electricity",
+    "water bill",
+    "gas bill",
+  ],
+  transportation: [
+    "transportation",
+    "transit",
+    "bus",
+    "ride",
+    "rides",
+    "vehicle",
+    "gas voucher",
+  ],
+  legal: ["legal", "lawyer", "attorney", "court", "custody", "advocacy"],
+  employment: [
+    "employment",
+    "job",
+    "jobs",
+    "workforce",
+    "resume",
+    "interview",
+    "training",
+  ],
+  financial_assistance: [
+    "financial",
+    "financial assistance",
+    "benefits",
+    "cash",
+    "emergency funds",
+  ],
+  childcare: ["childcare", "child care", "daycare", "early childhood"],
+  family_support: ["family", "parenting", "caregiver", "kinship"],
+  youth: ["youth", "teen", "children", "young adult"],
+  safety: ["safety", "domestic violence", "abuse", "protective"],
+  crisis: ["crisis", "hotline", "crisis response"],
+  tribal_services: ["tribal", "native", "tribe", "native-led"],
+};
+
+const INTENT_RELEVANCE_FIELDS: ResourceSearchField[] = [
+  "parent_categories",
+  "subcategories",
+  "services",
+  "tags",
+];
 
 export function scoreResource(query: NormalizedQuery, resource: ResourceRow): number {
   return getResourceScoreBreakdown(query, resource).total;
@@ -64,6 +175,28 @@ export function buildQueryTerms(query: NormalizedQuery): string[] {
   }
 
   return Array.from(terms).filter(Boolean);
+}
+
+export function getIntentRelevanceScore(
+  detectedNeeds: HumanNeedId[],
+  resource: ResourceRow
+): number {
+  let score = 0;
+
+  for (const need of detectedNeeds) {
+    if (resourceMatchesIntent(need, resource)) {
+      score += INTENT_RELEVANCE_BOOST;
+    }
+  }
+
+  return score;
+}
+
+export function getResourceIntentRelevanceMatches(
+  detectedNeeds: HumanNeedId[],
+  resource: ResourceRow
+): HumanNeedId[] {
+  return detectedNeeds.filter((need) => resourceMatchesIntent(need, resource));
 }
 
 export function getResourceFieldValues(
@@ -133,4 +266,20 @@ export function scoreResourceFieldValue(
   }
 
   return score;
+}
+
+function resourceMatchesIntent(need: HumanNeedId, resource: ResourceRow): boolean {
+  const terms = INTENT_RELEVANCE_TERMS[need].map(normalizeQueryText);
+
+  for (const field of INTENT_RELEVANCE_FIELDS) {
+    for (const value of getResourceFieldValues(resource, field)) {
+      const normalizedValue = normalizeQueryText(value);
+
+      if (terms.some((term) => normalizedValue.includes(term))) {
+        return true;
+      }
+    }
+  }
+
+  return false;
 }

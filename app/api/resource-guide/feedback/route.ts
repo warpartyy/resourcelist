@@ -6,6 +6,7 @@ import {
 import type {
   AiFeedbackConfidence,
   AiFeedbackMetadata,
+  AiStructuredFeedback,
 } from "@/lib/services/resources/ai/feedback/types";
 import type { Json } from "@/lib/database.types";
 
@@ -25,6 +26,7 @@ type FeedbackRequestBody = {
   resourceIds?: unknown;
   confidence?: unknown;
   metadata?: unknown;
+  structuredFeedback?: unknown;
 };
 
 const VALID_CONFIDENCE = new Set<AiFeedbackConfidence>([
@@ -70,6 +72,7 @@ export async function POST(req: NextRequest) {
       feedbackText:
         readOptionalString(body.feedbackText) ?? readOptionalString(body.feedback),
       reason: readOptionalString(body.reason),
+      structuredFeedback: readStructuredFeedback(body.structuredFeedback),
     });
 
     return NextResponse.json({ success: true, id: result.id });
@@ -142,6 +145,32 @@ function readMetadata(value: unknown): AiFeedbackMetadata {
   };
 }
 
+function readStructuredFeedback(value: unknown): AiStructuredFeedback | undefined {
+  if (value === undefined || value === null) {
+    return undefined;
+  }
+
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new Error("Invalid structuredFeedback");
+  }
+
+  const record = value as Record<string, unknown>;
+  const sentiment = record.sentiment;
+
+  if (sentiment !== "helpful" && sentiment !== "not_helpful") {
+    throw new Error("Invalid structuredFeedback");
+  }
+
+  return {
+    sentiment,
+    selections: readRequiredStringArray(
+      record.selections,
+      "structuredFeedback.selections"
+    ),
+    otherText: readOptionalString(record.otherText),
+  };
+}
+
 function readOptionalString(value: unknown): string | undefined {
   return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
@@ -152,6 +181,16 @@ function readOptionalStringArray(value: unknown): string[] | undefined {
   }
 
   return value.filter((item): item is string => typeof item === "string" && Boolean(item.trim()));
+}
+
+function readRequiredStringArray(value: unknown, fieldName: string): string[] {
+  const values = readOptionalStringArray(value);
+
+  if (!values || values.length === 0 || values.length > 12) {
+    throw new Error(`Invalid ${fieldName}`);
+  }
+
+  return values;
 }
 
 function isJsonRecord(value: unknown): value is Json {

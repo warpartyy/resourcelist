@@ -13,6 +13,8 @@ import {
   Calendar,
   Settings,
   Search,
+  BarChart3,
+  Lightbulb,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import AdminControls from "@/components/admin/AdminControls";
@@ -34,7 +36,9 @@ type AdminSection =
   | "messages"
   | "notifications"
   | "improvements"
-  | "search-lab";
+  | "search-lab"
+  | "resource-guide-intelligence"
+  | "resource-guide-advisor";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   dashboard: "Dashboard",
@@ -47,6 +51,8 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   notifications: "Notifications",
   settings: "Settings",
   "search-lab": "Search Lab",
+  "resource-guide-intelligence": "Resource Guide Intelligence",
+  "resource-guide-advisor": "Resource Guide Advisor",
 };
 
 const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
@@ -60,6 +66,8 @@ const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
   "update-requests": "Review requested updates to existing resources.",
   improvements: "Actionable resource improvement tasks.",
   "search-lab": "Inspect deterministic resource search behavior.",
+  "resource-guide-intelligence": "Privacy-conscious Resource Guide analytics.",
+  "resource-guide-advisor": "Actionable Resource Guide improvement recommendations.",
 };
 
 type Props = {
@@ -134,38 +142,55 @@ useEffect(() => {
     Icon: ComponentType<{ size?: number; strokeWidth?: number }>,
     count?: number
   ) => {
+    const standaloneRoute =
+      value === "search-lab"
+        ? "/admin/search-lab"
+        : value === "resource-guide-intelligence"
+          ? "/admin/resource-guide/intelligence"
+          : value === "resource-guide-advisor"
+            ? "/admin/resource-guide/advisor"
+            : null;
+
     const isActive =
       adminSection === value ||
-      (value === "search-lab" && pathname === "/admin/search-lab");
+      pathname === standaloneRoute;
 
 
     
 return (
   <button
     onClick={() => {
-      setAdminSection(value);
-
-      if (value === "search-lab") {
-        router.push("/admin/search-lab");
+      if (standaloneRoute) {
+        router.push(standaloneRoute);
         return;
       }
 
-      if (pathname === "/admin/search-lab") {
+      setAdminSection(value);
+
+      if (
+        pathname === "/admin/search-lab" ||
+        pathname === "/admin/resource-guide/intelligence" ||
+        pathname === "/admin/resource-guide/advisor"
+      ) {
         router.push(`/admin?tab=${value}`);
       }
     }}
-    className={`flex items-center gap-3 w-full pl-4 pr-3 py-2 rounded-lg transition relative
+    className={`group flex items-center gap-2.5 w-full pl-4 pr-3 py-1.5 rounded-lg transition-colors duration-150 relative
       ${
         isActive
-          ? "bg-bg text-text-primary"
-          : "hover:bg-bg text-text-muted"
+          ? "bg-teal-50 text-teal-900 font-medium"
+          : "text-text-muted hover:bg-teal-50 hover:text-teal-800"
       }`}
   >
     {isActive && (
       <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-accent" />
     )}
 
-    <span className={isActive ? "text-accent" : "text-text-muted"}>
+    <span
+      className={`transition-colors duration-150 ${
+        isActive ? "text-teal-700" : "text-text-muted group-hover:text-teal-800"
+      }`}
+    >
       <Icon size={18} strokeWidth={2} />
     </span>
 
@@ -174,7 +199,7 @@ return (
         <span className="flex-1 text-left">{label}</span>
 
         {count !== undefined && (
-          <span className="text-xs bg-bg border border-border px-2 py-0.5 rounded-full text-text-muted">
+          <span className="text-[11px] leading-4 bg-bg border border-border px-1.5 py-0.5 rounded-full text-text-muted">
             {count}
           </span>
         )}
@@ -193,21 +218,30 @@ return (
   ) => (
     <button
       onClick={onClick}
-      className={`flex items-center gap-3 w-full pl-10 pr-3 py-2 rounded-lg transition ${
+      className={`flex items-center gap-2.5 w-full pl-10 pr-3 py-1.5 rounded-lg transition-colors duration-150 ${
         isActive
-          ? "bg-bg text-text-primary"
-          : "hover:bg-bg text-text-muted"
+          ? "bg-teal-50 text-teal-900 font-medium"
+          : "text-text-muted hover:bg-teal-50 hover:text-teal-800"
       }`}
     >
       <span className="flex-1 text-left text-sm">{label}</span>
 
       {count !== undefined && (
-        <span className="text-xs bg-bg border border-border px-2 py-0.5 rounded-full text-text-muted">
+        <span className="text-[11px] leading-4 bg-bg border border-border px-1.5 py-0.5 rounded-full text-text-muted">
           {count}
         </span>
       )}
     </button>
   );
+
+  const sectionHeader = (label: string) =>
+    collapsed ? (
+      <div className="my-3 border-t border-border" aria-hidden="true" />
+    ) : (
+      <div className="px-3 pt-3.5 pb-1 text-[11px] font-semibold uppercase tracking-wide text-text-subtle">
+        {label}
+      </div>
+    );
 
 return (
   <div className="h-screen flex overflow-hidden bg-bg text-text-primary relative">
@@ -251,7 +285,8 @@ return (
       </div>
 
       {/* Navigation */}
-      <div className="space-y-2">
+      <div className="space-y-1.5">
+        {sectionHeader("Operations")}
         {navItem("Dashboard", "dashboard", Home)}
 
         {navItem("Resources", "resources", Folder)}
@@ -298,7 +333,13 @@ return (
 
         {navItem("Notifications", "notifications", Bell, notificationsCount)}
         {navItem("Events", "events", Calendar)}
+
+        {sectionHeader("Resource Guide Insights")}
         {navItem("Search Lab", "search-lab", Search)}
+        {navItem("Insights", "resource-guide-intelligence", BarChart3)}
+        {navItem("Advisor", "resource-guide-advisor", Lightbulb)}
+
+        {sectionHeader("Settings")}
         {navItem("Settings", "settings", Settings)}
       </div>
 

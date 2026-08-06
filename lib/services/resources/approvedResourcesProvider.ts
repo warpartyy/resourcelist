@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/database.types";
 
 export type ApprovedResourceRow =
@@ -51,4 +52,29 @@ export async function fetchApprovedResourceById(
   }
 
   return data;
+}
+
+export async function fetchApprovedResourceDirectorySummaries(): Promise<
+  Array<Pick<ApprovedResourceRow, "id" | "organization">>
+> {
+  const supabase = getSupabaseAdmin();
+
+  const { data, error } = await supabase
+    .from("resources")
+    .select("id,organization")
+    .eq("status", "approved")
+    .order("organization", { ascending: true });
+
+  if (error) {
+    console.error("Failed to fetch approved resource summaries", {
+      message: error.message,
+      details: error.details,
+      hint: error.hint,
+      code: error.code,
+    });
+
+    return [];
+  }
+
+  return data ?? [];
 }

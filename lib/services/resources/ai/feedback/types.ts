@@ -16,6 +16,12 @@ export interface AiFeedbackMetadata {
   expandedTerms?: string[];
 }
 
+export interface AiStructuredFeedback {
+  sentiment: "helpful" | "not_helpful";
+  selections: string[];
+  otherText?: string | null;
+}
+
 export interface SubmitAiFeedbackInput {
   conversationId: string;
   helpful: boolean | null;
@@ -28,6 +34,7 @@ export interface SubmitAiFeedbackInput {
   resourceIds?: string[];
   confidence?: AiFeedbackConfidence;
   reason?: string;
+  structuredFeedback?: AiStructuredFeedback;
   metadata?: AiFeedbackMetadata;
 }
 

@@ -8,6 +8,10 @@ import {
   getConversation,
 } from "@/lib/services/resources/ai/context/manager";
 import { buildEvaluationRecord } from "@/lib/services/resources/ai/evaluation/evaluation";
+import {
+  collectAnswerIntelligence,
+  collectClarificationIntelligence,
+} from "@/lib/services/resources/ai/intelligence/service";
 import { RESOURCE_GUIDE_AI_CONFIG } from "@/lib/services/resources/ai/config";
 import { selectGroundedResourceResults } from "@/lib/services/resources/ai/grounding";
 import { getPrompt } from "@/lib/services/resources/ai/prompts/registry";
@@ -73,6 +77,7 @@ export const resourceSearchTool: ResourceGuideTool = {
       normalizedQuery: searchResults.normalizedQuery,
       detectedNeeds: searchResults.detectedNeeds,
       expandedTerms: searchResults.expandedTerms,
+      candidateSelection: searchResults.candidateSelection,
       confidenceThreshold: SEARCH_CONFIDENCE_THRESHOLDS,
       topRankedResources: searchResults.results.slice(0, 10).map((result) => ({
         organization: result.resource.organization,
@@ -92,6 +97,13 @@ export const resourceSearchTool: ResourceGuideTool = {
     const clarification = determineClarification({ searchResults });
 
     if (clarification.action === "clarify") {
+      await collectClarificationIntelligence({
+        conversationId: updatedConversation.conversationId,
+        toolId: resourceSearchTool.id,
+        searchResults,
+        reason: clarification.reason,
+      });
+
       const clarificationResult = {
         type: "clarification" as const,
         conversationId: updatedConversation.conversationId,
@@ -138,6 +150,18 @@ export const resourceSearchTool: ResourceGuideTool = {
       aiResponse: response.message,
       validationResult: validation,
     });
+    const intelligence = await collectAnswerIntelligence({
+      conversationId: updatedConversation.conversationId,
+      toolId: resourceSearchTool.id,
+      searchResults,
+      aiMetadata: response.metadata,
+      evaluation,
+      validation,
+      recommendedResourceIds: groundedResults.map(
+        (groundedResult) => groundedResult.resource.id
+      ),
+      selectionTier: groundedResults[0]?.selectionTier,
+    });
 
     const result = {
       type: "answer" as const,
@@ -147,7 +171,7 @@ export const resourceSearchTool: ResourceGuideTool = {
       searchMetadata,
       groundedResults,
       ...(process.env.NODE_ENV === "development"
-        ? { evaluation, validation }
+        ? { evaluation, validation, intelligence }
         : {}),
     };
     logResourceSearchStage("final_response_returned_to_ui", {
@@ -184,6 +208,7 @@ function buildSearchMetadata(
     normalizedQuery: searchResults.normalizedQuery,
     detectedNeeds: searchResults.detectedNeeds,
     expandedTerms: searchResults.expandedTerms,
+    candidateSelection: searchResults.candidateSelection,
     results: searchResults.results.map((result) => ({
       resourceId: result.resource.id,
       score: result.score,
@@ -206,8 +231,11 @@ function getGroundedResultsForClient(
     reasons: result.reasons,
     resource: {
       id: result.resource.id,
+      slug: result.resource.slug,
       organization: result.resource.organization,
       description: result.resource.description,
+      city: result.resource.city,
+      state: result.resource.state,
       services: result.resource.services,
       parent_categories: result.resource.parent_categories,
       subcategories: result.resource.subcategories,

@@ -2,7 +2,9 @@ import { RESOURCE_INTENTS } from "./intents";
 import { normalizeQueryText, parseResourceQuery, tokenizeQuery } from "./parser";
 import {
   buildQueryTerms,
+  getResourceIntentRelevanceMatches,
   getResourceFieldValues,
+  INTENT_RELEVANCE_BOOST,
   RESOURCE_FIELD_WEIGHTS,
   scoreResourceFieldValue,
 } from "./ranking";
@@ -20,7 +22,7 @@ export const SEARCH_FIELD_WEIGHTS = RESOURCE_FIELD_WEIGHTS;
 export type SearchConfidence = "high" | "medium" | "low";
 
 export type ResourceSearchReason = {
-  field: ResourceSearchField;
+  field: ResourceSearchField | "intent_relevance";
   matchedValue: string;
   points: number;
 };
@@ -36,7 +38,21 @@ export type ResourceSearchResponse = {
   normalizedQuery: string;
   detectedNeeds: HumanNeedId[];
   expandedTerms: string[];
+  candidateSelection: ResourceCandidateSelection;
   results: ResourceSearchResult[];
+};
+
+export type ResourceCandidateSelection = {
+  detectedIntents: HumanNeedId[];
+  candidateResourceCount: number;
+  rankedResourceCount: number;
+  candidateFilter: string;
+  expandedSearch: boolean;
+  recommendationMode:
+    | "unfiltered"
+    | "intent_candidates"
+    | "fallback_recommendation";
+  reason?: string;
 };
 
 export type SearchResourcesInput = {
@@ -46,9 +62,6 @@ export type SearchResourcesInput = {
 
 const SEARCHABLE_FIELDS = Object.keys(SEARCH_FIELD_WEIGHTS) as ResourceSearchField[];
 const KEYWORD_SEARCH_FIELDS = SEARCHABLE_FIELDS;
-const INTENT_SEARCH_FIELDS = SEARCHABLE_FIELDS.filter(
-  (field) => field !== "organization" && field !== "city"
-);
 const CONFIDENCE_COVERAGE_STOPWORDS = new Set([
   "a",
   "an",
@@ -65,6 +78,13 @@ const CONFIDENCE_COVERAGE_STOPWORDS = new Set([
   "to",
   "with",
 ]);
+const EXACT_FIELD_MATCH_BONUSES: Partial<Record<ResourceSearchField, number>> = {
+  city: 30,
+  organization: 25,
+  services: 20,
+  subcategories: 15,
+};
+const MIN_INTENT_CANDIDATE_RESOURCES = 3;
 
 export function searchResources({
   query,
@@ -73,19 +93,21 @@ export function searchResources({
   const parsedQuery = parseResourceQuery(query);
   const detectedNeeds = getDetectedNeeds(parsedQuery.matchedIntents.map((match) => match.intent));
   const expandedTerms = buildQueryTerms(parsedQuery);
+  const candidateSelection = buildCandidateResourceSet(resources, detectedNeeds);
 
   if (!parsedQuery.normalized || resources.length === 0) {
     return {
       normalizedQuery: parsedQuery.normalized,
       detectedNeeds,
       expandedTerms,
+      candidateSelection: candidateSelection.metadata,
       results: [],
     };
   }
 
   const results: ResourceSearchResult[] = [];
 
-  for (const resource of resources) {
+  for (const resource of candidateSelection.resources) {
     const { score, reasons } = scoreResourceWithReasons(
       parsedQuery,
       expandedTerms,
@@ -116,12 +138,69 @@ export function searchResources({
     normalizedQuery: parsedQuery.normalized,
     detectedNeeds,
     expandedTerms,
+    candidateSelection: candidateSelection.metadata,
     results,
   };
 }
 
 function getDetectedNeeds(needs: HumanNeedId[]): HumanNeedId[] {
   return Array.from(new Set(needs));
+}
+
+function buildCandidateResourceSet(
+  resources: ResourceRow[],
+  detectedNeeds: HumanNeedId[]
+): { resources: ResourceRow[]; metadata: ResourceCandidateSelection } {
+  if (detectedNeeds.length === 0) {
+    return {
+      resources,
+      metadata: {
+        detectedIntents: detectedNeeds,
+        candidateResourceCount: resources.length,
+        rankedResourceCount: resources.length,
+        candidateFilter: "No intent filter",
+        expandedSearch: false,
+        recommendationMode: "unfiltered",
+      },
+    };
+  }
+
+  const candidateResources = resources.filter(
+    (resource) =>
+      getResourceIntentRelevanceMatches(detectedNeeds, resource).length > 0
+  );
+  const candidateFilter = `${detectedNeeds
+    .map(formatIntentLabel)
+    .join(", ")} metadata`;
+
+  if (candidateResources.length < MIN_INTENT_CANDIDATE_RESOURCES) {
+    return {
+      resources,
+      metadata: {
+        detectedIntents: detectedNeeds,
+        candidateResourceCount: candidateResources.length,
+        rankedResourceCount: resources.length,
+        candidateFilter,
+        expandedSearch: true,
+        recommendationMode: "fallback_recommendation",
+        reason: `Fewer than three ${detectedNeeds
+          .map(formatIntentLabel)
+          .join(" or ")} resources available.`,
+      },
+    };
+  }
+
+  return {
+    resources: candidateResources,
+    metadata: {
+      detectedIntents: detectedNeeds,
+      candidateResourceCount: candidateResources.length,
+      rankedResourceCount: candidateResources.length,
+      candidateFilter,
+      expandedSearch: false,
+      recommendationMode: "intent_candidates",
+    },
+  };
 }
 
 function getConfidence(
@@ -182,14 +261,37 @@ function scoreResourceWithReasons(
 ): { score: number; reasons: ResourceSearchReason[] } {
   const reasons: ResourceSearchReason[] = [];
   let score = 0;
-  const searchableFields =
-    intentMatchCount > 0 ? INTENT_SEARCH_FIELDS : KEYWORD_SEARCH_FIELDS;
+  const searchableFields = KEYWORD_SEARCH_FIELDS;
+  const detectedNeeds =
+    intentMatchCount > 0
+      ? getDetectedNeeds(parsedQuery.matchedIntents.map((match) => match.intent))
+      : [];
+  const intentMatches =
+    intentMatchCount > 0
+      ? getResourceIntentRelevanceMatches(detectedNeeds, resource)
+      : [];
+  const hasIntentAlignment = intentMatches.length > 0;
 
   for (const field of searchableFields) {
     const fieldWeight = SEARCH_FIELD_WEIGHTS[field];
 
     for (const value of getResourceFieldValues(resource, field)) {
-      const points = scoreResourceFieldValue(parsedQuery, expandedTerms, value) * fieldWeight;
+      if (
+        intentMatchCount > 0 &&
+        !hasIntentAlignment &&
+        isLocationOnlyIntentMismatch(parsedQuery, field, value)
+      ) {
+        continue;
+      }
+
+      const scoringTerms = getScoringTermsForField(
+        parsedQuery,
+        expandedTerms,
+        field
+      );
+      const points =
+        scoreResourceFieldValue(parsedQuery, scoringTerms, value) * fieldWeight +
+        getExactFieldMatchBonus(parsedQuery, field, value, hasIntentAlignment);
 
       if (points > 0) {
         score += points;
@@ -202,7 +304,95 @@ function scoreResourceWithReasons(
     }
   }
 
+  if (intentMatches.length > 0) {
+    const intentScore = intentMatches.length * INTENT_RELEVANCE_BOOST;
+
+    score += intentScore;
+    reasons.push(
+      ...intentMatches.map((intent) => ({
+        field: "intent_relevance" as const,
+        matchedValue: `Resource metadata aligns with detected ${formatIntentLabel(intent)} intent.`,
+        points: INTENT_RELEVANCE_BOOST,
+      }))
+    );
+  }
+
   return { score, reasons };
+}
+
+function getScoringTermsForField(
+  parsedQuery: ReturnType<typeof parseResourceQuery>,
+  expandedTerms: string[],
+  field: ResourceSearchField
+): string[] {
+  if (field !== "organization" || parsedQuery.matchedIntents.length === 0) {
+    return expandedTerms;
+  }
+
+  return Array.from(
+    new Set(
+      parsedQuery.matchedIntents
+        .flatMap((match) => [match.phrase, match.intent])
+        .map(normalizeQueryText)
+        .filter(Boolean)
+    )
+  );
+}
+
+function getExactFieldMatchBonus(
+  parsedQuery: ReturnType<typeof parseResourceQuery>,
+  field: ResourceSearchField,
+  value: string,
+  hasIntentAlignment: boolean
+): number {
+  const bonus = EXACT_FIELD_MATCH_BONUSES[field];
+
+  if (!bonus) {
+    return 0;
+  }
+
+  const normalizedValue = normalizeQueryText(value);
+
+  if (field === "city") {
+    return hasIntentAlignment && parsedQuery.tokens.includes(normalizedValue)
+      ? bonus
+      : 0;
+  }
+
+  const matchedPhrases = parsedQuery.matchedIntents.map((match) =>
+    normalizeQueryText(match.phrase)
+  );
+
+  if (matchedPhrases.some((phrase) => normalizedValue.includes(phrase))) {
+    return bonus;
+  }
+
+  return 0;
+}
+
+function isLocationOnlyIntentMismatch(
+  parsedQuery: ReturnType<typeof parseResourceQuery>,
+  field: ResourceSearchField,
+  value: string
+): boolean {
+  if (field === "city") {
+    return true;
+  }
+
+  if (field !== "organization") {
+    return false;
+  }
+
+  const normalizedValue = normalizeQueryText(value);
+  const matchedPhrases = parsedQuery.matchedIntents.map((match) =>
+    normalizeQueryText(match.phrase)
+  );
+
+  return !matchedPhrases.some((phrase) => normalizedValue.includes(phrase));
+}
+
+function formatIntentLabel(intent: HumanNeedId): string {
+  return intent.replace(/_/g, " ");
 }
 
 export function getAvailableSearchNeeds(): HumanNeedId[] {

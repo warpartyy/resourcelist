@@ -197,6 +197,105 @@ export type Database = {
         }
         Relationships: []
       }
+      resource_guide_intelligence_events: {
+        Row: {
+          candidate_count: number
+          city: string | null
+          clicked_resource_ids: string[]
+          clarification_reason: string | null
+          clarification_triggered: boolean
+          conversation_id: string
+          county: string | null
+          created_at: string
+          detected_needs: string[]
+          event_type: string
+          expanded_search: boolean
+          feedback_submitted: boolean
+          feedback_type: string | null
+          high_confidence_count: number
+          id: string
+          metadata: Json
+          model: string | null
+          prompt_version: string | null
+          recommendation_mode: string | null
+          recommended_resource_ids: string[]
+          resource_count: number
+          response_time_ms: number | null
+          search_concepts: string[]
+          selection_tier: string | null
+          state: string | null
+          structured_feedback: Json
+          tool_id: string
+          validation_issue_count: number
+          validation_passed: boolean | null
+          version: string
+        }
+        Insert: {
+          candidate_count?: number
+          city?: string | null
+          clicked_resource_ids?: string[]
+          clarification_reason?: string | null
+          clarification_triggered?: boolean
+          conversation_id: string
+          county?: string | null
+          created_at?: string
+          detected_needs?: string[]
+          event_type: string
+          expanded_search?: boolean
+          feedback_submitted?: boolean
+          feedback_type?: string | null
+          high_confidence_count?: number
+          id?: string
+          metadata?: Json
+          model?: string | null
+          prompt_version?: string | null
+          recommendation_mode?: string | null
+          recommended_resource_ids?: string[]
+          resource_count?: number
+          response_time_ms?: number | null
+          search_concepts?: string[]
+          selection_tier?: string | null
+          state?: string | null
+          structured_feedback?: Json
+          tool_id: string
+          validation_issue_count?: number
+          validation_passed?: boolean | null
+          version: string
+        }
+        Update: {
+          candidate_count?: number
+          city?: string | null
+          clicked_resource_ids?: string[]
+          clarification_reason?: string | null
+          clarification_triggered?: boolean
+          conversation_id?: string
+          county?: string | null
+          created_at?: string
+          detected_needs?: string[]
+          event_type?: string
+          expanded_search?: boolean
+          feedback_submitted?: boolean
+          feedback_type?: string | null
+          high_confidence_count?: number
+          id?: string
+          metadata?: Json
+          model?: string | null
+          prompt_version?: string | null
+          recommendation_mode?: string | null
+          recommended_resource_ids?: string[]
+          resource_count?: number
+          response_time_ms?: number | null
+          search_concepts?: string[]
+          selection_tier?: string | null
+          state?: string | null
+          structured_feedback?: Json
+          tool_id?: string
+          validation_issue_count?: number
+          validation_passed?: boolean | null
+          version?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           address: string | null

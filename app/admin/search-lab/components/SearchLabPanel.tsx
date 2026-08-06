@@ -67,6 +67,7 @@ export default function SearchLabPanel({ resources }: { resources: ResourceRow[]
         normalizedQuery={output.normalizedQuery}
         detectedNeeds={output.detectedNeeds}
         expandedTerms={output.expandedTerms}
+        candidateSelection={output.candidateSelection}
       />
 
       <section className="space-y-4">

@@ -1,5 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/database.types";
+import {
+  collectFeedbackIntelligence,
+  collectResourceClickIntelligence,
+} from "@/lib/services/resources/ai/intelligence/service";
 import type {
   AiFeedbackReport,
   AiFeedbackStorageInsert,
@@ -11,13 +15,14 @@ import type {
 const MAX_TEXT_LENGTH = 10_000;
 const MAX_ID_LENGTH = 180;
 const MAX_RESOURCE_IDS = 25;
+const MAX_STRUCTURED_SELECTIONS = 12;
 
 export async function submitAiFeedback(
   input: SubmitAiFeedbackInput
 ): Promise<{ id: string }> {
   validateFeedbackInput(input);
 
-  const supabase = await createClient();
+  const supabase = getSupabaseAdmin();
   const insert = buildFeedbackInsert(input);
   const { data, error } = await supabase
     .from("resource_guide_feedback")
@@ -29,6 +34,23 @@ export async function submitAiFeedback(
     throw error;
   }
 
+  if (input.helpful !== null) {
+    await collectFeedbackIntelligence({
+      conversationId: input.conversationId,
+      toolId: input.toolId,
+      promptVersion: input.promptVersion,
+      model: input.model,
+      detectedNeeds: input.metadata?.detectedNeeds,
+      expandedTerms: input.metadata?.expandedTerms,
+      normalizedQuery: input.metadata?.normalizedQuery,
+      resourceIds: input.resourceIds,
+      feedbackType: input.helpful ? "helpful" : "not_helpful",
+      structuredFeedback: input.structuredFeedback ?? null,
+      confidence: input.confidence,
+      feedbackId: data.id,
+    });
+  }
+
   return { id: data.id };
 }
 
@@ -37,7 +59,7 @@ export async function trackAiResourceClick(
 ): Promise<{ id: string }> {
   validateClickInput(input);
 
-  const supabase = await createClient();
+  const supabase = getSupabaseAdmin();
   const insert = buildClickInsert(input);
   const { data, error } = await supabase
     .from("resource_guide_feedback")
@@ -49,11 +71,25 @@ export async function trackAiResourceClick(
     throw error;
   }
 
+  await collectResourceClickIntelligence({
+    conversationId: input.conversationId,
+    toolId: input.toolId,
+    promptVersion: input.promptVersion,
+    model: input.model,
+    detectedNeeds: input.metadata?.detectedNeeds,
+    expandedTerms: input.metadata?.expandedTerms,
+    normalizedQuery: input.metadata?.normalizedQuery,
+    resourceIds: input.resourceIds,
+    clickedResourceId: input.clickedResourceId,
+    confidence: input.confidence,
+    feedbackId: data.id,
+  });
+
   return { id: data.id };
 }
 
 export async function getAiFeedbackReport(): Promise<AiFeedbackReport> {
-  const supabase = await createClient();
+  const supabase = getSupabaseAdmin();
   const { data, error } = await supabase
     .from("resource_guide_feedback")
     .select("*")
@@ -73,6 +109,9 @@ export function buildFeedbackInsert(
   const aiMetadata = mergeJsonRecords(input.metadata?.aiMetadata, {
     toolId: input.toolId ?? null,
     confidence: input.confidence ?? null,
+    structuredFeedback: input.structuredFeedback
+      ? normalizeStructuredFeedback(input.structuredFeedback)
+      : null,
   });
 
   return {
@@ -169,6 +208,7 @@ function validateFeedbackInput(input: SubmitAiFeedbackInput) {
   validateOptionalString(input.model, "model", MAX_ID_LENGTH);
   validateOptionalString(input.reason, "reason", MAX_ID_LENGTH);
   validateResourceIds(input.resourceIds);
+  validateStructuredFeedback(input.structuredFeedback);
 }
 
 function validateClickInput(input: TrackAiResourceClickInput) {
@@ -228,6 +268,53 @@ function normalizeStringArray(value: string[] | undefined): string[] {
 
 function normalizeResourceIds(resourceIds: string[] | undefined): string[] {
   return normalizeStringArray(resourceIds).slice(0, MAX_RESOURCE_IDS);
+}
+
+function validateStructuredFeedback(
+  structuredFeedback: SubmitAiFeedbackInput["structuredFeedback"]
+) {
+  if (structuredFeedback === undefined) {
+    return;
+  }
+
+  if (
+    structuredFeedback.sentiment !== "helpful" &&
+    structuredFeedback.sentiment !== "not_helpful"
+  ) {
+    throw new Error("Invalid structuredFeedback");
+  }
+
+  if (
+    !Array.isArray(structuredFeedback.selections) ||
+    structuredFeedback.selections.length > MAX_STRUCTURED_SELECTIONS ||
+    structuredFeedback.selections.some(
+      (selection) =>
+        typeof selection !== "string" ||
+        !selection.trim() ||
+        selection.length > MAX_ID_LENGTH
+    )
+  ) {
+    throw new Error("Invalid structuredFeedback");
+  }
+
+  validateOptionalString(
+    structuredFeedback.otherText,
+    "structuredFeedback.otherText",
+    MAX_TEXT_LENGTH
+  );
+}
+
+function normalizeStructuredFeedback(
+  structuredFeedback: NonNullable<SubmitAiFeedbackInput["structuredFeedback"]>
+): Json {
+  return {
+    sentiment: structuredFeedback.sentiment,
+    selections: normalizeStringArray(structuredFeedback.selections).slice(
+      0,
+      MAX_STRUCTURED_SELECTIONS
+    ),
+    otherText: normalizeOptionalText(structuredFeedback.otherText),
+  };
 }
 
 function mergeJsonRecords(

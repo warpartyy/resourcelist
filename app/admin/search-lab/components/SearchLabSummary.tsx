@@ -1,13 +1,17 @@
+import type { ResourceCandidateSelection } from "@/lib/services/resources/intelligence/searchEngine";
+
 type Props = {
   normalizedQuery: string;
   detectedNeeds: string[];
   expandedTerms: string[];
+  candidateSelection: ResourceCandidateSelection;
 };
 
 export default function SearchLabSummary({
   normalizedQuery,
   detectedNeeds,
   expandedTerms,
+  candidateSelection,
 }: Props) {
   return (
     <section className="grid gap-4 md:grid-cols-3">
@@ -17,15 +21,65 @@ export default function SearchLabSummary({
         </p>
       </SummaryPanel>
 
-      <SummaryPanel title="Detected needs">
-        <TokenList items={detectedNeeds} emptyLabel="None detected" />
+      <SummaryPanel title="Detected intent">
+        <TokenList
+          items={detectedNeeds.map(formatIntentLabel)}
+          emptyLabel="None detected"
+        />
       </SummaryPanel>
 
       <SummaryPanel title="Expanded terms">
         <TokenList items={expandedTerms} emptyLabel="No terms" />
       </SummaryPanel>
+
+      <SummaryPanel title="Candidate resources">
+        <p className="text-sm font-semibold text-text-primary">
+          {candidateSelection.candidateResourceCount}
+        </p>
+      </SummaryPanel>
+
+      <SummaryPanel title="Candidate filter">
+        <p className="text-sm text-text-primary">
+          {candidateSelection.candidateFilter}
+        </p>
+      </SummaryPanel>
+
+      <SummaryPanel title="Expanded search">
+        <p className="text-sm font-semibold text-text-primary">
+          {candidateSelection.expandedSearch ? "Yes" : "No"}
+        </p>
+        {candidateSelection.reason ? (
+          <p className="mt-2 text-sm text-text-muted">
+            {candidateSelection.reason}
+          </p>
+        ) : null}
+        <p className="mt-2 text-xs text-text-muted">
+          {formatRecommendationMode(candidateSelection.recommendationMode)}
+        </p>
+      </SummaryPanel>
     </section>
   );
+}
+
+function formatIntentLabel(value: string): string {
+  return value
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+function formatRecommendationMode(
+  value: ResourceCandidateSelection["recommendationMode"]
+): string {
+  if (value === "fallback_recommendation") {
+    return "Fallback Recommendation";
+  }
+
+  if (value === "intent_candidates") {
+    return "Intent candidates";
+  }
+
+  return "Unfiltered";
 }
 
 function SummaryPanel({

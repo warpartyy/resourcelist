@@ -20,6 +20,16 @@ export default function SearchLabAdminShell({
       return;
     }
 
+    if (section === "resource-guide-intelligence") {
+      router.push("/admin/resource-guide/intelligence");
+      return;
+    }
+
+    if (section === "resource-guide-advisor") {
+      router.push("/admin/resource-guide/advisor");
+      return;
+    }
+
     router.push(`/admin?tab=${section}`);
   };
 

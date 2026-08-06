@@ -3,6 +3,7 @@ import type { ClarificationOption } from "@/lib/services/resources/ai/clarificat
 import type { ValidationResult } from "@/lib/services/resources/ai/validation/types";
 import type { Database } from "@/lib/database.types";
 import type { GroundedResourceSelectionTier } from "@/lib/services/resources/ai/grounding";
+import type { ResourceCandidateSelection } from "@/lib/services/resources/intelligence/searchEngine";
 
 export type ResourceRow = Database["public"]["Tables"]["resources"]["Row"];
 
@@ -32,10 +33,13 @@ export type GroundedResourceResult = {
     points: number;
   }>;
   resource: {
-    id: string;
-    organization: string | null;
-    description: string | null;
-    services: string[] | null;
+      id: string;
+      slug?: string | null;
+      organization: string | null;
+      description: string | null;
+      city?: string | null;
+      state?: string | null;
+      services: string[] | null;
     parent_categories?: string[] | null;
     subcategories?: string[] | null;
     eligibility: string | null;
@@ -52,6 +56,7 @@ export type SearchMetadataResult = {
   normalizedQuery: string;
   detectedNeeds: string[];
   expandedTerms: string[];
+  candidateSelection?: ResourceCandidateSelection;
   results: Array<{
     resourceId: string;
     score: number;

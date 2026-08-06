@@ -54,7 +54,10 @@ export async function generateGroundedResourceGuideResponse({
       highConfidenceCount: prompt.highConfidenceCount,
       usesFallbackResults: prompt.usesFallbackResults,
       ...(process.env.NODE_ENV === "development"
-        ? { selectionTier: prompt.selectionTier }
+        ? {
+            selectionTier: prompt.selectionTier,
+            candidateSelection: searchResults.candidateSelection,
+          }
         : {}),
       responseTimeMs: Date.now() - startedAt,
       normalizedQuery: searchResults.normalizedQuery,

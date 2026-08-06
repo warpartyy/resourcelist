@@ -4,7 +4,7 @@ import type {
 } from "@/lib/services/resources/intelligence/searchEngine";
 import type { ResourceSearchField } from "@/lib/services/resources/intelligence/types";
 
-const FIELD_LABELS: Record<ResourceSearchField, string> = {
+const FIELD_LABELS: Record<ResourceSearchField | "intent_relevance", string> = {
   organization: "Organization matched",
   city: "City matched",
   services: "Services matched",
@@ -15,6 +15,7 @@ const FIELD_LABELS: Record<ResourceSearchField, string> = {
   eligibility: "Eligibility matched",
   tribal_eligibility: "Tribal eligibility matched",
   counties_served: "Counties matched",
+  intent_relevance: "Intent Boost",
 };
 
 const CONFIDENCE_STYLES = {

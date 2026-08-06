@@ -10,7 +10,9 @@ export type AdminSection =
   | "messages"
   | "notifications"
   | "improvements"
-  | "search-lab";
+  | "search-lab"
+  | "resource-guide-intelligence"
+  | "resource-guide-advisor";
 
 export type ResourcesSubtab = "pending" | "approved" | "rejected";
 export type QualitySubtab = "improvements";

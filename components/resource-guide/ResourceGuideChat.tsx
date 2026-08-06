@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { FormEvent, useState } from "react";
 import toast from "react-hot-toast";
 
@@ -17,8 +18,11 @@ type GroundedResourceResult = {
   reasons: ResourceSearchReason[];
   resource: {
     id: string;
+    slug?: string | null;
     organization: string | null;
     description: string | null;
+    city?: string | null;
+    state?: string | null;
     services: string[] | null;
     parent_categories?: string[] | null;
     subcategories?: string[] | null;
@@ -81,68 +85,97 @@ type ChatMessage = {
   clarificationOptions?: ClarificationOption[];
   feedbackSubmitted?: boolean;
   feedbackSubmitting?: boolean;
-  feedbackPromptOpen?: boolean;
-  feedbackComment?: string;
+  feedbackDialog?: FeedbackSentiment;
+  feedbackSelections?: string[];
+  feedbackOtherText?: string;
+  visibleRecommendationCount?: number;
 };
 
-type FeedbackReason =
-  | "did_not_understand"
-  | "wrong_resources"
-  | "missing_resources"
-  | "ai_response_unclear"
-  | "other";
+type FeedbackSentiment = "helpful" | "not_helpful";
+
+type StructuredFeedbackOption = {
+  id: string;
+  label: string;
+};
 
 type ResourceGuideChatProps = {
   initialConversationId?: string;
   compact?: boolean;
   onConversationIdChange?: (conversationId: string) => void;
+  onFeedbackSubmitted?: () => void;
+  onFeedbackDraftChange?: (draft: ResourceGuideFeedbackDraft | null) => void;
 };
 
-const CONFIDENCE_LABELS: Record<GroundedResourceResult["confidence"], string> = {
-  high: "Excellent Match",
-  medium: "Good Match",
-  low: "Possible Match",
+export type ResourceGuideFeedbackDraft = {
+  conversationId: string;
+  toolId: string;
+  promptVersion?: string;
+  model?: string;
+  query?: string;
+  response?: string;
+  resourceIds: string[];
+  confidence: "high" | "medium" | "low" | "none";
+  metadata: {
+    searchMetadata?: ResourceGuideSearchMetadata;
+    aiMetadata?: ResourceGuideMetadata;
+    normalizedQuery?: string;
+    detectedNeeds?: string[];
+    expandedTerms?: string[];
+  };
 };
 
-const CONFIDENCE_STYLES: Record<GroundedResourceResult["confidence"], string> = {
-  high: "border-accent/30 bg-accent/10 text-accent",
-  medium: "border-border bg-bg text-text-primary",
-  low: "border-border bg-bg text-text-muted",
+type MessageControls = {
+  onHelpful: (messageId: string) => void;
+  onNotHelpful: (messageId: string) => void;
+  onCancelFeedback: (messageId: string) => void;
+  onToggleFeedbackSelection: (messageId: string, selection: string) => void;
+  onFeedbackOtherTextChange: (messageId: string, value: string) => void;
+  onSubmitFeedback: (messageId: string) => void;
+  onResourceClick: (message: ChatMessage, resourceId: string) => void;
+  onShowMoreResults: (messageId: string) => void;
+  onClarificationOption: (label: string) => void;
 };
 
-const REASON_FIELD_LABELS: Record<string, string> = {
-  organization: "Organization",
-  city: "City",
-  services: "Services",
-  tags: "Tags",
-  description: "Description",
-  parent_categories: "Parent categories",
-  subcategories: "Subcategories",
-  counties_served: "Counties served",
-  eligibility: "Eligibility",
-  tribal_eligibility: "Tribal eligibility",
+const INITIAL_VISIBLE_RESULTS = 3;
+const RESULTS_PER_PAGE = 3;
+const DESCRIPTION_LIMIT = 200;
+const STATE_LABELS: Record<string, string> = {
+  OK: "Oklahoma",
 };
-
-const FEEDBACK_REASONS: Array<{ value: FeedbackReason; label: string }> = [
-  { value: "did_not_understand", label: "Didn't understand my situation" },
-  { value: "wrong_resources", label: "Wrong resources" },
-  { value: "missing_resources", label: "Missing resources" },
-  { value: "ai_response_unclear", label: "AI response unclear" },
-  { value: "other", label: "Other" },
+const HELPFUL_FEEDBACK_OPTIONS: StructuredFeedbackOption[] = [
+  { id: "found_resource", label: "I found the resource I needed" },
+  { id: "relevant_recommendations", label: "The recommendations were relevant" },
+  { id: "understood_question", label: "The AI understood my question" },
+  { id: "clear_explanation", label: "The explanation was clear" },
+  {
+    id: "discovered_resource",
+    label: "I discovered a resource I didn't know about",
+  },
+  { id: "other", label: "Other" },
+];
+const NOT_HELPFUL_FEEDBACK_OPTIONS: StructuredFeedbackOption[] = [
+  { id: "could_not_find", label: "I couldn't find what I needed" },
+  { id: "not_relevant", label: "The recommendations weren't relevant" },
+  { id: "misunderstood_request", label: "The AI misunderstood my request" },
+  { id: "too_many_results", label: "Too many results" },
+  { id: "too_few_results", label: "Too few results" },
+  { id: "missing_resources", label: "Important resources were missing" },
+  { id: "explanation_not_helpful", label: "The explanation wasn't helpful" },
+  { id: "other", label: "Other" },
 ];
 
 export default function ResourceGuideChat({
   initialConversationId,
   compact = false,
   onConversationIdChange,
+  onFeedbackSubmitted,
+  onFeedbackDraftChange,
 }: ResourceGuideChatProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isSending, setIsSending] = useState(false);
   const [conversationId, setConversationId] = useState(initialConversationId);
-  const chatHeight = compact ? "max-h-[52vh] min-h-[280px]" : "max-h-[640px] min-h-[320px]";
-
-  const hasMessages = messages.length > 0;
+  const chatHeight = compact ? "min-h-0 flex-1" : "h-[640px]";
 
   const updateConversationId = (nextConversationId: string) => {
     setConversationId(nextConversationId);
@@ -156,13 +189,14 @@ export default function ResourceGuideChat({
       return;
     }
 
-    const userMessage: ChatMessage = {
-      id: `user-${Date.now()}`,
-      role: "user",
-      content: trimmedMessage,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: `user-${Date.now()}`,
+        role: "user",
+        content: trimmedMessage,
+      },
+    ]);
     setInput("");
     setIsSending(true);
 
@@ -188,7 +222,14 @@ export default function ResourceGuideChat({
           ? buildClarificationMessage(data, trimmedMessage)
           : buildAnswerMessage(data, trimmedMessage);
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      if (assistantMessage.role === "assistant" && !assistantMessage.clarificationOptions?.length) {
+        onFeedbackDraftChange?.(buildFeedbackDraft(assistantMessage));
+      }
+
+      setMessages((prev) => [
+        ...prev,
+        assistantMessage,
+      ]);
     } catch (error) {
       console.error("Resource Guide request failed:", error);
       toast.error("Unable to get a response from Resource Guide.");
@@ -197,15 +238,11 @@ export default function ResourceGuideChat({
     }
   };
 
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    void sendMessage(input);
-  };
-
   const submitFeedback = async (
     message: ChatMessage,
-    helpful: boolean,
-    reason?: FeedbackReason
+    sentiment: FeedbackSentiment,
+    selections: string[],
+    otherText?: string
   ) => {
     if (!message.conversationId || message.feedbackSubmitted) {
       return;
@@ -221,7 +258,14 @@ export default function ResourceGuideChat({
       const response = await fetch("/api/resource-guide/feedback", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildFeedbackPayload({ message, helpful, reason })),
+        body: JSON.stringify(
+          buildFeedbackPayload({
+            message,
+            helpful: sentiment === "helpful",
+            selections,
+            otherText,
+          })
+        ),
       });
 
       if (!response.ok) {
@@ -231,11 +275,12 @@ export default function ResourceGuideChat({
       setMessages((prev) =>
         prev.map((item) =>
           item.id === message.id
-            ? { ...item, feedbackSubmitted: true, feedbackPromptOpen: false }
+            ? { ...item, feedbackSubmitted: true, feedbackSubmitting: false }
             : item
         )
       );
-      toast.success("Thanks for the feedback.");
+      onFeedbackSubmitted?.();
+      toast.success("Thanks for helping us improve the Resource Guide!");
     } catch (error) {
       console.error("Resource Guide feedback failed:", error);
       toast.error("Unable to submit feedback.");
@@ -247,47 +292,120 @@ export default function ResourceGuideChat({
     }
   };
 
-  const controls = {
-    onHelpful: (messageId: string) => {
-      const message = messages.find((item) => item.id === messageId);
-      if (message) void submitFeedback(message, true);
+  const controls: MessageControls = {
+    onHelpful: (messageId) => {
+      openFeedbackDialog(messageId, "helpful");
     },
-    onNotHelpful: (messageId: string) => {
+    onNotHelpful: (messageId) => {
+      openFeedbackDialog(messageId, "not_helpful");
+    },
+    onCancelFeedback: (messageId) => {
       setMessages((prev) =>
         prev.map((item) =>
-          item.id === messageId && !item.feedbackSubmitted
-            ? { ...item, feedbackPromptOpen: true }
+          item.id === messageId
+            ? {
+                ...item,
+                feedbackDialog: undefined,
+                feedbackSelections: [],
+                feedbackOtherText: "",
+              }
             : item
         )
       );
     },
-    onFeedbackReason: (messageId: string, reason: FeedbackReason) => {
-      const message = messages.find((item) => item.id === messageId);
-      if (message) void submitFeedback(message, false, reason);
+    onToggleFeedbackSelection: (messageId, selection) => {
+      setMessages((prev) =>
+        prev.map((item) => {
+          if (item.id !== messageId) {
+            return item;
+          }
+
+          const selections = item.feedbackSelections ?? [];
+          const nextSelections = selections.includes(selection)
+            ? selections.filter((value) => value !== selection)
+            : [...selections, selection];
+
+          return {
+            ...item,
+            feedbackSelections: nextSelections,
+            feedbackOtherText: nextSelections.includes("other")
+              ? item.feedbackOtherText
+              : "",
+          };
+        })
+      );
     },
-    onFeedbackCommentChange: (messageId: string, comment: string) => {
+    onFeedbackOtherTextChange: (messageId, value) => {
       setMessages((prev) =>
         prev.map((item) =>
-          item.id === messageId ? { ...item, feedbackComment: comment } : item
+          item.id === messageId ? { ...item, feedbackOtherText: value } : item
         )
       );
     },
-    onResourceClick: (message: ChatMessage, resourceId: string) => {
+    onSubmitFeedback: (messageId) => {
+      const message = messages.find((item) => item.id === messageId);
+      if (message?.feedbackDialog) {
+        void submitFeedback(
+          message,
+          message.feedbackDialog,
+          message.feedbackSelections ?? [],
+          message.feedbackOtherText
+        );
+      }
+    },
+    onResourceClick: (message, resourceId) => {
       trackResourceClick(message, resourceId);
     },
-    onClarificationOption: (label: string) => {
+    onShowMoreResults: (messageId) => {
+      setMessages((prev) =>
+        prev.map((item) =>
+          item.id === messageId
+            ? {
+                ...item,
+                visibleRecommendationCount:
+                  (item.visibleRecommendationCount ?? INITIAL_VISIBLE_RESULTS) +
+                  RESULTS_PER_PAGE,
+              }
+            : item
+        )
+      );
+    },
+    onClarificationOption: (label) => {
       void sendMessage(label);
     },
   };
 
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    void sendMessage(input);
+  };
+
+  const openFeedbackDialog = (
+    messageId: string,
+    sentiment: FeedbackSentiment
+  ) => {
+    setMessages((prev) =>
+      prev.map((item) =>
+        item.id === messageId && !item.feedbackSubmitted
+          ? {
+              ...item,
+              feedbackDialog: sentiment,
+              feedbackSelections: [],
+              feedbackOtherText: "",
+            }
+          : item
+      )
+    );
+  };
+
   return (
-    <div className="flex h-full flex-col gap-4">
+    <div className="flex h-full min-h-0 flex-col gap-3">
       <div
-        className={`overflow-y-auto rounded-2xl border border-border bg-surface p-4 sm:p-5 ${chatHeight} space-y-4`}
+        className={`overflow-y-auto rounded-2xl bg-bg p-4 ${chatHeight} space-y-4`}
       >
-        {!hasMessages ? (
+        {messages.length === 0 ? (
           <p className="text-sm text-text-muted">
-            Ask a question and the Resource Guide will respond using verified
+            Ask a question and the Resource Chat will respond using verified
             resources from the directory.
           </p>
         ) : (
@@ -300,7 +418,7 @@ export default function ResourceGuideChat({
           ))
         )}
         {isSending ? (
-          <p className="rounded-lg border border-border bg-bg p-3 text-sm text-text-muted">
+          <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-surface px-4 py-3 text-sm text-text-muted shadow-sm">
             Searching verified resources...
           </p>
         ) : null}
@@ -312,13 +430,13 @@ export default function ResourceGuideChat({
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Type your question..."
-          className="flex-1 rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary"
+          className="flex-1 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-text-primary shadow-sm"
           disabled={isSending}
         />
         <button
           type="submit"
           disabled={isSending || !input.trim()}
-          className="button button-primary px-4 py-2 text-sm"
+          className="rounded-xl bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSending ? "Sending..." : "Send"}
         </button>
@@ -327,7 +445,10 @@ export default function ResourceGuideChat({
   );
 }
 
-function buildAnswerMessage(data: Extract<ChatApiResponse, { type: "answer" }>, userMessage: string): ChatMessage {
+function buildAnswerMessage(
+  data: Extract<ChatApiResponse, { type: "answer" }>,
+  userMessage: string
+): ChatMessage {
   return {
     id: `assistant-${Date.now()}`,
     role: "assistant",
@@ -337,6 +458,7 @@ function buildAnswerMessage(data: Extract<ChatApiResponse, { type: "answer" }>, 
     metadata: data.metadata,
     searchMetadata: data.searchMetadata,
     groundedResults: data.groundedResults ?? [],
+    visibleRecommendationCount: INITIAL_VISIBLE_RESULTS,
   };
 }
 
@@ -355,15 +477,6 @@ function buildClarificationMessage(
   };
 }
 
-type MessageControls = {
-  onHelpful: (messageId: string) => void;
-  onNotHelpful: (messageId: string) => void;
-  onFeedbackReason: (messageId: string, reason: FeedbackReason) => void;
-  onFeedbackCommentChange: (messageId: string, comment: string) => void;
-  onResourceClick: (message: ChatMessage, resourceId: string) => void;
-  onClarificationOption: (label: string) => void;
-};
-
 function MessageBubble({
   message,
   controls,
@@ -374,7 +487,7 @@ function MessageBubble({
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] whitespace-pre-wrap rounded-xl border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary">
           {message.content}
         </div>
       </div>
@@ -382,18 +495,13 @@ function MessageBubble({
   }
 
   return (
-    <article className="rounded-xl border border-border bg-surface p-4 text-text-primary">
-      <section aria-labelledby={`${message.id}-guidance`}>
-        <h2 id={`${message.id}-guidance`} className="text-sm font-semibold">
-          AI Guidance
-        </h2>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-6">
-          {message.content}
-        </p>
-      </section>
+    <article className="space-y-3">
+      <div className="max-w-[92%] whitespace-pre-wrap rounded-2xl rounded-bl-md bg-surface px-4 py-3 text-sm leading-6 text-text-primary shadow-sm">
+        {getAssistantDisplayText(message)}
+      </div>
 
       {message.clarificationOptions?.length ? (
-        <ul className="mt-3 flex flex-wrap gap-2">
+        <ul className="flex flex-wrap gap-2">
           {message.clarificationOptions.map((option) => (
             <li key={option.id}>
               <button
@@ -410,21 +518,19 @@ function MessageBubble({
         <RecommendedResources message={message} controls={controls} />
       )}
 
-      <footer className="mt-4 border-t border-border pt-3 text-xs text-text-muted">
-        Recommendations are generated using verified directory information. AI
-        explanations never replace the resource&apos;s official eligibility
-        requirements.
-      </footer>
-
       {!message.clarificationOptions?.length ? (
         <ResponseFeedback
           message={message}
           onHelpful={() => controls.onHelpful(message.id)}
           onNotHelpful={() => controls.onNotHelpful(message.id)}
-          onFeedbackReason={(reason) => controls.onFeedbackReason(message.id, reason)}
-          onFeedbackCommentChange={(comment) =>
-            controls.onFeedbackCommentChange(message.id, comment)
+          onCancel={() => controls.onCancelFeedback(message.id)}
+          onToggleSelection={(selection) =>
+            controls.onToggleFeedbackSelection(message.id, selection)
           }
+          onOtherTextChange={(value) =>
+            controls.onFeedbackOtherTextChange(message.id, value)
+          }
+          onSubmit={() => controls.onSubmitFeedback(message.id)}
         />
       ) : null}
     </article>
@@ -438,35 +544,124 @@ function RecommendedResources({
   message: ChatMessage;
   controls: MessageControls;
 }) {
-  return (
-    <section
-      aria-labelledby={`${message.id}-resources`}
-      className="mt-5 border-t border-border pt-4"
-    >
-      <h2 id={`${message.id}-resources`} className="text-sm font-semibold">
-        Recommended Resources
-      </h2>
+  const results = message.groundedResults ?? [];
+  const visibleCount = message.visibleRecommendationCount ?? INITIAL_VISIBLE_RESULTS;
+  const visibleResults = results.slice(0, visibleCount);
 
-      {message.groundedResults && message.groundedResults.length > 0 ? (
-        <ul className="mt-3 space-y-3">
-          {message.groundedResults.map((result, index) => (
-            <li key={`${message.id}-${index}`}>
-              <RecommendedResourceCard
-                result={result}
-                onResourceClick={(resourceId) =>
-                  controls.onResourceClick(message, resourceId)
-                }
-              />
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-3 rounded-lg border border-border bg-bg p-3 text-sm text-text-muted">
-          We couldn&apos;t find a strong match in our directory for your request.
-        </p>
-      )}
+  if (results.length === 0) {
+    return null;
+  }
+
+  return (
+    <section aria-label="Recommended resources" className="space-y-3">
+      <ul className="space-y-2">
+        {visibleResults.map((result, index) => (
+          <li key={`${message.id}-${result.resource.id}-${index}`}>
+            <RecommendedResourceCard
+              result={result}
+              onResourceClick={(resourceId) =>
+                controls.onResourceClick(message, resourceId)
+              }
+            />
+          </li>
+        ))}
+      </ul>
+      {visibleCount < results.length ? (
+        <button
+          type="button"
+          onClick={() => controls.onShowMoreResults(message.id)}
+          className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        >
+          Show More Results
+        </button>
+      ) : null}
     </section>
   );
+}
+
+function getAssistantDisplayText(message: ChatMessage): string {
+  if (message.clarificationOptions?.length) {
+    return message.content;
+  }
+
+  const results = message.groundedResults ?? [];
+
+  if (results.length === 0) {
+    return (
+      getBriefPlainText(message.content) ||
+      "I couldn't find matching resources in the directory for that request."
+    );
+  }
+
+  const need = getNeedLabel(
+    message.metadata?.detectedNeeds ?? message.searchMetadata?.detectedNeeds ?? []
+  );
+  const location = getSharedLocation(results.slice(0, INITIAL_VISIBLE_RESULTS));
+  const countPhrase =
+    results.length === 1
+      ? `one ${need} resource`
+      : results.length === 2
+        ? `a couple of ${need} resources`
+        : `${results.length > INITIAL_VISIBLE_RESULTS ? "several" : "a few"} ${need} resources`;
+  const locationPhrase = location ? ` in the ${location} area` : "";
+
+  return `I found ${countPhrase}${locationPhrase} that look like good matches. I've listed the best options below, and I can narrow things further if these aren't quite right.`;
+}
+
+function getBriefPlainText(value: string): string {
+  const withoutListLines = value
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*(?:[-*•]|\d+[.)])\s+/.test(line))
+    .join(" ")
+    .replace(/[*_`#>]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!withoutListLines) {
+    return "";
+  }
+
+  const sentences = withoutListLines.match(/[^.!?]+[.!?]+/g);
+
+  if (sentences && sentences.length > 0) {
+    return sentences.slice(0, 2).join(" ").trim();
+  }
+
+  return truncateDescription(withoutListLines);
+}
+
+function getNeedLabel(needs: string[]): string {
+  const primaryNeed = needs[0];
+
+  if (!primaryNeed) {
+    return "resource";
+  }
+
+  const labels: Record<string, string> = {
+    healthcare: "healthcare",
+    mental_health: "mental health",
+    substance_use: "substance use",
+    housing: "housing",
+    food: "food",
+    utilities: "utility",
+    transportation: "transportation",
+    legal: "legal",
+    employment: "employment",
+  };
+
+  return labels[primaryNeed] ?? "resource";
+}
+
+function getSharedLocation(results: GroundedResourceResult[]): string | null {
+  const cities = results
+    .map((result) => result.resource.city?.trim())
+    .filter((city): city is string => Boolean(city));
+
+  if (cities.length === 0) {
+    return null;
+  }
+
+  return cities.every((city) => city === cities[0]) ? cities[0] : null;
 }
 
 function RecommendedResourceCard({
@@ -477,221 +672,34 @@ function RecommendedResourceCard({
   onResourceClick: (resourceId: string) => void;
 }) {
   const { resource } = result;
-  const matchedServices = getMatchedValues(result.reasons, "services");
-  const matchedParentCategories = getDisplayValues(
-    resource.parent_categories,
-    getMatchedValues(result.reasons, "parent_categories")
-  );
-  const matchedSubcategories = getDisplayValues(
-    resource.subcategories,
-    getMatchedValues(result.reasons, "subcategories")
-  );
+  const location = formatLocation(resource.city, resource.state);
 
   return (
-    <article className="rounded-lg border border-border bg-bg p-4">
+    <article className="rounded-xl border border-border bg-surface p-3 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <h3 className="text-base font-semibold text-text-primary">
+        <h3 className="text-sm font-semibold text-text-primary">
           {resource.organization || "Unnamed resource"}
         </h3>
-        <span
-          className={`inline-flex w-fit items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold ${CONFIDENCE_STYLES[result.confidence]}`}
-        >
-          <span>
-            {getSelectionTierLabel(result)}
-          </span>
-          <span>{Math.round(result.score)}%</span>
-        </span>
       </div>
 
-      <section className="mt-4 border-t border-border pt-3">
-        <h4 className="text-sm font-semibold text-text-primary">
-          Why this was recommended
-        </h4>
-        {result.reasons.length > 0 ? (
-          <ul className="mt-2 space-y-2">
-            {result.reasons.map((reason, index) => (
-              <li
-                key={`${reason.field}-${reason.matchedValue}-${index}`}
-                className="flex gap-2 text-sm text-text-muted"
-              >
-                <span className="text-accent" aria-hidden="true">
-                  -
-                </span>
-                <span>{formatMatchReason(reason)}</span>
-              </li>
-            ))}
-          </ul>
-        ) : null}
-      </section>
-
-      <section className="mt-4 grid gap-4 border-t border-border pt-3 sm:grid-cols-2">
-        <ChipSection title="Matched Categories" values={matchedParentCategories} />
-        <ChipSection title="Matched Subcategories" values={matchedSubcategories} />
-      </section>
-
-      <section className="mt-4 border-t border-border pt-3">
-        <h4 className="text-sm font-semibold text-text-primary">Matched Services</h4>
-        {matchedServices.length > 0 ? (
-          <ul className="mt-2 grid gap-2 text-sm sm:grid-cols-2">
-            {matchedServices.map((service) => (
-              <li key={service} className="flex gap-2 text-text-muted">
-                <span className="text-accent" aria-hidden="true">
-                  ✓
-                </span>
-                <span className="font-medium text-text-primary">{service}</span>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-2 text-sm text-text-muted">
-            No specific services matched the query.
-          </p>
-        )}
-      </section>
-
-      <section className="mt-4 border-t border-border pt-3">
-        <h4 className="text-sm font-semibold text-text-primary">
-          Eligibility Summary
-        </h4>
-        <EligibilitySummary
-          eligibility={resource.eligibility}
-          tribalEligibility={resource.tribal_eligibility}
-        />
-      </section>
-
-      <details className="mt-4 border-t border-border pt-3">
-        <summary className="cursor-pointer text-sm font-semibold text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40">
-          Verified directory details
-        </summary>
-        <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-          <DetailField label="Description" value={resource.description} />
-          <DetailField label="Counties served" values={resource.counties_served} />
-          <DetailField
-            label="Website"
-            value={resource.website}
-            href={resource.website}
-            onClick={() => onResourceClick(resource.id)}
-          />
-          <DetailField
-            label="Phone"
-            value={resource.phone}
-            href={resource.phone ? `tel:${resource.phone}` : null}
-            onClick={() => onResourceClick(resource.id)}
-          />
-          <DetailField
-            label="Application link"
-            value={resource.application_link}
-            href={resource.application_link}
-            onClick={() => onResourceClick(resource.id)}
-          />
-          <DetailField
-            label="Last verified"
-            value={formatLastVerified(resource.last_verified)}
-            fallback="Information not available in our directory."
-          />
-        </dl>
-      </details>
-    </article>
-  );
-}
-
-function ChipSection({ title, values }: { title: string; values: string[] }) {
-  return (
-    <section>
-      <h4 className="text-sm font-semibold text-text-primary">{title}</h4>
-      {values.length > 0 ? (
-        <ul className="mt-2 flex flex-wrap gap-2">
-          {values.map((value) => (
-            <li
-              key={value}
-              className="rounded-full border border-border bg-surface px-3 py-1 text-xs font-medium text-text-primary"
-            >
-              {value}
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="mt-2 text-sm text-text-muted">
-          No matched categories were returned.
+      {resource.description ? (
+        <p className="mt-2 text-sm leading-5 text-text-muted">
+          {truncateDescription(resource.description)}
         </p>
-      )}
-    </section>
-  );
-}
+      ) : null}
 
-function EligibilitySummary({
-  eligibility,
-  tribalEligibility,
-}: {
-  eligibility: string | null;
-  tribalEligibility: string | null;
-}) {
-  const items = [
-    { label: "Eligibility", value: eligibility },
-    { label: "Tribal eligibility", value: tribalEligibility },
-  ].filter((item) => item.value?.trim());
+      {location ? (
+        <p className="mt-2 text-xs font-medium text-text-muted">{location}</p>
+      ) : null}
 
-  if (items.length === 0) {
-    return (
-      <p className="mt-2 text-sm text-text-muted">
-        Eligibility information not provided.
-      </p>
-    );
-  }
-
-  return (
-    <dl className="mt-2 space-y-2 text-sm">
-      {items.map((item) => (
-        <div key={item.label}>
-          <dt className="font-medium text-text-primary">{item.label}</dt>
-          <dd className="mt-1 text-text-muted">{item.value}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}
-
-function DetailField({
-  label,
-  value,
-  values,
-  href,
-  onClick,
-  fallback,
-}: {
-  label: string;
-  value?: string | null;
-  values?: string[] | null;
-  href?: string | null;
-  onClick?: () => void;
-  fallback?: string;
-}) {
-  const displayValue = values?.filter(Boolean).join(", ") || value?.trim();
-
-  if (!displayValue && !fallback) {
-    return null;
-  }
-
-  return (
-    <div>
-      <dt className="font-medium text-text-primary">{label}</dt>
-      <dd className="mt-1 text-text-muted">
-        {href && displayValue ? (
-          <a
-            href={href}
-            target="_blank"
-            rel="noreferrer"
-            onClick={onClick}
-            className="text-accent underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-            aria-label={`${label}: ${displayValue}`}
-          >
-            {displayValue}
-          </a>
-        ) : (
-          displayValue || fallback
-        )}
-      </dd>
-    </div>
+      <Link
+        href={getResourceHref(resource)}
+        onClick={() => onResourceClick(resource.id)}
+        className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-teal-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2 sm:w-auto"
+      >
+        View Resource
+      </Link>
+    </article>
   );
 }
 
@@ -699,82 +707,129 @@ function ResponseFeedback({
   message,
   onHelpful,
   onNotHelpful,
-  onFeedbackReason,
-  onFeedbackCommentChange,
+  onCancel,
+  onToggleSelection,
+  onOtherTextChange,
+  onSubmit,
 }: {
   message: ChatMessage;
   onHelpful: () => void;
   onNotHelpful: () => void;
-  onFeedbackReason: (reason: FeedbackReason) => void;
-  onFeedbackCommentChange: (comment: string) => void;
+  onCancel: () => void;
+  onToggleSelection: (selection: string) => void;
+  onOtherTextChange: (value: string) => void;
+  onSubmit: () => void;
 }) {
   if (message.feedbackSubmitted) {
     return (
-      <div className="mt-4 rounded-lg border border-accent/30 bg-accent/10 p-3 text-sm text-text-primary">
-        <p className="font-medium">Thanks!</p>
-        <p className="mt-1 text-text-muted">
-          Your feedback helps improve future recommendations.
-        </p>
+      <div className="text-sm font-medium text-text-muted">
+        Thanks for helping us improve the Resource Guide!
       </div>
     );
   }
 
+  if (message.feedbackDialog) {
+    const isHelpful = message.feedbackDialog === "helpful";
+    const options = isHelpful
+      ? HELPFUL_FEEDBACK_OPTIONS
+      : NOT_HELPFUL_FEEDBACK_OPTIONS;
+    const selections = message.feedbackSelections ?? [];
+    const hasOther = selections.includes("other");
+
+    return (
+      <section
+        className="max-w-sm rounded-2xl border border-border bg-surface p-4 shadow-sm"
+        aria-label={isHelpful ? "Helpful feedback" : "Not Helpful feedback"}
+      >
+        <div className="flex items-start gap-2">
+          <span className="text-xl leading-none" aria-hidden="true">
+            {isHelpful ? "👍" : "👎"}
+          </span>
+          <div>
+            <h3 className="text-sm font-semibold text-text-primary">
+              {isHelpful ? "What was helpful?" : "What could have been better?"}
+            </h3>
+            <p className="mt-1 text-xs text-text-muted">
+              Select all that apply.
+            </p>
+          </div>
+        </div>
+
+        <fieldset className="mt-4 space-y-2">
+          {options.map((option) => (
+            <label
+              key={option.id}
+              className="flex items-start gap-2 text-sm text-text-primary"
+            >
+              <input
+                type="checkbox"
+                checked={selections.includes(option.id)}
+                onChange={() => onToggleSelection(option.id)}
+                disabled={message.feedbackSubmitting}
+                className="mt-0.5 h-4 w-4 rounded border-border"
+              />
+              <span>{option.label}</span>
+            </label>
+          ))}
+        </fieldset>
+
+        {hasOther ? (
+          <label className="mt-4 block text-sm text-text-muted">
+            <span className="font-medium text-text-primary">Tell us more...</span>
+            <textarea
+              value={message.feedbackOtherText ?? ""}
+              onChange={(event) => onOtherTextChange(event.target.value)}
+              disabled={message.feedbackSubmitting}
+              rows={3}
+              className="mt-2 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+            />
+          </label>
+        ) : null}
+
+        <div className="mt-4 flex justify-end gap-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={message.feedbackSubmitting}
+            className="rounded-lg px-3 py-2 text-sm text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onSubmit}
+            disabled={message.feedbackSubmitting || selections.length === 0}
+            className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            Continue
+          </button>
+        </div>
+      </section>
+    );
+  }
+
   return (
-    <section className="mt-4 border-t border-border pt-3" aria-label="Response feedback">
+    <section className="pt-1" aria-label="Response feedback">
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
           onClick={onHelpful}
           disabled={message.feedbackSubmitting}
-          className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          className="rounded-full border border-border bg-bg px-3 py-1.5 text-lg leading-none text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+          aria-label="Helpful"
         >
-          Helpful
+          👍
         </button>
         <button
           type="button"
           onClick={onNotHelpful}
           disabled={message.feedbackSubmitting}
-          className="rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          className="rounded-full border border-border bg-bg px-3 py-1.5 text-lg leading-none text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+          aria-label="Not Helpful"
         >
-          Not helpful
+          👎
         </button>
       </div>
-
-      <label className="mt-3 block text-sm text-text-muted">
-        <span className="font-medium text-text-primary">Optional comment</span>
-        <textarea
-          value={message.feedbackComment ?? ""}
-          onChange={(event) => onFeedbackCommentChange(event.target.value)}
-          disabled={message.feedbackSubmitting}
-          rows={2}
-          className="mt-2 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
-          placeholder="Add a note for the team..."
-        />
-      </label>
-
-      {message.feedbackPromptOpen ? (
-        <fieldset className="mt-3 rounded-lg border border-border bg-bg p-3">
-          <legend className="text-sm font-medium text-text-primary">
-            What could have been better?
-          </legend>
-          <div className="mt-3 space-y-2">
-            {FEEDBACK_REASONS.map((reason) => (
-              <label
-                key={reason.value}
-                className="flex items-center gap-2 text-sm text-text-muted"
-              >
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 rounded border-border"
-                  disabled={message.feedbackSubmitting}
-                  onChange={() => onFeedbackReason(reason.value)}
-                />
-                <span>{reason.label}</span>
-              </label>
-            ))}
-          </div>
-        </fieldset>
-      ) : null}
     </section>
   );
 }
@@ -782,26 +837,42 @@ function ResponseFeedback({
 function buildFeedbackPayload({
   message,
   helpful,
-  reason,
+  selections,
+  otherText,
   clickedResourceId,
   eventType,
 }: {
   message: ChatMessage;
   helpful?: boolean;
-  reason?: FeedbackReason;
+  selections?: string[];
+  otherText?: string;
   clickedResourceId?: string;
   eventType?: "resource_click";
 }) {
+  return {
+    ...buildFeedbackDraft(message),
+    helpful,
+    feedback: otherText,
+    reason: selections?.join(","),
+    structuredFeedback:
+      helpful === undefined || !selections
+        ? undefined
+        : {
+            sentiment: helpful ? "helpful" : "not_helpful",
+            selections,
+            otherText,
+          },
+    clickedResourceId,
+    eventType,
+  };
+}
+
+function buildFeedbackDraft(message: ChatMessage): ResourceGuideFeedbackDraft {
   const resourceIds =
     message.groundedResults?.map((result) => result.resource.id) ?? [];
 
   return {
     conversationId: message.conversationId || createConversationId(),
-    helpful,
-    feedback: message.feedbackComment,
-    reason,
-    clickedResourceId,
-    eventType,
     toolId: "resource-search",
     promptVersion: message.metadata?.promptVersion,
     model: message.metadata?.model,
@@ -849,64 +920,50 @@ function trackResourceClick(message: ChatMessage, resourceId: string) {
   });
 }
 
-function getMatchedValues(
-  reasons: ResourceSearchReason[],
-  field: string
-): string[] {
-  return Array.from(
-    new Set(
-      reasons
-        .filter((reason) => reason.field === field)
-        .map((reason) => reason.matchedValue.trim())
-        .filter(Boolean)
-    )
-  );
+function truncateDescription(value: string): string {
+  const trimmed = value.replace(/\s+/g, " ").trim();
+
+  if (trimmed.length <= DESCRIPTION_LIMIT) {
+    return trimmed;
+  }
+
+  const truncated = trimmed.slice(0, DESCRIPTION_LIMIT);
+  const lastSpace = truncated.lastIndexOf(" ");
+  const clean = lastSpace > 120 ? truncated.slice(0, lastSpace) : truncated;
+
+  return `${clean.trim()}...`;
 }
 
-function getDisplayValues(
-  resourceValues: string[] | null | undefined,
-  matchedValues: string[]
-): string[] {
-  return matchedValues.length > 0
-    ? matchedValues
-    : resourceValues?.filter(Boolean) ?? [];
+function formatLocation(
+  city: string | null | undefined,
+  state: string | null | undefined
+): string | null {
+  const stateValue = state?.trim();
+  const parts = [
+    city?.trim(),
+    stateValue ? STATE_LABELS[stateValue.toUpperCase()] ?? stateValue : null,
+  ].filter(Boolean);
+
+  return parts.length > 0 ? parts.join(", ") : null;
 }
 
-function formatMatchReason(reason: ResourceSearchReason): string {
-  const value = reason.matchedValue;
-
-  if (reason.field === "counties_served") {
-    return `Serves ${value} County`;
+function getResourceHref(resource: GroundedResourceResult["resource"]): string {
+  if (resource.slug) {
+    return `/resources/${resource.slug}`;
   }
 
-  if (reason.field === "services") {
-    return `Matches your request for ${value}`;
+  if (resource.organization) {
+    return `/resources/${slugify(resource.organization)}`;
   }
 
-  if (reason.field === "description") {
-    return `Directory description matched ${value}`;
-  }
-
-  const label = REASON_FIELD_LABELS[reason.field] || reason.field;
-  return `${label} matched ${value}`;
+  return `/resources/${resource.id}`;
 }
 
-function formatLastVerified(value: string | null | undefined): string | null {
-  if (!value) {
-    return null;
-  }
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  }).format(date);
+function slugify(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }
 
 function getHighestConfidence(
@@ -919,16 +976,6 @@ function getHighestConfidence(
   if (confidences.includes("low")) return "low";
 
   return "none";
-}
-
-function getSelectionTierLabel(result: GroundedResourceResult): string {
-  if (result.selectionTier === "high") return "Strong Match";
-  if (result.selectionTier === "medium") return "Good Match";
-  if (result.selectionTier === "fallback" || result.isFallbackMatch) {
-    return "Closest Match";
-  }
-
-  return CONFIDENCE_LABELS[result.confidence];
 }
 
 function createConversationId(): string {
