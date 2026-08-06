@@ -31,7 +31,7 @@ Standard Git workflow:
 
 ```bash
 git add .
-git commit -m "chat bot insight tabs for admin"
+git commit -m "chat bot improvment"
 git push
 ```
 

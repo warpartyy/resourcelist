@@ -10,6 +10,8 @@ import {
 } from "./ranking";
 import { INTENT_SYNONYMS } from "./synonyms";
 import type { HumanNeedId, ResourceRow, ResourceSearchField } from "./types";
+import { understandResourceRequest } from "./request-understanding/requestUnderstanding";
+import type { RequestUnderstanding } from "./request-understanding/types";
 
 export const SEARCH_CONFIDENCE_THRESHOLDS = {
   high: 80,
@@ -38,6 +40,7 @@ export type ResourceSearchResponse = {
   normalizedQuery: string;
   detectedNeeds: HumanNeedId[];
   expandedTerms: string[];
+  requestUnderstanding: RequestUnderstanding;
   candidateSelection: ResourceCandidateSelection;
   results: ResourceSearchResult[];
 };
@@ -90,6 +93,7 @@ export function searchResources({
   query,
   resources,
 }: SearchResourcesInput): ResourceSearchResponse {
+  const requestUnderstanding = understandResourceRequest({ query, resources });
   const parsedQuery = parseResourceQuery(query);
   const detectedNeeds = getDetectedNeeds(parsedQuery.matchedIntents.map((match) => match.intent));
   const expandedTerms = buildQueryTerms(parsedQuery);
@@ -100,6 +104,7 @@ export function searchResources({
       normalizedQuery: parsedQuery.normalized,
       detectedNeeds,
       expandedTerms,
+      requestUnderstanding,
       candidateSelection: candidateSelection.metadata,
       results: [],
     };
@@ -138,6 +143,7 @@ export function searchResources({
     normalizedQuery: parsedQuery.normalized,
     detectedNeeds,
     expandedTerms,
+    requestUnderstanding,
     candidateSelection: candidateSelection.metadata,
     results,
   };

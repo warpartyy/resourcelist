@@ -15,7 +15,7 @@ export const SERVICES_BY_SUBCATEGORY: Record<string, string[]> = {
     "Outpatient Treatment",
     "Counseling",
     "Peer Support",
-    "Naloxone Distribution",
+    "Narcan (Naloxone) Distribution",
     "Sober Living",
   ],
 
