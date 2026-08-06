@@ -31,7 +31,7 @@ Standard Git workflow:
 
 ```bash
 git add .
-git commit -m "your message"
+git commit -m "added ai chat bot"
 git push
 ```
 

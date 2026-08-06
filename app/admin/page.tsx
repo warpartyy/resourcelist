@@ -35,6 +35,7 @@ const VALID_TABS: AdminSection[] = [
   "events",
   "messages",
   "notifications",
+  "search-lab",
 ];
 
 const RESOURCE_SUBTABS: ResourcesSubtab[] = ["pending", "approved", "rejected"];

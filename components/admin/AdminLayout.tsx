@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Home,
   Folder,
@@ -11,6 +12,7 @@ import {
   Sparkles,
   Calendar,
   Settings,
+  Search,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import AdminControls from "@/components/admin/AdminControls";
@@ -31,7 +33,8 @@ type AdminSection =
   | "events"
   | "messages"
   | "notifications"
-  | "improvements";
+  | "improvements"
+  | "search-lab";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   dashboard: "Dashboard",
@@ -43,6 +46,7 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   events: "Events",
   notifications: "Notifications",
   settings: "Settings",
+  "search-lab": "Search Lab",
 };
 
 const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
@@ -55,6 +59,7 @@ const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
   settings: "Manage admin settings and system configuration.",
   "update-requests": "Review requested updates to existing resources.",
   improvements: "Actionable resource improvement tasks.",
+  "search-lab": "Inspect deterministic resource search behavior.",
 };
 
 type Props = {
@@ -79,6 +84,8 @@ export default function AdminLayout({
   children,
   notificationsCount,
 }: Props){
+  const pathname = usePathname();
+  const router = useRouter();
   const {
     search,
     setSearch,
@@ -127,13 +134,26 @@ useEffect(() => {
     Icon: ComponentType<{ size?: number; strokeWidth?: number }>,
     count?: number
   ) => {
-    const isActive = adminSection === value;
+    const isActive =
+      adminSection === value ||
+      (value === "search-lab" && pathname === "/admin/search-lab");
 
 
     
 return (
   <button
-    onClick={() => setAdminSection(value)}
+    onClick={() => {
+      setAdminSection(value);
+
+      if (value === "search-lab") {
+        router.push("/admin/search-lab");
+        return;
+      }
+
+      if (pathname === "/admin/search-lab") {
+        router.push(`/admin?tab=${value}`);
+      }
+    }}
     className={`flex items-center gap-3 w-full pl-4 pr-3 py-2 rounded-lg transition relative
       ${
         isActive
@@ -278,6 +298,7 @@ return (
 
         {navItem("Notifications", "notifications", Bell, notificationsCount)}
         {navItem("Events", "events", Calendar)}
+        {navItem("Search Lab", "search-lab", Search)}
         {navItem("Settings", "settings", Settings)}
       </div>
 

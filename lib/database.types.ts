@@ -110,6 +110,93 @@ export type Database = {
           },
         ]
       }
+      resource_guide_feedback: {
+        Row: {
+          admin_reviewed: boolean
+          ai_metadata: Json
+          ai_response: string | null
+          clicked_resource_id: string | null
+          conversation_id: string
+          conversation_notes: string | null
+          created_at: string
+          detected_needs: string[]
+          expanded_terms: string[]
+          feedback_reason: string | null
+          feedback_type: string | null
+          id: string
+          interaction_type: string
+          model: string | null
+          normalized_query: string | null
+          prompt_issue: boolean
+          prompt_version: string | null
+          resolved: boolean
+          resource_issue: boolean
+          search_issue: boolean
+          search_metadata: Json
+          selected_resource_ids: string[]
+          star_rating: number | null
+          thumbs_down: boolean | null
+          thumbs_up: boolean | null
+          user_message: string | null
+        }
+        Insert: {
+          admin_reviewed?: boolean
+          ai_metadata?: Json
+          ai_response?: string | null
+          clicked_resource_id?: string | null
+          conversation_id: string
+          conversation_notes?: string | null
+          created_at?: string
+          detected_needs?: string[]
+          expanded_terms?: string[]
+          feedback_reason?: string | null
+          feedback_type?: string | null
+          id?: string
+          interaction_type?: string
+          model?: string | null
+          normalized_query?: string | null
+          prompt_issue?: boolean
+          prompt_version?: string | null
+          resolved?: boolean
+          resource_issue?: boolean
+          search_issue?: boolean
+          search_metadata?: Json
+          selected_resource_ids?: string[]
+          star_rating?: number | null
+          thumbs_down?: boolean | null
+          thumbs_up?: boolean | null
+          user_message?: string | null
+        }
+        Update: {
+          admin_reviewed?: boolean
+          ai_metadata?: Json
+          ai_response?: string | null
+          clicked_resource_id?: string | null
+          conversation_id?: string
+          conversation_notes?: string | null
+          created_at?: string
+          detected_needs?: string[]
+          expanded_terms?: string[]
+          feedback_reason?: string | null
+          feedback_type?: string | null
+          id?: string
+          interaction_type?: string
+          model?: string | null
+          normalized_query?: string | null
+          prompt_issue?: boolean
+          prompt_version?: string | null
+          resolved?: boolean
+          resource_issue?: boolean
+          search_issue?: boolean
+          search_metadata?: Json
+          selected_resource_ids?: string[]
+          star_rating?: number | null
+          thumbs_down?: boolean | null
+          thumbs_up?: boolean | null
+          user_message?: string | null
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           address: string | null

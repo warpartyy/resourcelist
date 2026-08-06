@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import AppShell from "../components/layout/AppShell";
+import ResourceGuideLauncher from "@/components/resource-guide/ResourceGuideLauncher";
 import "./globals.css";
 import "@mfm/ui/src/index.css";
 import { Toaster } from "react-hot-toast";
@@ -33,6 +34,7 @@ export default function RootLayout({
          className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-bg text-text-primary overflow-x-hidden`}>
         <Toaster position="top-right" />
         <AppShell>{children}</AppShell>
+        <ResourceGuideLauncher />
       </body>
     </html>
   );

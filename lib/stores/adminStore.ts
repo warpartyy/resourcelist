@@ -9,7 +9,8 @@ export type AdminSection =
   | "events"
   | "messages"
   | "notifications"
-  | "improvements";
+  | "improvements"
+  | "search-lab";
 
 export type ResourcesSubtab = "pending" | "approved" | "rejected";
 export type QualitySubtab = "improvements";

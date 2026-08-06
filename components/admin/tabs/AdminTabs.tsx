@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import PendingTab from "./PendingTab";
 import RejectedTab from "./RejectedTab";
 import ResourcesTab from "./ResourcesTab";
@@ -28,6 +30,13 @@ type Props = {
 
 export default function AdminTabs(props: Props) {
   const { adminSection, resourcesSubtab, messagesSubtab, editingId, search, sortOrder } = useAdminStore();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (adminSection === "search-lab") {
+      router.replace("/admin/search-lab");
+    }
+  }, [adminSection, router]);
 
   const {
     editedSubmission,
@@ -123,6 +132,14 @@ if (adminSection === "update-requests") {
 
 if (adminSection === "notifications") {
   return <NotificationsPanel user={props.user} onNotificationsChanged={props.onSuccess} />;
+}
+
+if (adminSection === "search-lab") {
+  return (
+    <div className="rounded-lg border border-border bg-surface p-6 text-sm text-text-muted">
+      Opening Search Lab...
+    </div>
+  );
 }
 
   return null;
