@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
 type ResourceGuideIntelligenceAuthorization =
@@ -13,17 +12,24 @@ export async function authorizeResourceGuideIntelligenceRequest(
     return { authorized: true };
   }
 
-  const supabase = await createClient();
+  const authHeader = req.headers.get("authorization");
+
+  if (!authHeader) {
+    return { authorized: false, status: 401 };
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+  const supabaseAdmin = getSupabaseAdmin();
   const {
     data: { user },
     error: userError,
-  } = await supabase.auth.getUser();
+  } = await supabaseAdmin.auth.getUser(token);
 
   if (userError || !user) {
     return { authorized: false, status: 401 };
   }
 
-  const { data: profile, error: profileError } = await getSupabaseAdmin()
+  const { data: profile, error: profileError } = await supabaseAdmin
     .from("profiles")
     .select("role")
     .eq("id", user.id)

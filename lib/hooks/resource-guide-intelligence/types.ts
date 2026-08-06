@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { getSupabase } from "@/lib/supabase";
 import type {
   ConceptReportItem,
   FeedbackReport,
@@ -78,7 +79,9 @@ export function useIntelligenceReport<T>(
       setError(null);
 
       try {
+        const token = await getCurrentAccessToken();
         const response = await fetch(buildReportUrl(endpoint, queryString), {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
           signal: controller.signal,
         });
 
@@ -108,6 +111,15 @@ export function useIntelligenceReport<T>(
   }, [endpoint, queryString]);
 
   return { data, generatedAt, isLoading, error };
+}
+
+async function getCurrentAccessToken(): Promise<string | null> {
+  const supabase = getSupabase();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session?.access_token ?? null;
 }
 
 function buildReportUrl(endpoint: string, queryString: string): string {

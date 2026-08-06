@@ -11,7 +11,7 @@ import SearchLabStats from "./SearchLabStats";
 import SearchLabSummary from "./SearchLabSummary";
 import SearchResultCard from "./SearchResultCard";
 
-const DEFAULT_QUERY = "I'm sleeping in my car.";
+const DEFAULT_QUERY = "I'm looking for a hospital in Lawton";
 
 export default function SearchLabPanel({ resources }: { resources: ResourceRow[] }) {
   const [query, setQuery] = useState(DEFAULT_QUERY);

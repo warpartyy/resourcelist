@@ -1,4 +1,5 @@
 import { generateAdvisorRecommendations } from "./recommendations";
+import { getSupabase } from "@/lib/supabase";
 import type {
   AdvisorHealthItem,
   AdvisorReportEnvelope,
@@ -31,9 +32,12 @@ export async function buildAdvisorState(): Promise<AdvisorState> {
 }
 
 export async function fetchAdvisorReports(): Promise<AdvisorReports> {
+  const token = await getCurrentAccessToken();
   const entries = await Promise.all(
     Object.entries(ENDPOINTS).map(async ([key, endpoint]) => {
-      const response = await fetch(endpoint);
+      const response = await fetch(endpoint, {
+        headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      });
 
       if (!response.ok) {
         throw new Error(`Advisor report failed: ${key}`);
@@ -45,6 +49,15 @@ export async function fetchAdvisorReports(): Promise<AdvisorReports> {
   );
 
   return Object.fromEntries(entries) as AdvisorReports;
+}
+
+async function getCurrentAccessToken(): Promise<string | null> {
+  const supabase = getSupabase();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  return session?.access_token ?? null;
 }
 
 export function buildHealth(reports: AdvisorReports): AdvisorHealthItem[] {
