@@ -3,6 +3,7 @@ import type { Json } from "@/lib/database.types";
 import {
   buildAnswerIntelligenceEvent,
   buildClarificationIntelligenceEvent,
+  buildConversationCompletionIntelligenceEvent,
   buildFeedbackIntelligenceEvent,
   buildResourceClickIntelligenceEvent,
 } from "./collector";
@@ -11,14 +12,56 @@ import type {
   CollectClarificationIntelligenceInput,
   CollectFeedbackIntelligenceInput,
   CollectResourceClickIntelligenceInput,
+  ConversationCompletionReason,
   ResourceGuideIntelligenceEventV1,
   ResourceGuideIntelligenceStorageInsert,
+  SearchOutcome,
 } from "./types";
+
+type SearchJourneyState = {
+  eventId: string;
+  timestamp: string;
+  sequenceNumber: number;
+};
+
+const searchJourneyByConversation = new Map<string, SearchJourneyState>();
 
 export async function collectAnswerIntelligence(
   input: CollectAnswerIntelligenceInput
 ): Promise<{ id: string } | null> {
-  return insertIntelligenceEvent(buildAnswerIntelligenceEvent(input));
+  const previousSearch = searchJourneyByConversation.get(input.conversationId);
+  const currentSearchEventId = createEventId();
+  const sequenceNumber = previousSearch ? previousSearch.sequenceNumber + 1 : 1;
+  const result = await insertIntelligenceEvent(
+    buildAnswerIntelligenceEvent({
+      ...input,
+      currentSearchEventId,
+      previousSearchEventId: previousSearch?.eventId,
+      previousSearchTimestamp: previousSearch?.timestamp,
+      reformulationSequenceNumber: previousSearch ? sequenceNumber : null,
+      id: currentSearchEventId,
+    })
+  );
+
+  if (!result) {
+    return null;
+  }
+
+  if (previousSearch) {
+    searchJourneyByConversation.set(input.conversationId, {
+      eventId: result.id,
+      timestamp: new Date().toISOString(),
+      sequenceNumber,
+    });
+  } else {
+    searchJourneyByConversation.set(input.conversationId, {
+      eventId: result.id,
+      timestamp: new Date().toISOString(),
+      sequenceNumber: 1,
+    });
+  }
+
+  return result;
 }
 
 export async function collectClarificationIntelligence(
@@ -30,13 +73,63 @@ export async function collectClarificationIntelligence(
 export async function collectFeedbackIntelligence(
   input: CollectFeedbackIntelligenceInput
 ): Promise<{ id: string } | null> {
-  return insertIntelligenceEvent(buildFeedbackIntelligenceEvent(input));
+  const result = await insertIntelligenceEvent(buildFeedbackIntelligenceEvent(input));
+
+  if (result) {
+    await collectConversationCompletionIntelligence({
+      conversationId: input.conversationId,
+      toolId: input.toolId ?? "resource-search",
+      reason: "feedback",
+      outcome: input.feedbackType === "helpful" ? "likely_successful" : "unsuccessful",
+      sourceFeedbackId: input.feedbackId,
+    });
+  }
+
+  return result;
 }
 
 export async function collectResourceClickIntelligence(
   input: CollectResourceClickIntelligenceInput
 ): Promise<{ id: string } | null> {
-  return insertIntelligenceEvent(buildResourceClickIntelligenceEvent(input));
+  const result = await insertIntelligenceEvent(
+    buildResourceClickIntelligenceEvent(input)
+  );
+
+  if (result) {
+    await collectConversationCompletionIntelligence({
+      conversationId: input.conversationId,
+      toolId: input.toolId ?? "resource-search",
+      reason: "resource_click",
+      outcome: "likely_successful",
+      sourceFeedbackId: input.feedbackId,
+    });
+  }
+
+  return result;
+}
+
+export async function collectConversationCompletionIntelligence({
+  conversationId,
+  toolId,
+  reason,
+  outcome,
+  sourceFeedbackId,
+}: {
+  conversationId: string;
+  toolId: string;
+  reason: ConversationCompletionReason;
+  outcome: SearchOutcome;
+  sourceFeedbackId?: string | null;
+}): Promise<{ id: string } | null> {
+  return insertIntelligenceEvent(
+    buildConversationCompletionIntelligenceEvent({
+      conversationId,
+      toolId,
+      reason,
+      outcome,
+      sourceFeedbackId,
+    })
+  );
 }
 
 export async function insertIntelligenceEvent(
@@ -65,6 +158,7 @@ function toStorageInsert(
   event: ResourceGuideIntelligenceEventV1
 ): ResourceGuideIntelligenceStorageInsert {
   return {
+    id: event.id,
     version: event.version,
     event_type: event.eventType,
     conversation_id: event.conversationId,
@@ -97,6 +191,17 @@ function toStorageInsert(
         ? { sourceFeedbackId: event.sourceFeedbackId }
         : {}),
       ...(event.confidence ? { confidence: event.confidence } : {}),
+      ...(event.journey ? { journey: event.journey as Json } : {}),
     },
   };
+}
+
+function createEventId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return crypto.randomUUID();
+  }
+
+  return `resource-guide-intelligence-${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}`;
 }

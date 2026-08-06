@@ -3,6 +3,7 @@ import {
   submitAiFeedback,
   trackAiResourceClick,
 } from "@/lib/services/resources/ai/feedback/service";
+import { collectConversationCompletionIntelligence } from "@/lib/services/resources/ai/intelligence/service";
 import type {
   AiFeedbackConfidence,
   AiFeedbackMetadata,
@@ -25,6 +26,11 @@ type FeedbackRequestBody = {
   response?: unknown;
   resourceIds?: unknown;
   confidence?: unknown;
+  recommendationPosition?: unknown;
+  totalRecommendationsShown?: unknown;
+  timeUntilClickMs?: unknown;
+  completionReason?: unknown;
+  searchOutcome?: unknown;
   metadata?: unknown;
   structuredFeedback?: unknown;
 };
@@ -53,6 +59,17 @@ export async function POST(req: NextRequest) {
       metadata,
     };
 
+    if (body.eventType === "conversation_completion") {
+      await collectConversationCompletionIntelligence({
+        conversationId,
+        toolId: readOptionalString(body.toolId) ?? "resource-search",
+        reason: readCompletionReason(body.completionReason),
+        outcome: readSearchOutcome(body.searchOutcome),
+      });
+
+      return NextResponse.json({ success: true });
+    }
+
     if (body.eventType === "resource_click") {
       const clickedResourceId = readRequiredString(
         body.clickedResourceId,
@@ -61,6 +78,18 @@ export async function POST(req: NextRequest) {
       const result = await trackAiResourceClick({
         ...commonInput,
         clickedResourceId,
+        recommendationPosition: readOptionalNonNegativeInteger(
+          body.recommendationPosition,
+          "recommendationPosition"
+        ),
+        totalRecommendationsShown: readOptionalNonNegativeInteger(
+          body.totalRecommendationsShown,
+          "totalRecommendationsShown"
+        ),
+        timeUntilClickMs: readOptionalNonNegativeInteger(
+          body.timeUntilClickMs,
+          "timeUntilClickMs"
+        ),
       });
 
       return NextResponse.json({ success: true, id: result.id });
@@ -89,6 +118,34 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function readCompletionReason(value: unknown) {
+  if (
+    value === "resource_click" ||
+    value === "feedback" ||
+    value === "another_search" ||
+    value === "abandonment" ||
+    value === "unknown"
+  ) {
+    return value;
+  }
+
+  throw new Error("Invalid completionReason");
+}
+
+function readSearchOutcome(value: unknown) {
+  if (
+    value === "likely_successful" ||
+    value === "partially_successful" ||
+    value === "unsuccessful" ||
+    value === "abandoned" ||
+    value === "unknown"
+  ) {
+    return value;
+  }
+
+  throw new Error("Invalid searchOutcome");
 }
 
 function readRequiredString(value: unknown, fieldName: string): string {
@@ -181,6 +238,21 @@ function readOptionalStringArray(value: unknown): string[] | undefined {
   }
 
   return value.filter((item): item is string => typeof item === "string" && Boolean(item.trim()));
+}
+
+function readOptionalNonNegativeInteger(
+  value: unknown,
+  fieldName: string
+): number | null {
+  if (value === undefined || value === null || value === "") {
+    return null;
+  }
+
+  if (typeof value !== "number" || !Number.isInteger(value) || value < 0) {
+    throw new Error(`Invalid ${fieldName}`);
+  }
+
+  return value;
 }
 
 function readRequiredStringArray(value: unknown, fieldName: string): string[] {

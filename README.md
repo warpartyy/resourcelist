@@ -48,7 +48,7 @@ npx supabase projects list
 
 ---
 
-### Dependencies
+### Dependencies 
 
 ```bash
 npm update @mfm/ui

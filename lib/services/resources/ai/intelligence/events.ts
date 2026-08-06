@@ -5,6 +5,8 @@ export const RESOURCE_GUIDE_INTELLIGENCE_EVENT_TYPES = {
   clarificationReturned: "clarification_returned",
   feedbackSubmitted: "feedback_submitted",
   resourceClicked: "resource_clicked",
+  searchReformulated: "search_reformulated",
+  conversationCompleted: "conversation_completed",
 } as const;
 
 export type ResourceGuideIntelligenceEventType =

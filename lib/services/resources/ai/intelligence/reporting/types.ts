@@ -8,6 +8,7 @@ import {
   sortReportItems,
   type IntelligenceReportFilters,
 } from "./filters";
+import type { JourneyIntelligence } from "../types";
 
 export type { IntelligenceReportFilters } from "./filters";
 export { paginateReportItems } from "./filters";
@@ -272,6 +273,20 @@ export function readStructuredFeedback(value: Json): {
       : undefined;
 
   return { sentiment, selections, otherText };
+}
+
+export function readJourneyIntelligence(value: Json): JourneyIntelligence | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return null;
+  }
+
+  const journey = value.journey;
+
+  if (!journey || typeof journey !== "object" || Array.isArray(journey)) {
+    return null;
+  }
+
+  return journey as JourneyIntelligence;
 }
 
 function sortCountEntries(counts: Map<string, number>): Array<[string, number]> {

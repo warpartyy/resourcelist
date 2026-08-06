@@ -13,7 +13,42 @@ export type GeographicIntelligence = {
   state?: string;
 };
 
+export type SearchOutcome =
+  | "likely_successful"
+  | "partially_successful"
+  | "unsuccessful"
+  | "abandoned"
+  | "unknown";
+
+export type ConversationCompletionReason =
+  | "resource_click"
+  | "feedback"
+  | "another_search"
+  | "abandonment"
+  | "unknown";
+
+export type SearchReformulationIntelligence = {
+  previousSearchEventId: string;
+  currentSearchEventId?: string | null;
+  timeBetweenSearchesMs: number;
+  sequenceNumber: number;
+};
+
+export type ResourceSelectionIntelligence = {
+  recommendationPosition?: number | null;
+  totalRecommendationsShown?: number | null;
+  timeUntilClickMs?: number | null;
+};
+
+export type JourneyIntelligence = {
+  searchOutcome?: SearchOutcome;
+  conversationCompletionReason?: ConversationCompletionReason;
+  searchReformulation?: SearchReformulationIntelligence | null;
+  resourceSelection?: ResourceSelectionIntelligence | null;
+};
+
 export type ResourceGuideIntelligenceEventV1 = {
+  id?: string;
   version: "v1";
   eventType: ResourceGuideIntelligenceEventType;
   timestamp: string;
@@ -42,12 +77,14 @@ export type ResourceGuideIntelligenceEventV1 = {
   validationIssueCount: number;
   sourceFeedbackId?: string | null;
   confidence?: string | null;
+  journey?: JourneyIntelligence;
 };
 
 export type ResourceGuideIntelligenceEvent =
   ResourceGuideIntelligenceEventV1;
 
 export type ResourceGuideIntelligenceStorageInsert = {
+  id?: string;
   version: ResourceGuideIntelligenceEventV1["version"];
   event_type: ResourceGuideIntelligenceEventType;
   conversation_id: string;
@@ -79,6 +116,7 @@ export type ResourceGuideIntelligenceStorageInsert = {
 };
 
 export type CollectAnswerIntelligenceInput = {
+  id?: string;
   conversationId: string;
   toolId: string;
   searchResults: ResourceSearchResponse;
@@ -87,6 +125,10 @@ export type CollectAnswerIntelligenceInput = {
   validation: ValidationResult;
   recommendedResourceIds: string[];
   selectionTier?: GroundedResourceSelectionTier;
+  previousSearchEventId?: string | null;
+  previousSearchTimestamp?: string | null;
+  currentSearchEventId?: string | null;
+  reformulationSequenceNumber?: number | null;
 };
 
 export type CollectClarificationIntelligenceInput = {
@@ -109,6 +151,8 @@ export type CollectFeedbackIntelligenceInput = {
   structuredFeedback?: AiStructuredFeedback | null;
   confidence?: string | null;
   feedbackId?: string;
+  searchEventId?: string | null;
+  searchEventTimestamp?: string | null;
 };
 
 export type CollectResourceClickIntelligenceInput = {
@@ -123,4 +167,9 @@ export type CollectResourceClickIntelligenceInput = {
   clickedResourceId: string;
   confidence?: string | null;
   feedbackId?: string;
+  recommendationPosition?: number | null;
+  totalRecommendationsShown?: number | null;
+  timeUntilClickMs?: number | null;
+  searchEventId?: string | null;
+  searchEventTimestamp?: string | null;
 };

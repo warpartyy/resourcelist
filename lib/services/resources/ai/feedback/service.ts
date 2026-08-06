@@ -83,6 +83,9 @@ export async function trackAiResourceClick(
     clickedResourceId: input.clickedResourceId,
     confidence: input.confidence,
     feedbackId: data.id,
+    recommendationPosition: input.recommendationPosition,
+    totalRecommendationsShown: input.totalRecommendationsShown,
+    timeUntilClickMs: input.timeUntilClickMs,
   });
 
   return { id: data.id };
@@ -142,6 +145,11 @@ export function buildClickInsert(
   const aiMetadata = mergeJsonRecords(input.metadata?.aiMetadata, {
     toolId: input.toolId ?? null,
     confidence: input.confidence ?? null,
+    resourceSelection: {
+      recommendationPosition: input.recommendationPosition ?? null,
+      totalRecommendationsShown: input.totalRecommendationsShown ?? null,
+      timeUntilClickMs: input.timeUntilClickMs ?? null,
+    },
   });
 
   return {
@@ -220,6 +228,15 @@ function validateClickInput(input: TrackAiResourceClickInput) {
   validateOptionalString(input.promptVersion, "promptVersion", MAX_ID_LENGTH);
   validateOptionalString(input.model, "model", MAX_ID_LENGTH);
   validateResourceIds(input.resourceIds);
+  validateOptionalPositiveInteger(
+    input.recommendationPosition,
+    "recommendationPosition"
+  );
+  validateOptionalPositiveInteger(
+    input.totalRecommendationsShown,
+    "totalRecommendationsShown"
+  );
+  validateOptionalPositiveInteger(input.timeUntilClickMs, "timeUntilClickMs");
 }
 
 function validateRequiredString(value: string, fieldName: string) {
@@ -249,6 +266,19 @@ function validateResourceIds(resourceIds: string[] | undefined) {
     resourceIds.some((id) => typeof id !== "string" || !id.trim() || id.length > MAX_ID_LENGTH)
   ) {
     throw new Error("Invalid resourceIds");
+  }
+}
+
+function validateOptionalPositiveInteger(
+  value: number | null | undefined,
+  fieldName: string
+) {
+  if (value === undefined || value === null) {
+    return;
+  }
+
+  if (!Number.isInteger(value) || value < 0) {
+    throw new Error(`Invalid ${fieldName}`);
   }
 }
 

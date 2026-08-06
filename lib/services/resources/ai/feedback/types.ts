@@ -49,6 +49,9 @@ export interface TrackAiResourceClickInput {
   resourceIds?: string[];
   confidence?: AiFeedbackConfidence;
   metadata?: AiFeedbackMetadata;
+  recommendationPosition?: number | null;
+  totalRecommendationsShown?: number | null;
+  timeUntilClickMs?: number | null;
 }
 
 export interface AiFeedbackReport {

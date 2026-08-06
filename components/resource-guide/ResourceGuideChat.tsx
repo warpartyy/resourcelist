@@ -89,6 +89,7 @@ type ChatMessage = {
   feedbackSelections?: string[];
   feedbackOtherText?: string;
   visibleRecommendationCount?: number;
+  createdAtMs?: number;
 };
 
 type FeedbackSentiment = "helpful" | "not_helpful";
@@ -131,7 +132,12 @@ type MessageControls = {
   onToggleFeedbackSelection: (messageId: string, selection: string) => void;
   onFeedbackOtherTextChange: (messageId: string, value: string) => void;
   onSubmitFeedback: (messageId: string) => void;
-  onResourceClick: (message: ChatMessage, resourceId: string) => void;
+  onResourceClick: (
+    message: ChatMessage,
+    resourceId: string,
+    recommendationPosition: number,
+    totalRecommendationsShown: number
+  ) => void;
   onShowMoreResults: (messageId: string) => void;
   onClarificationOption: (label: string) => void;
 };
@@ -356,8 +362,18 @@ export default function ResourceGuideChat({
         );
       }
     },
-    onResourceClick: (message, resourceId) => {
-      trackResourceClick(message, resourceId);
+    onResourceClick: (
+      message,
+      resourceId,
+      recommendationPosition,
+      totalRecommendationsShown
+    ) => {
+      trackResourceClick(
+        message,
+        resourceId,
+        recommendationPosition,
+        totalRecommendationsShown
+      );
     },
     onShowMoreResults: (messageId) => {
       setMessages((prev) =>
@@ -465,6 +481,7 @@ function buildAnswerMessage(
     searchMetadata: data.searchMetadata,
     groundedResults: data.groundedResults ?? [],
     visibleRecommendationCount: INITIAL_VISIBLE_RESULTS,
+    createdAtMs: Date.now(),
   };
 }
 
@@ -480,6 +497,7 @@ function buildClarificationMessage(
     userMessage,
     clarificationOptions: data.options,
     groundedResults: [],
+    createdAtMs: Date.now(),
   };
 }
 
@@ -566,7 +584,12 @@ function RecommendedResources({
             <RecommendedResourceCard
               result={result}
               onResourceClick={(resourceId) =>
-                controls.onResourceClick(message, resourceId)
+                controls.onResourceClick(
+                  message,
+                  resourceId,
+                  index + 1,
+                  visibleResults.length
+                )
               }
             />
           </li>
@@ -862,6 +885,9 @@ function buildFeedbackPayload({
   otherText,
   clickedResourceId,
   eventType,
+  recommendationPosition,
+  totalRecommendationsShown,
+  timeUntilClickMs,
 }: {
   message: ChatMessage;
   helpful?: boolean;
@@ -869,6 +895,9 @@ function buildFeedbackPayload({
   otherText?: string;
   clickedResourceId?: string;
   eventType?: "resource_click";
+  recommendationPosition?: number;
+  totalRecommendationsShown?: number;
+  timeUntilClickMs?: number;
 }) {
   return {
     ...buildFeedbackDraft(message),
@@ -882,9 +911,12 @@ function buildFeedbackPayload({
             sentiment: helpful ? "helpful" : "not_helpful",
             selections,
             otherText,
-          },
+    },
     clickedResourceId,
     eventType,
+    recommendationPosition,
+    totalRecommendationsShown,
+    timeUntilClickMs,
   };
 }
 
@@ -914,7 +946,12 @@ function buildFeedbackDraft(message: ChatMessage): ResourceGuideFeedbackDraft {
   };
 }
 
-function trackResourceClick(message: ChatMessage, resourceId: string) {
+function trackResourceClick(
+  message: ChatMessage,
+  resourceId: string,
+  recommendationPosition: number,
+  totalRecommendationsShown: number
+) {
   if (!message.conversationId) {
     return;
   }
@@ -923,6 +960,11 @@ function trackResourceClick(message: ChatMessage, resourceId: string) {
     message,
     clickedResourceId: resourceId,
     eventType: "resource_click",
+    recommendationPosition,
+    totalRecommendationsShown,
+    timeUntilClickMs: message.createdAtMs
+      ? Math.max(0, Date.now() - message.createdAtMs)
+      : undefined,
   });
 
   if (navigator.sendBeacon) {

@@ -78,6 +78,14 @@ export default function ResourceGuideWindow({
     onClose();
   };
 
+  const closeWithoutFeedback = () => {
+    if (feedbackDraft && !feedbackSubmitted) {
+      trackConversationAbandonment(feedbackDraft);
+    }
+
+    closeWindow();
+  };
+
   const handleClose = () => {
     if (shouldAskForFeedback) {
       setIsFeedbackModalOpen(true);
@@ -221,12 +229,37 @@ export default function ResourceGuideWindow({
                 comment: feedbackReason === "other" ? feedbackComment : undefined,
               })
             }
-            onSkip={closeWindow}
+            onSkip={closeWithoutFeedback}
           />
         ) : null}
       </section>
     </>
   );
+}
+
+function trackConversationAbandonment(draft: ResourceGuideFeedbackDraft) {
+  const payload = {
+    conversationId: draft.conversationId,
+    toolId: draft.toolId,
+    eventType: "conversation_completion",
+    completionReason: "abandonment",
+    searchOutcome: "abandoned",
+  };
+
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(
+      "/api/resource-guide/feedback",
+      new Blob([JSON.stringify(payload)], { type: "application/json" })
+    );
+    return;
+  }
+
+  void fetch("/api/resource-guide/feedback", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    keepalive: true,
+  });
 }
 
 const CLOSE_FEEDBACK_REASONS = [
