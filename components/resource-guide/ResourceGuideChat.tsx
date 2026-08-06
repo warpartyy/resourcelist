@@ -176,6 +176,9 @@ export default function ResourceGuideChat({
   const [isSending, setIsSending] = useState(false);
   const [conversationId, setConversationId] = useState(initialConversationId);
   const chatHeight = compact ? "min-h-0 flex-1" : "h-[640px]";
+  const scrollAreaClasses = compact
+    ? "rounded-none p-4 md:rounded-2xl"
+    : "rounded-2xl p-4";
 
   const updateConversationId = (nextConversationId: string) => {
     setConversationId(nextConversationId);
@@ -399,9 +402,9 @@ export default function ResourceGuideChat({
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-3">
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div
-        className={`overflow-y-auto rounded-2xl bg-bg p-4 ${chatHeight} space-y-4`}
+        className={`min-w-0 overflow-x-hidden overflow-y-auto bg-bg ${scrollAreaClasses} ${chatHeight} space-y-5`}
       >
         {messages.length === 0 ? (
           <p className="text-sm text-text-muted">
@@ -418,25 +421,28 @@ export default function ResourceGuideChat({
           ))
         )}
         {isSending ? (
-          <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-surface px-4 py-3 text-sm text-text-muted shadow-sm">
+          <p className="max-w-[min(88%,34rem)] rounded-2xl rounded-bl-md bg-surface px-4 py-3 text-sm text-text-muted shadow-sm">
             Searching verified resources...
           </p>
         ) : null}
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-3 sm:flex-row">
+      <form
+        onSubmit={handleSubmit}
+        className="flex shrink-0 flex-col gap-2 border-t border-border bg-bg p-3 sm:flex-row md:border-t-0 md:p-0"
+      >
         <input
           type="text"
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Type your question..."
-          className="flex-1 rounded-xl border border-border bg-surface px-3 py-2 text-sm text-text-primary shadow-sm"
+          className="min-h-12 min-w-0 flex-1 rounded-xl border border-border bg-surface px-4 py-3 text-base text-text-primary shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 sm:text-sm"
           disabled={isSending}
         />
         <button
           type="submit"
           disabled={isSending || !input.trim()}
-          className="rounded-xl bg-teal-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-60"
+          className="min-h-12 rounded-xl bg-teal-700 px-5 py-3 text-sm font-semibold text-white transition hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isSending ? "Sending..." : "Send"}
         </button>
@@ -487,7 +493,7 @@ function MessageBubble({
   if (message.role === "user") {
     return (
       <div className="flex justify-end">
-        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm text-text-primary">
+        <div className="max-w-[min(86%,34rem)] whitespace-pre-wrap break-words rounded-2xl rounded-br-md border border-accent/30 bg-accent/10 px-4 py-3 text-sm leading-6 text-text-primary [overflow-wrap:anywhere]">
           {message.content}
         </div>
       </div>
@@ -496,7 +502,7 @@ function MessageBubble({
 
   return (
     <article className="space-y-3">
-      <div className="max-w-[92%] whitespace-pre-wrap rounded-2xl rounded-bl-md bg-surface px-4 py-3 text-sm leading-6 text-text-primary shadow-sm">
+      <div className="max-w-[min(92%,36rem)] whitespace-pre-wrap break-words rounded-2xl rounded-bl-md bg-surface px-4 py-3 text-sm leading-6 text-text-primary shadow-sm [overflow-wrap:anywhere]">
         {getAssistantDisplayText(message)}
       </div>
 
@@ -553,7 +559,7 @@ function RecommendedResources({
   }
 
   return (
-    <section aria-label="Recommended resources" className="space-y-3">
+    <section aria-label="Recommended resources" className="max-w-full space-y-3 overflow-hidden">
       <ul className="space-y-2">
         {visibleResults.map((result, index) => (
           <li key={`${message.id}-${result.resource.id}-${index}`}>
@@ -570,7 +576,7 @@ function RecommendedResources({
         <button
           type="button"
           onClick={() => controls.onShowMoreResults(message.id)}
-          className="rounded-full border border-border bg-surface px-3 py-1.5 text-sm font-medium text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+          className="min-h-11 rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
         >
           Show More Results
         </button>
@@ -675,11 +681,14 @@ function RecommendedResourceCard({
   const location = formatLocation(resource.city, resource.state);
 
   return (
-    <article className="rounded-xl border border-border bg-surface p-3 shadow-sm">
+    <article className="w-full max-w-full overflow-hidden rounded-xl border border-border bg-surface p-4 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <h3 className="text-sm font-semibold text-text-primary">
+        <h3 className="break-words text-sm font-semibold leading-5 text-text-primary [overflow-wrap:anywhere]">
           {resource.organization || "Unnamed resource"}
         </h3>
+        <span className="inline-flex w-fit shrink-0 rounded-full bg-teal-50 px-2.5 py-1 text-xs font-medium text-teal-800">
+          {getMatchBadgeLabel(result)}
+        </span>
       </div>
 
       {resource.description ? (
@@ -695,12 +704,24 @@ function RecommendedResourceCard({
       <Link
         href={getResourceHref(resource)}
         onClick={() => onResourceClick(resource.id)}
-        className="mt-3 inline-flex w-full items-center justify-center rounded-lg bg-teal-700 px-3 py-2 text-sm font-semibold text-white transition hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2 sm:w-auto"
+        className="mt-3 inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-teal-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 focus-visible:ring-offset-2 sm:w-auto"
       >
         View Resource
       </Link>
     </article>
   );
+}
+
+function getMatchBadgeLabel(result: GroundedResourceResult): string {
+  if (result.selectionTier === "fallback" || result.isFallbackMatch) {
+    return "Closest Match";
+  }
+
+  if (result.selectionTier === "medium" || result.confidence === "medium") {
+    return "Good Match";
+  }
+
+  return "Strong Match";
 }
 
 function ResponseFeedback({
@@ -738,7 +759,7 @@ function ResponseFeedback({
 
     return (
       <section
-        className="max-w-sm rounded-2xl border border-border bg-surface p-4 shadow-sm"
+        className="max-w-sm overflow-hidden rounded-2xl border border-border bg-surface p-4 shadow-sm"
         aria-label={isHelpful ? "Helpful feedback" : "Not Helpful feedback"}
       >
         <div className="flex items-start gap-2">
@@ -766,7 +787,7 @@ function ResponseFeedback({
                 checked={selections.includes(option.id)}
                 onChange={() => onToggleSelection(option.id)}
                 disabled={message.feedbackSubmitting}
-                className="mt-0.5 h-4 w-4 rounded border-border"
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-border"
               />
               <span>{option.label}</span>
             </label>
@@ -791,7 +812,7 @@ function ResponseFeedback({
             type="button"
             onClick={onCancel}
             disabled={message.feedbackSubmitting}
-            className="rounded-lg px-3 py-2 text-sm text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-11 rounded-lg px-3 py-2 text-sm text-text-muted hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Cancel
           </button>
@@ -799,7 +820,7 @@ function ResponseFeedback({
             type="button"
             onClick={onSubmit}
             disabled={message.feedbackSubmitting || selections.length === 0}
-            className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-11 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-300 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Continue
           </button>
@@ -815,7 +836,7 @@ function ResponseFeedback({
           type="button"
           onClick={onHelpful}
           disabled={message.feedbackSubmitting}
-          className="rounded-full border border-border bg-bg px-3 py-1.5 text-lg leading-none text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+          className="min-h-11 min-w-11 rounded-full border border-border bg-bg px-3 py-1.5 text-lg leading-none text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
           aria-label="Helpful"
         >
           👍
@@ -824,7 +845,7 @@ function ResponseFeedback({
           type="button"
           onClick={onNotHelpful}
           disabled={message.feedbackSubmitting}
-          className="rounded-full border border-border bg-bg px-3 py-1.5 text-lg leading-none text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+          className="min-h-11 min-w-11 rounded-full border border-border bg-bg px-3 py-1.5 text-lg leading-none text-text-primary hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
           aria-label="Not Helpful"
         >
           👎

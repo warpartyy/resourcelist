@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { X } from "lucide-react";
 import ResourceGuideChat from "./ResourceGuideChat";
 import type { ResourceGuideFeedbackDraft } from "./ResourceGuideChat";
 
@@ -26,10 +27,48 @@ export default function ResourceGuideWindow({
   const [feedbackReason, setFeedbackReason] = useState("");
   const [feedbackComment, setFeedbackComment] = useState("");
   const [isSubmittingFeedback, setIsSubmittingFeedback] = useState(false);
+  const [touchStartY, setTouchStartY] = useState<number | null>(null);
   const fullGuideHref = conversationId
     ? `/resource-guide?conversationId=${encodeURIComponent(conversationId)}`
     : "/resource-guide";
   const shouldAskForFeedback = Boolean(feedbackDraft && !feedbackSubmitted);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const mobileQuery = window.matchMedia("(max-width: 767px)");
+
+    if (!mobileQuery.matches) {
+      return;
+    }
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        handleClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  });
 
   const closeWindow = () => {
     setIsFeedbackModalOpen(false);
@@ -46,6 +85,19 @@ export default function ResourceGuideWindow({
     }
 
     closeWindow();
+  };
+
+  const handleTouchEnd = (positionY: number) => {
+    if (touchStartY === null) {
+      return;
+    }
+
+    const distance = positionY - touchStartY;
+    setTouchStartY(null);
+
+    if (distance > 90) {
+      handleClose();
+    }
   };
 
   const submitCloseFeedback = async ({
@@ -90,67 +142,90 @@ export default function ResourceGuideWindow({
   };
 
   return (
-    <section
-      id="resource-guide-window"
-      className={`fixed bottom-24 right-4 z-50 h-[min(720px,calc(100vh-8rem))] w-[calc(100vw-2rem)] max-w-md flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-xl sm:right-6 ${
-        isOpen ? "flex" : "hidden"
-      }`}
-      aria-label="Resource Chat"
-    >
-      <header className="flex items-center justify-between rounded-t-2xl border-b border-teal-800 bg-teal-700 px-4 py-3 text-white">
-        <div>
-          <h2 className="text-sm font-semibold">Resource Chat</h2>
-          <p className="text-xs text-teal-50">Verified directory search</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Link
-            href={fullGuideHref}
-            className="rounded-lg border border-teal-100/60 bg-teal-800 px-3 py-1 text-sm text-white hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-200 focus:ring-offset-2 focus:ring-offset-teal-700"
-          >
-            Full screen
-          </Link>
-          <button
-            type="button"
-            onClick={handleClose}
-            className="rounded-lg border border-teal-100/60 bg-teal-800 px-3 py-1 text-sm text-white hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-200 focus:ring-offset-2 focus:ring-offset-teal-700"
-            aria-label="Close Resource Chat"
-          >
-            Close
-          </button>
-        </div>
-      </header>
-
-      <div className="min-h-0 flex-1 bg-bg p-3">
-        <ResourceGuideChat
-          compact
-          initialConversationId={conversationId}
-          onConversationIdChange={onConversationIdChange}
-          onFeedbackSubmitted={() => setFeedbackSubmitted(true)}
-          onFeedbackDraftChange={(draft) => setFeedbackDraft(draft)}
-        />
-      </div>
-
-      {isFeedbackModalOpen ? (
-        <FeedbackCloseModal
-          step={feedbackStep}
-          selectedReason={feedbackReason}
-          comment={feedbackComment}
-          isSubmitting={isSubmittingFeedback}
-          onHelpful={() => void submitCloseFeedback({ helpful: true })}
-          onNotHelpful={() => setFeedbackStep("reason")}
-          onReasonChange={setFeedbackReason}
-          onCommentChange={setFeedbackComment}
-          onSubmitReason={() =>
-            void submitCloseFeedback({
-              helpful: false,
-              reason: feedbackReason,
-              comment: feedbackReason === "other" ? feedbackComment : undefined,
-            })
-          }
-          onSkip={closeWindow}
+    <>
+      {isOpen ? (
+        <button
+          type="button"
+          className="fixed inset-0 z-40 bg-black/35 md:hidden"
+          onClick={handleClose}
+          aria-label="Close Resource Chat"
         />
       ) : null}
-    </section>
+
+      <section
+        id="resource-guide-window"
+        className={`fixed inset-x-0 bottom-0 z-50 h-[78dvh] max-h-[calc(100dvh_-_3rem_-_env(safe-area-inset-top))] w-full flex-col overflow-hidden rounded-t-3xl border border-border bg-surface pb-[env(safe-area-inset-bottom)] shadow-2xl transition-transform duration-200 md:inset-x-auto md:bottom-24 md:right-6 md:h-[min(720px,calc(100vh-8rem))] md:w-[calc(100vw-2rem)] md:max-w-md md:rounded-2xl md:pb-0 ${
+        isOpen ? "flex" : "hidden"
+      }`}
+        aria-label="Resource Chat"
+      >
+        <header
+          className="sticky top-0 z-10 rounded-t-3xl border-b border-teal-800 bg-teal-700 px-4 pb-3 pt-2 text-white md:rounded-t-2xl md:py-3"
+          onTouchStart={(event) =>
+            setTouchStartY(event.touches[0]?.clientY ?? null)
+          }
+          onTouchEnd={(event) =>
+            handleTouchEnd(event.changedTouches[0]?.clientY ?? touchStartY ?? 0)
+          }
+        >
+          <div className="mx-auto mb-2 h-1.5 w-12 rounded-full bg-teal-100/70 md:hidden" />
+          <div className="flex min-h-12 items-center justify-between gap-3">
+            <div className="min-w-0">
+              <h2 className="text-sm font-semibold">Resource Chat</h2>
+              <p className="text-xs text-teal-50">Verified directory search</p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              <Link
+                href={fullGuideHref}
+                className="hidden min-h-11 items-center rounded-lg border border-teal-100/60 bg-teal-800 px-3 py-2 text-sm text-white hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-200 focus:ring-offset-2 focus:ring-offset-teal-700 md:inline-flex"
+              >
+                Full screen
+              </Link>
+              <button
+                type="button"
+                onClick={handleClose}
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-full border border-teal-100/60 bg-teal-800 text-white hover:bg-teal-900 focus:outline-none focus:ring-2 focus:ring-teal-200 focus:ring-offset-2 focus:ring-offset-teal-700 md:min-w-0 md:rounded-lg md:px-3 md:py-2"
+                aria-label="Close Resource Chat"
+              >
+                <X className="h-5 w-5 md:hidden" aria-hidden="true" />
+                <span className="hidden md:inline">Close</span>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div className="min-h-0 flex-1 overflow-hidden bg-bg p-0 md:p-3">
+          <ResourceGuideChat
+            compact
+            initialConversationId={conversationId}
+            onConversationIdChange={onConversationIdChange}
+            onFeedbackSubmitted={() => setFeedbackSubmitted(true)}
+            onFeedbackDraftChange={(draft) => setFeedbackDraft(draft)}
+          />
+        </div>
+
+        {isFeedbackModalOpen ? (
+          <FeedbackCloseModal
+            step={feedbackStep}
+            selectedReason={feedbackReason}
+            comment={feedbackComment}
+            isSubmitting={isSubmittingFeedback}
+            onHelpful={() => void submitCloseFeedback({ helpful: true })}
+            onNotHelpful={() => setFeedbackStep("reason")}
+            onReasonChange={setFeedbackReason}
+            onCommentChange={setFeedbackComment}
+            onSubmitReason={() =>
+              void submitCloseFeedback({
+                helpful: false,
+                reason: feedbackReason,
+                comment: feedbackReason === "other" ? feedbackComment : undefined,
+              })
+            }
+            onSkip={closeWindow}
+          />
+        ) : null}
+      </section>
+    </>
   );
 }
 
@@ -208,7 +283,7 @@ function FeedbackCloseModal({
                 type="button"
                 onClick={onHelpful}
                 disabled={isSubmitting}
-                className="rounded-full border border-border bg-bg px-4 py-2 text-xl leading-none hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+                className="min-h-11 min-w-11 rounded-full border border-border bg-bg px-4 py-2 text-xl leading-none hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="Helpful"
               >
                 👍
@@ -217,7 +292,7 @@ function FeedbackCloseModal({
                 type="button"
                 onClick={onNotHelpful}
                 disabled={isSubmitting}
-                className="rounded-full border border-border bg-bg px-4 py-2 text-xl leading-none hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
+                className="min-h-11 min-w-11 rounded-full border border-border bg-bg px-4 py-2 text-xl leading-none hover:border-accent focus:outline-none focus:ring-2 focus:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-60"
                 aria-label="Not Helpful"
               >
                 👎
@@ -226,7 +301,7 @@ function FeedbackCloseModal({
                 type="button"
                 onClick={onSkip}
                 disabled={isSubmitting}
-                className="ml-auto rounded-lg px-3 py-2 text-sm text-text-muted hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/40"
+                className="ml-auto min-h-11 rounded-lg px-3 py-2 text-sm text-text-muted hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/40"
               >
                 Skip
               </button>
@@ -274,7 +349,7 @@ function FeedbackCloseModal({
                 type="button"
                 onClick={onSkip}
                 disabled={isSubmitting}
-                className="rounded-lg px-3 py-2 text-sm text-text-muted hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/40"
+                className="min-h-11 rounded-lg px-3 py-2 text-sm text-text-muted hover:text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/40"
               >
                 Skip
               </button>
@@ -282,7 +357,7 @@ function FeedbackCloseModal({
                 type="button"
                 onClick={onSubmitReason}
                 disabled={isSubmitting || !selectedReason}
-                className="rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-300 disabled:cursor-not-allowed disabled:opacity-60"
+                className="min-h-11 rounded-lg bg-teal-700 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-800 focus:outline-none focus:ring-2 focus:ring-teal-300 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 Submit
               </button>
