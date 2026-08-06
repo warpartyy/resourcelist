@@ -1,23 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { getSupabaseAdmin } from "@/lib/supabase/admin";
 
-export function isAuthorizedResourceGuideIntelligenceRequest(
+type ResourceGuideIntelligenceAuthorization =
+  | { authorized: true }
+  | { authorized: false; status: 401 | 403 };
+
+export async function authorizeResourceGuideIntelligenceRequest(
   req: NextRequest
-): boolean {
-  if (process.env.NODE_ENV === "development") {
-    return true;
+): Promise<ResourceGuideIntelligenceAuthorization> {
+  if (hasValidRegressionKey(req)) {
+    return { authorized: true };
   }
 
-  const regressionKey = process.env.ADMIN_REGRESSION_KEY;
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-  if (!regressionKey) {
-    return false;
+  if (userError || !user) {
+    return { authorized: false, status: 401 };
   }
 
-  return req.headers.get("x-admin-regression-key") === regressionKey;
+  const { data: profile, error: profileError } = await getSupabaseAdmin()
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || profile?.role !== "admin") {
+    return { authorized: false, status: 403 };
+  }
+
+  return { authorized: true };
 }
 
-export function unauthorizedResourceGuideIntelligenceResponse() {
-  return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+function hasValidRegressionKey(req: NextRequest): boolean {
+  const regressionKey = process.env.ADMIN_REGRESSION_KEY;
+
+  return Boolean(
+    regressionKey && req.headers.get("x-admin-regression-key") === regressionKey
+  );
+}
+
+export function unauthorizedResourceGuideIntelligenceResponse(
+  status: 401 | 403 = 401
+) {
+  return NextResponse.json(
+    { error: status === 403 ? "Forbidden" : "Unauthorized" },
+    { status }
+  );
 }
 
 export function resourceGuideIntelligenceErrorResponse(error: unknown) {

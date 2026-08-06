@@ -3,14 +3,16 @@ import { getResourceGuideResourcePerformanceReport } from "@/lib/services/resour
 import { readIntelligenceReportFilters } from "@/lib/services/resources/ai/intelligence/reporting/filters";
 import { buildReportResponse } from "@/lib/services/resources/ai/intelligence/reporting/types";
 import {
-  isAuthorizedResourceGuideIntelligenceRequest,
+  authorizeResourceGuideIntelligenceRequest,
   resourceGuideIntelligenceErrorResponse,
   unauthorizedResourceGuideIntelligenceResponse,
 } from "../auth";
 
 export async function GET(req: NextRequest) {
-  if (!isAuthorizedResourceGuideIntelligenceRequest(req)) {
-    return unauthorizedResourceGuideIntelligenceResponse();
+  const authorization = await authorizeResourceGuideIntelligenceRequest(req);
+
+  if (!authorization.authorized) {
+    return unauthorizedResourceGuideIntelligenceResponse(authorization.status);
   }
 
   try {
