@@ -15,6 +15,7 @@ import {
   Search,
   BarChart3,
   Lightbulb,
+  PieChart,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import AdminControls from "@/components/admin/AdminControls";
@@ -37,6 +38,7 @@ type AdminSection =
   | "notifications"
   | "improvements"
   | "search-lab"
+  | "directory-coverage"
   | "resource-guide-intelligence"
   | "resource-guide-advisor";
 
@@ -51,6 +53,7 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   notifications: "Notifications",
   settings: "Settings",
   "search-lab": "Search Lab",
+  "directory-coverage": "Directory Coverage",
   "resource-guide-intelligence": "Resource Guide Intelligence",
   "resource-guide-advisor": "Resource Guide Advisor",
 };
@@ -66,6 +69,7 @@ const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
   "update-requests": "Review requested updates to existing resources.",
   improvements: "Actionable resource improvement tasks.",
   "search-lab": "Inspect deterministic resource search behavior.",
+  "directory-coverage": "Compare directory coverage with Resource Guide demand.",
   "resource-guide-intelligence": "Privacy-conscious Resource Guide analytics.",
   "resource-guide-advisor": "Actionable Resource Guide improvement recommendations.",
 };
@@ -145,6 +149,8 @@ useEffect(() => {
     const standaloneRoute =
       value === "search-lab"
         ? "/admin/search-lab"
+        : value === "directory-coverage"
+          ? "/admin/directory-coverage"
         : value === "resource-guide-intelligence"
           ? "/admin/resource-guide/intelligence"
           : value === "resource-guide-advisor"
@@ -169,6 +175,7 @@ return (
 
       if (
         pathname === "/admin/search-lab" ||
+        pathname === "/admin/directory-coverage" ||
         pathname === "/admin/resource-guide/intelligence" ||
         pathname === "/admin/resource-guide/advisor"
       ) {
@@ -336,6 +343,7 @@ return (
 
         {sectionHeader("Resource Guide Insights")}
         {navItem("Search Lab", "search-lab", Search)}
+        {navItem("Directory Coverage", "directory-coverage", PieChart)}
         {navItem("Insights", "resource-guide-intelligence", BarChart3)}
         {navItem("Advisor", "resource-guide-advisor", Lightbulb)}
 

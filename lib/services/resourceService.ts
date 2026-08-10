@@ -74,7 +74,6 @@ export async function updateResource(
   is_tribal,
   tribe,
   tribal_eligibility,
-  admin_notes,
   last_verified,
   last_edited_by,
   last_edited_email,
@@ -152,7 +151,6 @@ const updatePayload: ResourceUpdate = {
   is_tribal: data.is_tribal ?? existing.is_tribal ?? false,
   tribe: data.tribe ?? existing.tribe ?? null,
   tribal_eligibility: data.tribal_eligibility ?? existing.tribal_eligibility ?? null,
-  admin_notes: data.admin_notes ?? existing.admin_notes ?? null,
   last_edited_by: data.last_edited_by ?? existing.last_edited_by ?? null,
   last_edited_email: data.last_edited_email ?? existing.last_edited_email ?? null,
   last_edited_at: now,
@@ -379,3 +377,4 @@ export async function moveResourceToPending(
     })
     .eq("id", id);
 }
+ 
