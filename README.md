@@ -31,7 +31,7 @@ Standard Git workflow:
 
 ```bash
 git add .
-git commit -m "removed admin notes"
+git commit -m "Suggest resouce updates in admin"
 git push
 ```
 

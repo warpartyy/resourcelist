@@ -16,6 +16,7 @@ import {
   BarChart3,
   Lightbulb,
   PieChart,
+  Compass,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import AdminControls from "@/components/admin/AdminControls";
@@ -39,6 +40,7 @@ type AdminSection =
   | "improvements"
   | "search-lab"
   | "directory-coverage"
+  | "resource-discovery"
   | "resource-guide-intelligence"
   | "resource-guide-advisor";
 
@@ -54,6 +56,7 @@ const SECTION_TITLES: Record<AdminSection, string> = {
   settings: "Settings",
   "search-lab": "Search Lab",
   "directory-coverage": "Directory Coverage",
+  "resource-discovery": "Resource Discovery",
   "resource-guide-intelligence": "Resource Guide Intelligence",
   "resource-guide-advisor": "Resource Guide Advisor",
 };
@@ -70,6 +73,7 @@ const SECTION_DESCRIPTIONS: Partial<Record<AdminSection, string>> = {
   improvements: "Actionable resource improvement tasks.",
   "search-lab": "Inspect deterministic resource search behavior.",
   "directory-coverage": "Compare directory coverage with Resource Guide demand.",
+  "resource-discovery": "Identify organizations for human review.",
   "resource-guide-intelligence": "Privacy-conscious Resource Guide analytics.",
   "resource-guide-advisor": "Actionable Resource Guide improvement recommendations.",
 };
@@ -151,6 +155,8 @@ useEffect(() => {
         ? "/admin/search-lab"
         : value === "directory-coverage"
           ? "/admin/directory-coverage"
+        : value === "resource-discovery"
+          ? "/admin/resource-discovery"
         : value === "resource-guide-intelligence"
           ? "/admin/resource-guide/intelligence"
           : value === "resource-guide-advisor"
@@ -176,6 +182,7 @@ return (
       if (
         pathname === "/admin/search-lab" ||
         pathname === "/admin/directory-coverage" ||
+        pathname === "/admin/resource-discovery" ||
         pathname === "/admin/resource-guide/intelligence" ||
         pathname === "/admin/resource-guide/advisor"
       ) {
@@ -344,6 +351,7 @@ return (
         {sectionHeader("Resource Guide Insights")}
         {navItem("Search Lab", "search-lab", Search)}
         {navItem("Directory Coverage", "directory-coverage", PieChart)}
+        {navItem("Resource Discovery", "resource-discovery", Compass)}
         {navItem("Insights", "resource-guide-intelligence", BarChart3)}
         {navItem("Advisor", "resource-guide-advisor", Lightbulb)}
 

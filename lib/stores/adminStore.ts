@@ -12,6 +12,7 @@ export type AdminSection =
   | "improvements"
   | "search-lab"
   | "directory-coverage"
+  | "resource-discovery"
   | "resource-guide-intelligence"
   | "resource-guide-advisor";
 
