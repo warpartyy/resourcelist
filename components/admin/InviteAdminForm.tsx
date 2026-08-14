@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import toast from 'react-hot-toast';
-import { getSupabase } from '@/lib/supabase';
+import { useState } from "react";
+import toast from "react-hot-toast";
+import { getSupabase } from "@/lib/supabase";
 
 export default function InviteAdminForm() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleInvite = async () => {
     if (!email) {
-      toast.error('Please enter an email');
+      toast.error("Please enter an email");
       return;
     }
 
@@ -26,13 +26,13 @@ export default function InviteAdminForm() {
       const token = session?.access_token;
 
       if (!token) {
-        throw new Error('You must be logged in');
+        throw new Error("You must be logged in");
       }
 
-      const res = await fetch('/api/admin/invite', {
-        method: 'POST',
+      const res = await fetch("/api/admin/invite", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({ email }),
@@ -44,54 +44,51 @@ export default function InviteAdminForm() {
         throw new Error(data.error);
       }
 
-      toast.success('Admin invite sent');
-      setEmail('');
-    } catch (err: any) {
-      toast.error(err.message || 'Failed to send invite');
+      toast.success("Admin invite sent");
+      setEmail("");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Failed to send invite";
+      toast.error(message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="border rounded-lg p-6 bg-white">
-      {/* Header */}
-      <h2 className="text-lg font-semibold mb-2">
-        Admin Invites
-      </h2>
+    <section className="bg-surface border border-border rounded-xl p-4 shadow-sm h-full">
+      <div>
+        <h2 className="text-base font-semibold text-text-primary">Admin Team</h2>
+        <p className="mt-1 text-sm text-text-muted">
+          Invite additional admins to help keep the directory current.
+        </p>
+      </div>
 
-      {/* Supporting text */}
-      <p className="text-sm text-gray-600 mb-4">
-        Invite additional admins to help keep the directory accurate,
-        up to date, and responsive to community needs.
-      </p>
-
-      {/* Form */}
-      <div className="space-y-4">
+      <div className="mt-4 space-y-4">
         <div>
-          <label className="block text-sm mb-1">
+          <label htmlFor="adminInviteEmail" className="block text-sm font-medium text-text-primary">
             Admin Email
           </label>
           <input
+            id="adminInviteEmail"
             type="email"
             placeholder="Enter email address"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full border rounded p-2"
+            className="mt-1 w-full rounded-lg border border-border bg-bg px-3 py-2 text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-accent/40"
           />
         </div>
 
-        {/* Actions */}
         <div className="flex justify-end">
           <button
+            type="button"
             onClick={handleInvite}
             disabled={loading || !email.trim()}
-            className="button button-primary"
+            className="button button-primary px-3 py-1.5 text-sm"
           >
-            {loading ? 'Sending Invite...' : 'Send Invite'}
+            {loading ? "Sending..." : "Send Invite"}
           </button>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
