@@ -7,16 +7,10 @@ import {
   LogOut,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   MessageSquare,
-  Bell,
-  Sparkles,
-  Calendar,
   Settings,
-  Search,
   BarChart3,
-  Lightbulb,
-  PieChart,
-  Compass,
 } from "lucide-react";
 import type { ComponentType } from "react";
 import AdminControls from "@/components/admin/AdminControls";
@@ -43,6 +37,8 @@ type AdminSection =
   | "resource-discovery"
   | "resource-guide-intelligence"
   | "resource-guide-advisor";
+
+type SidebarSection = "resource-management" | "community" | "analytics" | "settings";
 
 const SECTION_TITLES: Record<AdminSection, string> = {
   dashboard: "Dashboard",
@@ -90,12 +86,26 @@ type Props = {
 
 };
 
+const STANDALONE_ROUTES: Partial<Record<AdminSection, string>> = {
+  "search-lab": "/admin/search-lab",
+  "directory-coverage": "/admin/directory-coverage",
+  "resource-discovery": "/admin/resource-discovery",
+  "resource-guide-intelligence": "/admin/resource-guide/intelligence",
+  "resource-guide-advisor": "/admin/resource-guide/advisor",
+};
+
+const DEFAULT_EXPANDED_SECTIONS: Record<SidebarSection, boolean> = {
+  "resource-management": true,
+  community: true,
+  analytics: false,
+  settings: false,
+};
+
 export default function AdminLayout({
   adminSection,
   setAdminSection,
   onLogout,
   pendingCount,
-  resourceCount,
   rejectedCount,
   children,
   notificationsCount,
@@ -117,6 +127,7 @@ export default function AdminLayout({
 
   const [collapsed, setCollapsed] = useState(false);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [expandedSections, setExpandedSections] = useState(DEFAULT_EXPANDED_SECTIONS);
 
 useEffect(() => {
   const loadUser = async () => {
@@ -144,85 +155,57 @@ useEffect(() => {
   loadUser();
 }, []);
 
+  const navigateToSection = (value: AdminSection) => {
+    const standaloneRoute = STANDALONE_ROUTES[value];
+
+    if (standaloneRoute) {
+      router.push(standaloneRoute);
+      return;
+    }
+
+    setAdminSection(value);
+
+    if (Object.values(STANDALONE_ROUTES).includes(pathname)) {
+      router.push(`/admin?tab=${value}`);
+    }
+  };
+
   const navItem = (
     label: string,
     value: AdminSection,
-    Icon: ComponentType<{ size?: number; strokeWidth?: number }>,
-    count?: number
+    Icon?: ComponentType<{ size?: number; strokeWidth?: number }>
   ) => {
-    const standaloneRoute =
-      value === "search-lab"
-        ? "/admin/search-lab"
-        : value === "directory-coverage"
-          ? "/admin/directory-coverage"
-        : value === "resource-discovery"
-          ? "/admin/resource-discovery"
-        : value === "resource-guide-intelligence"
-          ? "/admin/resource-guide/intelligence"
-          : value === "resource-guide-advisor"
-            ? "/admin/resource-guide/advisor"
-            : null;
+    const standaloneRoute = STANDALONE_ROUTES[value];
+    const isActive = adminSection === value || pathname === standaloneRoute;
 
-    const isActive =
-      adminSection === value ||
-      pathname === standaloneRoute;
+    return (
+      <button
+        onClick={() => navigateToSection(value)}
+        className={`group flex items-center gap-2.5 w-full pl-4 pr-3 py-1.5 rounded-lg transition-colors duration-150 relative
+          ${
+            isActive
+              ? "bg-teal-50 text-teal-900 font-medium"
+              : "text-text-muted hover:bg-teal-50 hover:text-teal-800"
+          }`}
+      >
+        {isActive && (
+          <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-accent" />
+        )}
 
-
-    
-return (
-  <button
-    onClick={() => {
-      if (standaloneRoute) {
-        router.push(standaloneRoute);
-        return;
-      }
-
-      setAdminSection(value);
-
-      if (
-        pathname === "/admin/search-lab" ||
-        pathname === "/admin/directory-coverage" ||
-        pathname === "/admin/resource-discovery" ||
-        pathname === "/admin/resource-guide/intelligence" ||
-        pathname === "/admin/resource-guide/advisor"
-      ) {
-        router.push(`/admin?tab=${value}`);
-      }
-    }}
-    className={`group flex items-center gap-2.5 w-full pl-4 pr-3 py-1.5 rounded-lg transition-colors duration-150 relative
-      ${
-        isActive
-          ? "bg-teal-50 text-teal-900 font-medium"
-          : "text-text-muted hover:bg-teal-50 hover:text-teal-800"
-      }`}
-  >
-    {isActive && (
-      <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r bg-accent" />
-    )}
-
-    <span
-      className={`transition-colors duration-150 ${
-        isActive ? "text-teal-700" : "text-text-muted group-hover:text-teal-800"
-      }`}
-    >
-      <Icon size={18} strokeWidth={2} />
-    </span>
-
-    {!collapsed && (
-      <>
-        <span className="flex-1 text-left">{label}</span>
-
-        {count !== undefined && (
-          <span className="text-[11px] leading-4 bg-bg border border-border px-1.5 py-0.5 rounded-full text-text-muted">
-            {count}
+        {Icon && (
+          <span
+            className={`transition-colors duration-150 ${
+              isActive ? "text-teal-700" : "text-text-muted group-hover:text-teal-800"
+            }`}
+          >
+            <Icon size={18} strokeWidth={2} />
           </span>
         )}
-      </>
-    )}
-  </button>
-);
 
-};
+        {!collapsed && <span className="flex-1 text-left">{label}</span>}
+      </button>
+    );
+  };
 
   const subNavItem = (
     label: string,
@@ -248,14 +231,46 @@ return (
     </button>
   );
 
-  const sectionHeader = (label: string) =>
-    collapsed ? (
-      <div className="my-3 border-t border-border" aria-hidden="true" />
-    ) : (
-      <div className="px-3 pt-3.5 pb-1 text-[11px] font-semibold uppercase tracking-wide text-text-subtle">
-        {label}
-      </div>
+  const toggleSection = (section: SidebarSection) => {
+    setExpandedSections((current) => ({
+      ...current,
+      [section]: !current[section],
+    }));
+  };
+
+  const sectionHeader = (
+    label: string,
+    section: SidebarSection,
+    Icon: ComponentType<{ size?: number; strokeWidth?: number }>
+  ) => {
+    const isExpanded = expandedSections[section];
+
+    return (
+      <button
+        type="button"
+        onClick={() => toggleSection(section)}
+        className={`group flex items-center gap-2.5 w-full pl-4 pr-3 py-1.5 rounded-lg text-text-muted hover:bg-teal-50 hover:text-teal-800 transition-colors duration-150 ${
+          collapsed ? "justify-center px-3" : ""
+        }`}
+        aria-expanded={isExpanded}
+      >
+        <span className="text-text-muted transition-colors duration-150 group-hover:text-teal-800">
+          <Icon size={18} strokeWidth={2} />
+        </span>
+
+        {!collapsed && (
+          <>
+            <span className="flex-1 text-left text-sm font-medium">{label}</span>
+            {isExpanded ? (
+              <ChevronDown size={16} strokeWidth={2} aria-hidden="true" />
+            ) : (
+              <ChevronRight size={16} strokeWidth={2} aria-hidden="true" />
+            )}
+          </>
+        )}
+      </button>
     );
+  };
 
 return (
   <div className="h-screen flex overflow-hidden bg-bg text-text-primary relative">
@@ -300,30 +315,26 @@ return (
 
       {/* Navigation */}
       <div className="space-y-1.5">
-        {sectionHeader("Operations")}
         {navItem("Dashboard", "dashboard", Home)}
 
-        {navItem("Resources", "resources", Folder)}
-        {!collapsed && (
+        {sectionHeader("Resource Management", "resource-management", Folder)}
+        {!collapsed && expandedSections["resource-management"] && (
           <div className="space-y-1">
-            {subNavItem("Pending", resourcesSubtab === "pending", () => {
+            {subNavItem("Pending", adminSection === "resources" && resourcesSubtab === "pending", () => {
               setAdminSection("resources");
               setResourcesSubtab("pending");
             }, pendingCount)}
-            {subNavItem("Approved", resourcesSubtab === "approved", () => {
+            {subNavItem("Approved", adminSection === "resources" && resourcesSubtab === "approved", () => {
               setAdminSection("resources");
               setResourcesSubtab("approved");
-            }, resourceCount)}
-            {subNavItem("Rejected", resourcesSubtab === "rejected", () => {
+            })}
+            {subNavItem("Rejected", adminSection === "resources" && resourcesSubtab === "rejected", () => {
               setAdminSection("resources");
               setResourcesSubtab("rejected");
             }, rejectedCount)}
-          </div>
-        )}
-
-        {navItem("Quality", "quality", Sparkles)}
-        {!collapsed && (
-          <div className="space-y-1">
+            {subNavItem("Resource Discovery", pathname === STANDALONE_ROUTES["resource-discovery"], () => {
+              navigateToSection("resource-discovery");
+            })}
             {subNavItem("Suggested Improvements", adminSection === "quality" && qualitySubtab === "improvements", () => {
               setAdminSection("quality");
               setQualitySubtab("improvements");
@@ -331,32 +342,52 @@ return (
           </div>
         )}
 
-        {navItem("Messages", "messages", MessageSquare)}
-        {!collapsed && (
+        {sectionHeader("Community", "community", MessageSquare)}
+        {!collapsed && expandedSections.community && (
           <div className="space-y-1">
-            {subNavItem("Community", messagesSubtab === "community", () => {
+            {subNavItem("Community Messages", adminSection === "messages" && messagesSubtab === "community", () => {
               setAdminSection("messages");
               setMessagesSubtab("community");
             })}
-            {subNavItem("Admin Team", messagesSubtab === "admin-team", () => {
+            {subNavItem("Notifications", adminSection === "notifications", () => {
+              navigateToSection("notifications");
+            }, notificationsCount)}
+            {subNavItem("Events", adminSection === "events", () => {
+              navigateToSection("events");
+            })}
+            {subNavItem("Admin Team", adminSection === "messages" && messagesSubtab === "admin-team", () => {
               setAdminSection("messages");
               setMessagesSubtab("admin-team");
             })}
           </div>
         )}
 
-        {navItem("Notifications", "notifications", Bell, notificationsCount)}
-        {navItem("Events", "events", Calendar)}
+        {sectionHeader("Analytics", "analytics", BarChart3)}
+        {!collapsed && expandedSections.analytics && (
+          <div className="space-y-1">
+            {subNavItem("Search Lab", pathname === STANDALONE_ROUTES["search-lab"], () => {
+              navigateToSection("search-lab");
+            })}
+            {subNavItem("Directory Coverage", pathname === STANDALONE_ROUTES["directory-coverage"], () => {
+              navigateToSection("directory-coverage");
+            })}
+            {subNavItem("Insights", pathname === STANDALONE_ROUTES["resource-guide-intelligence"], () => {
+              navigateToSection("resource-guide-intelligence");
+            })}
+            {subNavItem("Advisor", pathname === STANDALONE_ROUTES["resource-guide-advisor"], () => {
+              navigateToSection("resource-guide-advisor");
+            })}
+          </div>
+        )}
 
-        {sectionHeader("Resource Guide Insights")}
-        {navItem("Search Lab", "search-lab", Search)}
-        {navItem("Directory Coverage", "directory-coverage", PieChart)}
-        {navItem("Resource Discovery", "resource-discovery", Compass)}
-        {navItem("Insights", "resource-guide-intelligence", BarChart3)}
-        {navItem("Advisor", "resource-guide-advisor", Lightbulb)}
-
-        {sectionHeader("Settings")}
-        {navItem("Settings", "settings", Settings)}
+        {sectionHeader("Settings", "settings", Settings)}
+        {!collapsed && expandedSections.settings && (
+          <div className="space-y-1">
+            {subNavItem("Settings", adminSection === "settings", () => {
+              navigateToSection("settings");
+            })}
+          </div>
+        )}
       </div>
 
       {/* Logout */}

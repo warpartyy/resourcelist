@@ -76,20 +76,20 @@ function DashboardActionCard({ card }: { card: DashboardCard }) {
   const isEmpty = card.count === 0;
 
   return (
-    <section className="bg-surface border border-border rounded-xl p-5 shadow-sm h-full flex flex-col">
+    <section className="bg-surface border border-border rounded-xl p-4 shadow-sm h-full flex flex-col">
       <div className="text-xl leading-none" aria-hidden="true">
         {card.icon}
       </div>
-      <h4 className="mt-3 text-sm font-semibold text-text-primary">{card.title}</h4>
+      <h4 className="mt-2.5 text-sm font-semibold text-text-primary">{card.title}</h4>
 
       {isEmpty ? (
-        <div className="mt-2">
+        <div className="mt-1.5">
           <p className="text-sm font-medium text-text-primary">{card.emptyTitle || "All clear."}</p>
           <p className="mt-1 text-sm text-text-muted">{card.emptyDescription || card.description}</p>
         </div>
       ) : (
         <>
-          <p className="mt-2 text-lg font-semibold text-text-primary">{card.countText}</p>
+          <p className="mt-1.5 text-lg font-semibold text-text-primary">{card.countText}</p>
           <p className="mt-1 text-sm text-text-muted">{card.description}</p>
         </>
       )}
@@ -97,7 +97,7 @@ function DashboardActionCard({ card }: { card: DashboardCard }) {
       <button
         type="button"
         onClick={card.onView}
-        className="mt-4 button button-secondary px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
+        className="mt-auto button button-secondary px-3 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
         aria-label={`${card.actionLabel} for ${card.title}`}
       >
         {card.actionLabel}
@@ -381,7 +381,7 @@ export default function DashboardOverview({ user, refreshVersion = 0 }: Props) {
           <h3 className="text-base font-semibold">Operations Overview</h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 items-stretch gap-4">
           {operationsCards.map((card) => (
             <DashboardActionCard key={card.id} card={card} />
           ))}

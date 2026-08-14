@@ -119,6 +119,20 @@ export default function SuggestedImprovementsPanel({ user, onDataChanged }: Prop
 		[summary]
 	);
 
+	const summaryCards = useMemo(
+		() => [
+			{ label: "High", count: summary.high, className: "border-red-200 bg-red-50 text-red-700" },
+			{ label: "Medium", count: summary.medium, className: "border-amber-200 bg-amber-50 text-amber-700" },
+			{ label: "Low", count: summary.low, className: "border-slate-200 bg-slate-50 text-slate-700" },
+			{
+				label: "Not Applicable",
+				count: summary.notApplicable,
+				className: "border-slate-200 bg-surface text-text-muted",
+			},
+		],
+		[summary]
+	);
+
 	const formatMissingFieldLabel = (type: ImprovementTask["type"]) => {
 		if (type === "application_link") return "Application Link";
 		if (type === "last_verified") return "Last Verified";
@@ -206,58 +220,82 @@ export default function SuggestedImprovementsPanel({ user, onDataChanged }: Prop
 
 	return (
 		<div className="space-y-4">
-			<div className="bg-surface border border-border rounded-xl p-4">
-				<h2 className="text-lg font-semibold">Suggested Improvements</h2>
-				<div className="mt-2 text-sm text-text-muted space-y-1">
-					<p>{summary.total} Tasks</p>
-					<p>High: {summary.high}</p>
-					<p>Medium: {summary.medium}</p>
-					<p>Low: {summary.low}</p>
-					<p>Not Applicable: {summary.notApplicable}</p>
-				</div>
+			<div className="bg-surface border border-border rounded-xl p-4 space-y-5">
+				<section>
+					<div className="flex flex-wrap items-end justify-between gap-3">
+						<div>
+							<h2 className="text-lg font-semibold text-text-primary">Suggested Improvements</h2>
+							<p className="mt-1 text-sm text-text-muted">Total remaining improvements</p>
+						</div>
+						<div className="text-3xl font-semibold leading-none text-text-primary">{summary.total}</div>
+					</div>
 
-				<div className="mt-4 flex flex-wrap gap-2">
-					{filters.map((filter) => {
-						const isActive = activeFilter === filter.key;
-
-						return (
-							<button
-								key={filter.key}
-								type="button"
-								onClick={() => setActiveFilter(filter.key)}
-								className={`px-3 py-1.5 text-sm rounded-lg border transition ${
-									isActive
-										? "bg-bg border-accent text-text-primary"
-										: "bg-surface border-border text-text-muted hover:text-text-primary"
-								}`}
+					<div className="mt-4 grid grid-cols-2 gap-3 lg:grid-cols-4">
+						{summaryCards.map((card) => (
+							<div
+								key={card.label}
+								className={`rounded-lg border px-3 py-2.5 ${card.className}`}
 							>
-								{filter.label} ({filter.count})
-							</button>
-						);
-					})}
-				</div>
+								<p className="text-xs font-medium">{card.label}</p>
+								<p className="mt-1 text-2xl font-semibold leading-none">{card.count}</p>
+							</div>
+						))}
+					</div>
+				</section>
 
-				{activeFilter !== "not_applicable" && (
-					<div className="mt-3 flex flex-wrap gap-2">
-						{missingFieldFilters.map((filter) => {
-							const isActive = activeMissingFieldFilter === filter.key;
+				<section>
+					<p className="mb-2 text-xs font-medium text-text-muted">Priority Filter</p>
+					<div className="inline-flex max-w-full flex-wrap overflow-hidden rounded-lg border border-border bg-bg p-1">
+						{filters.map((filter) => {
+							const isActive = activeFilter === filter.key;
 
 							return (
 								<button
 									key={filter.key}
 									type="button"
-									onClick={() => setActiveMissingFieldFilter(filter.key)}
-									className={`px-3 py-1.5 text-sm rounded-lg border transition ${
+									onClick={() => setActiveFilter(filter.key)}
+									className={`rounded-md px-3 py-1.5 text-sm transition ${
 										isActive
-											? "bg-bg border-accent text-text-primary"
-											: "bg-surface border-border text-text-muted hover:text-text-primary"
+											? "bg-surface text-text-primary shadow-sm"
+											: "text-text-muted hover:text-text-primary"
 									}`}
 								>
-									{filter.label} ({filter.count})
+									{filter.label}
 								</button>
 							);
 						})}
 					</div>
+				</section>
+
+				{activeFilter !== "not_applicable" && (
+					<section>
+						<p className="mb-2 text-xs font-medium text-text-muted">Improvement Types</p>
+						<div className="flex flex-wrap items-center gap-2">
+							{missingFieldFilters.map((filter) => {
+								const isActive = activeMissingFieldFilter === filter.key;
+
+								return (
+									<button
+										key={filter.key}
+										type="button"
+										onClick={() => setActiveMissingFieldFilter(filter.key)}
+										className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-sm transition ${
+											isActive
+												? "bg-bg border-accent text-text-primary"
+												: "bg-surface border-border text-text-muted hover:text-text-primary"
+										}`}
+									>
+										<span>{filter.label}</span>
+										{filter.key !== "all" && (
+											<span className="rounded-full border border-border bg-bg px-1.5 py-0.5 text-[11px] leading-3 text-text-muted">
+												{filter.count}
+											</span>
+										)}
+									</button>
+								);
+							})}
+						</div>
+					</section>
 				)}
 			</div>
 
