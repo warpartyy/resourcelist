@@ -31,7 +31,7 @@ Standard Git workflow:
 
 ```bash
 git add .
-git commit -m "Suggest resouce updates in admin"
+git commit -m "Mobile filter and admin emails to visitors"
 git push
 ```
 

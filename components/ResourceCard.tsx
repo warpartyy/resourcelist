@@ -42,7 +42,7 @@ export default function ResourceCard({
     
   return (
     <Card>
-      <div className="p-6">
+      <div className="p-2">
         {/* Clickable content (internal navigation) */}
         <Link
           href={`/resources/${resource.slug}`}

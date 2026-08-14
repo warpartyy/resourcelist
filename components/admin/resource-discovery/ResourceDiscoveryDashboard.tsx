@@ -6,18 +6,18 @@ import AdminLayout from "@/components/admin/AdminLayout";
 import { getSupabase } from "@/lib/supabase";
 import type { AdminSection } from "@/lib/stores/adminStore";
 import type { DirectoryCoverageReport } from "@/lib/services/admin/directory-coverage/types";
-import {
-  buildResourceDiscoveryQueue,
-  discoverCandidateOrganizations,
-} from "@/lib/services/admin/resource-discovery/discovery";
+import { buildResourceDiscoveryQueue } from "@/lib/services/admin/resource-discovery/discovery";
 import type {
   ResourceDiscoveryCandidate,
   ResourceDiscoveryFilters as ResourceDiscoveryFilterState,
   ResourceDiscoveryQueueItem,
+  ResourceDiscoveryResearchRequest,
+  ResourceDiscoverySessionSummary,
 } from "@/lib/services/admin/resource-discovery/types";
 import CandidateOrganizationsPanel from "./CandidateOrganizationsPanel";
 import DiscoveryQueue from "./DiscoveryQueue";
 import DiscoveryWorkspace from "./DiscoveryWorkspace";
+import RecentResearchPanel from "./RecentResearchPanel";
 import ResourceDiscoveryFilters from "./ResourceDiscoveryFilters";
 
 const DEFAULT_FILTERS: ResourceDiscoveryFilterState = {
@@ -29,17 +29,35 @@ const DEFAULT_FILTERS: ResourceDiscoveryFilterState = {
   subcategory: "",
 };
 
+const DEFAULT_RESEARCH: ResourceDiscoveryResearchRequest = {
+  parentCategory: "",
+  subcategory: "",
+  state: "Oklahoma",
+  county: "",
+  city: "",
+  scope: "Statewide",
+  keywords: "",
+  maximumResults: 5,
+};
+
 export default function ResourceDiscoveryDashboard() {
   const router = useRouter();
   const [filters, setFilters] =
     useState<ResourceDiscoveryFilterState>(DEFAULT_FILTERS);
   const [coverageReport, setCoverageReport] =
     useState<DirectoryCoverageReport | null>(null);
-  const [selectedItem, setSelectedItem] =
-    useState<ResourceDiscoveryQueueItem | null>(null);
+  const [research, setResearch] =
+    useState<ResourceDiscoveryResearchRequest>(DEFAULT_RESEARCH);
   const [candidates, setCandidates] = useState<ResourceDiscoveryCandidate[]>([]);
+  const [recentSessions, setRecentSessions] = useState<ResourceDiscoverySessionSummary[]>([]);
+  const [selectedSessionId, setSelectedSessionId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingSessions, setIsLoadingSessions] = useState(true);
+  const [isLoadingCandidates, setIsLoadingCandidates] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [candidateError, setCandidateError] = useState<string | null>(null);
+  const [hasRunResearch, setHasRunResearch] = useState(false);
+  const [creatingCandidateKey, setCreatingCandidateKey] = useState<string | null>(null);
   const queryString = useMemo(() => buildCoverageQueryString(filters), [filters]);
   const queue = useMemo(
     () =>
@@ -88,32 +106,158 @@ export default function ResourceDiscoveryDashboard() {
   }, [queryString]);
 
   useEffect(() => {
-    setSelectedItem((current) => {
-      if (!current) {
-        return queue[0] ?? null;
+    const controller = new AbortController();
+
+    async function loadRecentSessions() {
+      setIsLoadingSessions(true);
+
+      try {
+        const token = await getCurrentAccessToken();
+        const response = await fetch("/api/admin/resource-discovery/sessions", {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Recent research request failed: ${response.status}`);
+        }
+
+        const data = (await response.json()) as {
+          sessions: ResourceDiscoverySessionSummary[];
+        };
+
+        setRecentSessions(data.sessions);
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          console.error("Unable to load recent resource discovery sessions", err);
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingSessions(false);
+        }
       }
+    }
 
-      return queue.find((item) => item.id === current.id) ?? queue[0] ?? null;
-    });
-  }, [queue]);
+    void loadRecentSessions();
 
-  useEffect(() => {
+    return () => controller.abort();
+  }, []);
+
+  const handleResearch = () => {
+    const controller = new AbortController();
+
     async function loadCandidates() {
-      if (!selectedItem) {
+      if (!research.parentCategory || !research.state.trim()) {
         setCandidates([]);
         return;
       }
 
-      setCandidates(
-        await discoverCandidateOrganizations({
-          queueItem: selectedItem,
-          filters,
-        })
-      );
+      setIsLoadingCandidates(true);
+      setCandidateError(null);
+      setHasRunResearch(true);
+
+      try {
+        const token = await getCurrentAccessToken();
+        const response = await fetch("/api/admin/resource-discovery/candidates", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify(research),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`Candidate discovery failed: ${response.status}`);
+        }
+
+        const data = (await response.json()) as {
+          session: ResourceDiscoverySessionSummary;
+          candidates: ResourceDiscoveryCandidate[];
+        };
+
+        setSelectedSessionId(data.session.id);
+        setRecentSessions((current) => [
+          data.session,
+          ...current.filter((session) => session.id !== data.session.id),
+        ]);
+        setCandidates(data.candidates);
+      } catch (err) {
+        if (!controller.signal.aborted) {
+          setCandidates([]);
+          setCandidateError(
+            err instanceof Error ? err.message : "Unable to discover candidates",
+          );
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingCandidates(false);
+        }
+      }
     }
 
     void loadCandidates();
-  }, [filters, selectedItem]);
+  };
+
+  const handleSelectSession = async (session: ResourceDiscoverySessionSummary) => {
+    setIsLoadingCandidates(true);
+    setCandidateError(null);
+
+    try {
+      const token = await getCurrentAccessToken();
+      const response = await fetch(
+        `/api/admin/resource-discovery/sessions/${session.id}`,
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error(`Saved research request failed: ${response.status}`);
+      }
+
+      const data = (await response.json()) as {
+        session: ResourceDiscoverySessionSummary;
+        candidates: ResourceDiscoveryCandidate[];
+      };
+
+      setSelectedSessionId(data.session.id);
+      setResearch({
+        parentCategory: data.session.parentCategory,
+        subcategory: data.session.subcategory ?? "",
+        state: data.session.state,
+        county: data.session.county ?? "",
+        city: data.session.city ?? "",
+        scope: data.session.searchScope,
+        keywords: data.session.keywords ?? "",
+        maximumResults: data.session.maxResults,
+      });
+      setCandidates(data.candidates);
+      setHasRunResearch(true);
+    } catch (err) {
+      setCandidates([]);
+      setCandidateError(
+        err instanceof Error ? err.message : "Unable to load saved research",
+      );
+    } finally {
+      setIsLoadingCandidates(false);
+    }
+  };
+
+  const handleUseInsight = (item: ResourceDiscoveryQueueItem) => {
+    setResearch((current) => ({
+      ...current,
+      parentCategory: item.parentCategory ?? current.parentCategory,
+      subcategory: item.subcategoryValue ?? item.subcategory,
+      county: item.county ?? current.county,
+      city: "",
+    }));
+    setCandidates([]);
+    setCandidateError(null);
+    setHasRunResearch(false);
+    setSelectedSessionId(null);
+  };
 
   const handleSectionChange = (section: AdminSection) => {
     if (section === "resource-discovery") {
@@ -150,6 +294,49 @@ export default function ResourceDiscoveryDashboard() {
     router.push("/login");
   };
 
+  const handleCreatePendingResource = async (candidate: ResourceDiscoveryCandidate) => {
+    const candidateKey = getCandidateKey(candidate);
+
+    setCreatingCandidateKey(candidateKey);
+    setCandidateError(null);
+
+    try {
+      const token = await getCurrentAccessToken();
+      const response = await fetch("/api/admin/resource-discovery/pending-resource", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({
+          candidateId: candidate.id,
+          organization: candidate.organization,
+          website: candidate.website,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Pending resource creation failed: ${response.status}`);
+      }
+
+      setCandidates((current) =>
+        current.map((item) =>
+          getCandidateKey(item) === candidateKey
+            ? { ...item, reviewStatus: "Created" }
+            : item,
+        ),
+      );
+    } catch (err) {
+      setCandidateError(
+        err instanceof Error
+          ? err.message
+          : "Unable to create pending resource",
+      );
+    } finally {
+      setCreatingCandidateKey(null);
+    }
+  };
+
   return (
     <AdminLayout
       adminSection="resource-discovery"
@@ -181,18 +368,38 @@ export default function ResourceDiscoveryDashboard() {
 
         {!isLoading && !error ? (
           <>
-            <DiscoveryQueue
-              items={queue}
-              selectedItemId={selectedItem?.id}
-              onSelect={setSelectedItem}
+            <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+              <DiscoveryQueue items={queue} onUseSearch={handleUseInsight} />
+              <RecentResearchPanel
+                sessions={recentSessions}
+                selectedSessionId={selectedSessionId}
+                isLoading={isLoadingSessions}
+                onSelect={handleSelectSession}
+              />
+            </div>
+            <DiscoveryWorkspace
+              research={research}
+              isResearching={isLoadingCandidates}
+              onChange={setResearch}
+              onSubmit={handleResearch}
             />
-            <DiscoveryWorkspace selectedItem={selectedItem} />
-            <CandidateOrganizationsPanel candidates={candidates} />
+            <CandidateOrganizationsPanel
+              candidates={candidates}
+              error={candidateError}
+              hasRunResearch={hasRunResearch}
+              isLoading={isLoadingCandidates}
+              creatingCandidateKey={creatingCandidateKey}
+              onCreatePendingResource={handleCreatePendingResource}
+            />
           </>
         ) : null}
       </div>
     </AdminLayout>
   );
+}
+
+function getCandidateKey(candidate: ResourceDiscoveryCandidate) {
+  return candidate.id ?? `${candidate.organization}-${candidate.website ?? "none"}`;
 }
 
 function StatePanel({ title, message }: { title: string; message: string }) {

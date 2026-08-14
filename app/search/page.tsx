@@ -1,7 +1,16 @@
 import Container from "@/components/ui/Container";
 import ResourceCard from "@/components/ResourceCard";
 import SearchFilters from "@/app/search/SearchFilters";
+import ActiveFilterChips from "@/app/search/ActiveFilterChips";
+import MobileSearchFilters from "@/app/search/MobileSearchFilters";
+import MobileSearchForm from "@/app/search/MobileSearchForm";
 import { buildResourceQuery } from "@/lib/queries/buildResourceQuery";
+import type { Database } from "@/lib/database.types";
+
+type ResourceRow = Database["public"]["Tables"]["resources"]["Row"];
+type SearchResource = ResourceRow & {
+  resource_locations?: { is_primary: boolean | null }[] | null;
+};
 
 export default async function SearchPage({
   searchParams,
@@ -13,10 +22,12 @@ export default async function SearchPage({
     tags?: string;
     county?: string;
     state?: string;
+    tribal?: string;
+    tribe?: string;
   }>;
 }) {
   const params = await searchParams;
-  const { q, parent, sub, tags, county, state } = params;
+  const { q, parent, sub, tags, county, state, tribal, tribe } = params;
 
   // ✅ NEW: use shared query builder
   const query = await buildResourceQuery({
@@ -26,6 +37,8 @@ export default async function SearchPage({
     tags,
     county,
     state,
+    tribal,
+    tribe,
   });
 
   const { data: resources, error } = await query;
@@ -43,8 +56,8 @@ export default async function SearchPage({
       <div className="flex flex-col lg:flex-row gap-10">
 
         {/* Filters Sidebar */}
-        <aside className="lg:w-1/4">
-          <SearchFilters />
+        <aside className="hidden lg:block lg:w-1/4">
+          <SearchFilters key={JSON.stringify(params)} />
         </aside>
 
         {/* Results */}
@@ -53,14 +66,30 @@ export default async function SearchPage({
             {q ? `Search Results for "${q}"` : "Browse Resources"}
           </h1>
 
+          <MobileSearchForm
+            q={q}
+            filters={{ parent, sub, tags, county, state, tribal, tribe }}
+          />
+
+          <MobileSearchFilters />
+
+          <ActiveFilterChips />
+
           {resources && resources.length > 0 ? (
             <div className="grid gap-6">
-              {resources.map((resource: any) => (
+              {resources.map((resource: SearchResource) => (
                 <ResourceCard
                   key={resource.id}
                   resource={{
-                    ...resource,
-                    countiesServed: resource.counties_served,
+                    id: resource.id,
+                    slug: resource.slug,
+                    organization: resource.organization ?? "Unnamed Resource",
+                    phone: resource.phone ?? undefined,
+                    website: resource.website ?? undefined,
+                    city: resource.city ?? undefined,
+                    state: resource.state ?? undefined,
+                    description: resource.description ?? undefined,
+                    resource_locations: resource.resource_locations ?? undefined,
                   }}
                 />
               ))}

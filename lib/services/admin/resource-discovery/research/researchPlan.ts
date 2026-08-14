@@ -10,6 +10,9 @@ export type ResearchPlanInput = {
   parentCategory?: string;
   subcategory: string;
   gapScore: number;
+  scope?: "Local" | "Nearby" | "Statewide";
+  keywords?: string;
+  maximumResults?: number;
 };
 
 export type ResearchPlan = {
@@ -24,6 +27,9 @@ export type ResearchPlan = {
     subcategory: string;
   };
   priority: "Critical" | "High" | "Medium" | "Low";
+  scope: "Local" | "Nearby" | "Statewide";
+  keywords?: string;
+  maximumResults: number;
   searchStrategies: SearchStrategy[];
   recommendedSearchPhrases: string[];
 };
@@ -48,6 +54,9 @@ export function buildResearchPlan(input: ResearchPlanInput): ResearchPlan {
       subcategory: input.subcategory,
     },
     priority: getResearchPriority(input.gapScore),
+    scope: input.scope ?? "Statewide",
+    keywords: input.keywords?.trim() || undefined,
+    maximumResults: clampMaximumResults(input.maximumResults),
     searchStrategies,
     recommendedSearchPhrases: searchStrategies.map((strategy) => strategy.phrase),
   };
@@ -58,4 +67,12 @@ function getResearchPriority(gapScore: number): ResearchPlan["priority"] {
   if (gapScore >= 61) return "High";
   if (gapScore >= 41) return "Medium";
   return "Low";
+}
+
+function clampMaximumResults(value?: number) {
+  if (!value || Number.isNaN(value)) {
+    return 5;
+  }
+
+  return Math.min(5, Math.max(1, Math.round(value)));
 }

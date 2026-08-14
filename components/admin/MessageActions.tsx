@@ -63,7 +63,7 @@ async function updateStatus(status: MessageStatus) {
         onClick={() => updateStatus('resolved')}
         className="text-xs px-2 py-1 border rounded"
       >
-        Resolved
+        Responded
       </button>
     </div>
   );

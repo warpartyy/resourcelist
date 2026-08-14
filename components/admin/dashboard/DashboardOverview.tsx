@@ -294,7 +294,7 @@ export default function DashboardOverview({ user, refreshVersion = 0 }: Props) {
           <section className="bg-surface border border-border rounded-xl p-5 shadow-sm ring-1 ring-accent/20">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <div className="text-sm font-semibold text-text-primary">👤 My Impact</div>
+                <div className="text-sm font-semibold text-text-primary">My Impact</div>
                 <p className="mt-1 text-xs text-text-muted">Your direct contributions to directory quality.</p>
               </div>
               <span className="text-xs px-2 py-1 rounded-full border border-border bg-bg text-text-muted">
@@ -379,7 +379,6 @@ export default function DashboardOverview({ user, refreshVersion = 0 }: Props) {
       <section className="space-y-4">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-base font-semibold">Operations Overview</h3>
-          <p className="text-xs text-text-muted">Actionable queues and team inboxes</p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

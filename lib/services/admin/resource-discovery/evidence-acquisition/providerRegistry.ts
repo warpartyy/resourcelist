@@ -1,3 +1,4 @@
+import { aiWebDiscoveryProvider } from "../providers/aiWebDiscoveryProvider";
 import { governmentProvider } from "../providers/governmentProvider";
 import { healthSystemProvider } from "../providers/healthSystemProvider";
 import { nonprofitProvider } from "../providers/nonprofitProvider";
@@ -16,24 +17,28 @@ export type RegisteredEvidenceProvider = {
 
 const REGISTERED_PROVIDERS: RegisteredEvidenceProvider[] = [
   {
-    provider: officialWebsiteProvider,
+    provider: aiWebDiscoveryProvider,
     enabled: true,
+  },
+  {
+    provider: officialWebsiteProvider,
+    enabled: false,
   },
   {
     provider: tribalWebsiteProvider,
-    enabled: true,
+    enabled: false,
   },
   {
     provider: governmentProvider,
-    enabled: true,
+    enabled: false,
   },
   {
     provider: nonprofitProvider,
-    enabled: true,
+    enabled: false,
   },
   {
     provider: healthSystemProvider,
-    enabled: true,
+    enabled: false,
   },
 ];
 

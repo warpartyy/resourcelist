@@ -1,162 +1,130 @@
-import {
-  ResourceDiscoveryResearchStatus,
-  type ResourceDiscoveryCandidate,
-} from "@/lib/services/admin/resource-discovery/types";
+import type { ResourceDiscoveryCandidate } from "@/lib/services/admin/resource-discovery/types";
 
-const DISABLED_ACTIONS = ["Collect Evidence"];
-const PLACEHOLDER_CANDIDATE: ResourceDiscoveryCandidate = {
-  organization: "Organization Name",
-  website: "https://example.org",
-  phone: "Phone",
-  address: "Address",
-  services: ["Services"],
-  eligibility: "Eligibility",
-  countiesServed: ["Counties Served"],
-  tribalEligibility: "Tribal Eligibility",
-  evidence: [
-    {
-      source: "Evidence source",
-      title: "Evidence title",
-      url: "Evidence URL",
-      evidenceType: "official_website",
-      confidence: "Low",
-      verified: false,
-    },
-  ],
-  evidenceSources: [
-    {
-      sourceType: "official_website",
-      organization: "Organization Name",
-      title: "Official Website",
-      url: "https://example.org",
-      collectedAt: "Future collection timestamp",
-      provider: "Official Website Provider",
-      providerPriority: 100,
-      quality: "Low",
-      lastVerified: "Not verified",
-      isOfficial: true,
-      isPrimarySource: true,
-      verified: false,
-    },
-  ],
-  completeness: 0,
-  evidenceQuality: "Low",
-  provider: "Official Website Provider",
-  providerPriority: 100,
-  discoverySource: "Official Website",
-  matchedSearchPhrase: "Service category County State",
-  alreadyInDirectory: false,
-  duplicateConfidence: 0,
-  nextStep: "Collect Evidence",
-  isPrimarySource: true,
-  lastVerified: "Not verified",
-  freshness: "Unknown",
-  conflicts: [],
-  confidence: "Low",
-  whySuggested: "Why Suggested",
-  researchStatus: ResourceDiscoveryResearchStatus.ResearchPlanned,
-};
+const DISABLED_ACTIONS = ["Dismiss"];
 
 export default function CandidateOrganizationsPanel({
   candidates,
+  hasRunResearch = false,
+  isLoading = false,
+  error,
+  creatingCandidateKey,
+  onCreatePendingResource,
 }: {
   candidates: ResourceDiscoveryCandidate[];
+  hasRunResearch?: boolean;
+  isLoading?: boolean;
+  error?: string | null;
+  creatingCandidateKey?: string | null;
+  onCreatePendingResource: (candidate: ResourceDiscoveryCandidate) => void | Promise<void>;
 }) {
   return (
     <section className="rounded-xl border border-border bg-surface p-4 shadow-sm">
       <h2 className="text-lg font-semibold text-text-primary">
-        Discovered Organizations
+        Potential Resources
       </h2>
       <p className="mt-1 text-sm text-text-muted">
-        Future provider results will appear here before evidence collection.
+        Organizations discovered for admin review. Resource Discovery only
+        identifies potential organizations.
       </p>
 
-      {candidates.length === 0 ? (
-        <div className="mt-4 space-y-4">
-          <div className="rounded-lg border border-dashed border-border bg-bg p-4">
-            <p className="text-sm font-medium text-text-primary">
-              Organization Discovery has not yet been connected to live providers.
-            </p>
-            <p className="mt-2 text-sm text-text-muted">
-              This placeholder shows the future candidate structure. Phase 5
-              does not call OpenAI, scrape websites, search the internet,
-              create resources, persist candidates, or approve anything.
-            </p>
-          </div>
-          <CandidateCard candidate={PLACEHOLDER_CANDIDATE} isPlaceholder />
+      {isLoading ? (
+        <StateBox
+          title="Researching potential organizations..."
+          message="One focused AI-assisted organization search is running."
+        />
+      ) : null}
+
+      {error && !isLoading ? (
+        <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-4">
+          <p className="text-sm font-medium text-red-900">
+            Candidate discovery could not complete.
+          </p>
+          <p className="mt-2 text-sm text-red-700">{error}</p>
         </div>
-      ) : (
+      ) : null}
+
+      {!isLoading && !error && !hasRunResearch ? (
+        <StateBox
+          title="No research session has been started."
+          message="Fill out the research workspace and click Research Organizations."
+        />
+      ) : null}
+
+      {!isLoading && !error && hasRunResearch && candidates.length === 0 ? (
+        <StateBox
+          title="No potential resources found."
+          message="Only candidates with an organization name, website, and no duplicate match are shown."
+        />
+      ) : null}
+
+      {!isLoading && !error && candidates.length > 0 ? (
         <div className="mt-4 grid gap-3">
           {candidates.map((candidate) => (
             <CandidateCard
               key={`${candidate.organization}-${candidate.website ?? "none"}`}
               candidate={candidate}
+              isCreating={creatingCandidateKey === getCandidateKey(candidate)}
+              onCreatePendingResource={onCreatePendingResource}
             />
           ))}
         </div>
-      )}
+      ) : null}
     </section>
   );
 }
 
 function CandidateCard({
   candidate,
-  isPlaceholder = false,
+  isCreating,
+  onCreatePendingResource,
 }: {
   candidate: ResourceDiscoveryCandidate;
-  isPlaceholder?: boolean;
+  isCreating: boolean;
+  onCreatePendingResource: (candidate: ResourceDiscoveryCandidate) => void | Promise<void>;
 }) {
+  const isPending = candidate.reviewStatus === "Created";
+
   return (
-    <article
-      className={`rounded-lg border border-border bg-bg p-4 ${
-        isPlaceholder ? "opacity-75" : ""
-      }`}
-    >
-      <div className="flex flex-col gap-2 md:flex-row md:items-start md:justify-between">
+    <article className="rounded-lg border border-border bg-bg p-4">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
           <h3 className="font-semibold text-text-primary">
             {candidate.organization}
           </h3>
-          <p className="mt-1 text-sm text-text-muted">
-            {candidate.website ?? "Website not available"}
-          </p>
+          <a
+            href={candidate.website}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-1 block break-all text-sm font-medium text-teal-700 hover:text-teal-900"
+          >
+            {candidate.website}
+          </a>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Badge label={`${candidate.confidence} Confidence`} />
-          <Badge label={candidate.researchStatus} />
-        </div>
-      </div>
-
-      <div className="mt-4 grid gap-3 md:grid-cols-2">
-        <Detail label="Provider" value={candidate.provider} />
-        <Detail label="Discovery Confidence" value={candidate.confidence} />
-        <Detail label="Discovery Source" value={candidate.discoverySource} />
-        <Detail label="Website" value={candidate.website} />
-        <Detail
-          label="Already in Directory"
-          value={
-            typeof candidate.alreadyInDirectory === "boolean"
-              ? candidate.alreadyInDirectory
-                ? "Yes"
-                : "No"
-              : undefined
-          }
-        />
-        <Detail label="Next Step" value={candidate.nextStep} />
-        <Detail
-          label="Matched Search Phrase"
-          value={candidate.matchedSearchPhrase}
-        />
+        {candidate.reviewStatus ? (
+          <Badge label={isPending ? "Pending" : candidate.reviewStatus} />
+        ) : null}
       </div>
 
       <div className="mt-4">
         <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-          Why It Appears Here
+          Reason
         </p>
         <p className="mt-1 text-sm text-text-muted">{candidate.whySuggested}</p>
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={isPending || isCreating}
+          onClick={() => onCreatePendingResource(candidate)}
+          className={
+            isPending
+              ? "rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-muted opacity-70"
+              : "rounded-lg border border-teal-700 bg-teal-700 px-3 py-2 text-sm text-white hover:bg-teal-800 disabled:cursor-not-allowed disabled:opacity-70"
+          }
+        >
+          {isPending ? "Added to Pending" : isCreating ? "Adding..." : "Create Pending Resource"}
+        </button>
         {DISABLED_ACTIONS.map((action) => (
           <button
             key={action}
@@ -172,21 +140,23 @@ function CandidateCard({
   );
 }
 
+function getCandidateKey(candidate: ResourceDiscoveryCandidate) {
+  return candidate.id ?? `${candidate.organization}-${candidate.website ?? "none"}`;
+}
+
+function StateBox({ title, message }: { title: string; message: string }) {
+  return (
+    <div className="mt-4 rounded-lg border border-dashed border-border bg-bg p-4">
+      <p className="text-sm font-medium text-text-primary">{title}</p>
+      <p className="mt-2 text-sm text-text-muted">{message}</p>
+    </div>
+  );
+}
+
 function Badge({ label }: { label: string }) {
   return (
     <span className="rounded-full border border-border bg-surface px-2.5 py-1 text-xs font-medium text-text-muted">
       {label}
     </span>
-  );
-}
-
-function Detail({ label, value }: { label: string; value?: string }) {
-  return (
-    <div>
-      <p className="text-xs font-medium uppercase tracking-wide text-text-muted">
-        {label}
-      </p>
-      <p className="mt-1 text-sm text-text-primary">{value || "Not collected"}</p>
-    </div>
   );
 }

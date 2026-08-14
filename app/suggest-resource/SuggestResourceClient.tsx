@@ -1,11 +1,9 @@
 "use client";
 export const dynamic = "force-dynamic";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { getSupabase } from "@/lib/supabase";
 import Container from "../../components/ui/Container";
-import { PARENT_CATEGORIES, SUBCATEGORIES, SUBCATEGORY_PARENT_MAP} from "@/lib/taxonomy";
-import { useSearchParams } from "next/navigation";
 import { useRef } from "react";
 import {
   BasicInfoSection,
@@ -13,6 +11,23 @@ import {
   AdditionalDetailsSection,
 } from "@/components/forms/suggest-resource";
 import toast from "react-hot-toast";
+
+type ResourceDiscoveryPendingDraft = {
+  candidateId?: string;
+  organization?: string;
+  phone?: string;
+  email?: string;
+  website?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  description?: string;
+  eligibility?: string;
+  countiesServed?: string[];
+  services?: string[];
+  subcategories?: string[];
+};
 
 function generateSlug(name: string) {
   return name
@@ -30,12 +45,12 @@ export default function SuggestResourcePage() {
   const [errors, setErrors] = useState<{ organization?: string; subcategories?: string; email?: string;}>({});
   
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
+  const [resourceDiscoveryDraft, setResourceDiscoveryDraft] =
+    useState<ResourceDiscoveryPendingDraft | null>(null);
+  const [draftKey, setDraftKey] = useState(0);
 
   const [isTribal, setIsTribal] = useState(false);
   const [tribe, setTribe] = useState("");
-  const searchParams = useSearchParams();
-  const existingSlug = searchParams.get("resource");
-
   const organizationRef = useRef<HTMLInputElement | null>(null);
   const subcategoryRef = useRef<HTMLDivElement | null>(null);
   const emailRef = useRef<HTMLInputElement | null>(null);
@@ -46,18 +61,39 @@ const fieldRefs: Record<string, React.RefObject<HTMLElement>> = {
   email: emailRef as React.RefObject<HTMLElement>,
 };
 
+useEffect(() => {
+  const timer = window.setTimeout(() => {
+    const rawDraft = window.sessionStorage.getItem("resourceDiscoveryPendingDraft");
+
+    if (!rawDraft) {
+      return;
+    }
+
+    try {
+      const draft = JSON.parse(rawDraft) as ResourceDiscoveryPendingDraft;
+
+      setResourceDiscoveryDraft(draft);
+      setSelectedSubcategories(draft.subcategories ?? []);
+      setSelectedServices(draft.services ?? []);
+      setDraftKey((current) => current + 1);
+    } catch (error) {
+      console.warn("Unable to read Resource Discovery draft", error);
+    }
+  }, 0);
+
+  return () => window.clearTimeout(timer);
+}, []);
 
 
-
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
 
-    const formData = new FormData(e.target);
+    const formData = new FormData(e.currentTarget);
 const organizationName = formData.get("organization")?.toString().trim();
 const slug = generateSlug(organizationName || "");
 
-let newErrors: {
+const newErrors: {
   organization?: string;
   subcategories?: string;
   email?: string;
@@ -142,7 +178,22 @@ if (response.error) {
   console.error("Submission error:", response.error);
   toast.error("Something went wrong while submitting.", { id: toastId });
 } else {
+  void fetch("/api/engagement/resource-submitted", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      slug,
+      organization: organizationName,
+    }),
+  }).catch((error) => {
+    console.warn("Resource submitted engagement event failed", error);
+  });
+
   toast.success("Resource submitted for review!", { id: toastId });
+  await markResourceDiscoveryCandidateCreated(resourceDiscoveryDraft?.candidateId);
+  window.sessionStorage.removeItem("resourceDiscoveryPendingDraft");
   setSubmitted(true);
 }
 setLoading(false);
@@ -186,6 +237,7 @@ return (
 >
 
 <BasicInfoSection
+  key={`basic-${draftKey}`}
   errors={errors}
   organizationRef={organizationRef}
   emailRef={emailRef}
@@ -193,6 +245,7 @@ return (
   setIsTribal={setIsTribal}
   tribe={tribe}
   setTribe={setTribe}
+  defaultValues={resourceDiscoveryDraft ?? undefined}
 />
 
 <ServicesSection
@@ -204,7 +257,10 @@ return (
   subcategoryRef={subcategoryRef}
 />
 
-  <AdditionalDetailsSection />
+  <AdditionalDetailsSection
+    key={`details-${draftKey}`}
+    defaultValues={resourceDiscoveryDraft ?? undefined}
+  />
 
   {/* Submit Button */}
   <div className="flex justify-center">
@@ -220,4 +276,29 @@ return (
 </form>
   </Container>
 );
+}
+
+async function markResourceDiscoveryCandidateCreated(candidateId?: string) {
+  if (!candidateId) {
+    return;
+  }
+
+  try {
+    const supabase = getSupabase();
+    const {
+      data: { session },
+    } = await supabase.auth.getSession();
+    const token = session?.access_token;
+
+    await fetch(`/api/admin/resource-discovery/candidates/${candidateId}/status`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ status: "Created" }),
+    });
+  } catch (error) {
+    console.warn("Unable to update Resource Discovery candidate status", error);
+  }
 }

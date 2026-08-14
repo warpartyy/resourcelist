@@ -4,6 +4,8 @@ export type SearchStrategyInput = {
   city?: string;
   parentCategory?: string;
   subcategory: string;
+  scope?: "Local" | "Nearby" | "Statewide";
+  keywords?: string;
 };
 
 export type SearchStrategy = {
@@ -17,27 +19,32 @@ export function generateSearchStrategies({
   city,
   parentCategory,
   subcategory,
+  scope = "Statewide",
+  keywords,
 }: SearchStrategyInput): SearchStrategy[] {
-  const geography = [city, county ? `${county} County` : null, state]
-    .filter(Boolean)
-    .join(" ");
+  const geography = getGeography({ city, county, state, scope });
   const countyGeography = [county ? `${county} County` : null, state]
     .filter(Boolean)
     .join(" ");
   const category = parentCategory || subcategory;
+  const keywordText = keywords?.trim();
 
   return dedupeStrategies([
     {
       strategy: "local_service",
-      phrase: compactPhrase(`${subcategory} ${geography}`),
+      phrase: compactPhrase(`${subcategory} ${keywordText ?? ""} ${geography}`),
     },
     {
       strategy: "county_assistance",
-      phrase: compactPhrase(`${subcategory} assistance ${countyGeography}`),
+      phrase: compactPhrase(
+        `${subcategory} assistance ${keywordText ?? ""} ${
+          scope === "Statewide" ? state ?? "" : countyGeography
+        }`,
+      ),
     },
     {
       strategy: "tribal_program",
-      phrase: compactPhrase(`${subcategory} tribal program ${state}`),
+      phrase: compactPhrase(`${subcategory} tribal program ${keywordText ?? ""} ${state}`),
     },
     {
       strategy: "senior_access",
@@ -49,9 +56,26 @@ export function generateSearchStrategies({
     },
     {
       strategy: "category_provider",
-      phrase: compactPhrase(`${category} providers ${countyGeography}`),
+      phrase: compactPhrase(`${category} providers ${keywordText ?? ""} ${geography}`),
     },
   ]);
+}
+
+function getGeography({
+  city,
+  county,
+  state,
+  scope,
+}: Pick<SearchStrategyInput, "city" | "county" | "state" | "scope">) {
+  if (scope === "Local") {
+    return [city, county ? `${county} County` : null, state].filter(Boolean).join(" ");
+  }
+
+  if (scope === "Nearby") {
+    return [county ? `${county} County` : null, state].filter(Boolean).join(" ");
+  }
+
+  return state ?? "";
 }
 
 function dedupeStrategies(strategies: SearchStrategy[]): SearchStrategy[] {

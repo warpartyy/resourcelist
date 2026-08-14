@@ -13,12 +13,14 @@ type ResourceQueryFilters = {
   state?: string;
   status?: "approved" | "pending" | "rejected" | "deleted";
   services?: string;
+  tribal?: string;
+  tribe?: string;
 };
 
 export async function buildResourceQuery(filters: ResourceQueryFilters) {
   const supabase = getSupabase();
     
-const { q, parent, sub, tags, services, county, state, status } = filters;
+const { q, parent, sub, tags, services, county, state, status, tribal, tribe } = filters;
 
 let query = supabase
   .from("resources")
@@ -58,7 +60,16 @@ query = query.order("organization", { ascending: true });
   }
 
   if (sub) {
-    query = query.contains("subcategories", [sub]);
+    const subcategoryArray = sub
+      .split(",")
+      .map((subcategory) => subcategory.trim())
+      .filter(Boolean);
+
+    if (subcategoryArray.length === 1) {
+      query = query.contains("subcategories", subcategoryArray);
+    } else if (subcategoryArray.length > 1) {
+      query = query.overlaps("subcategories", subcategoryArray);
+    }
   }
 
   // -----------------------------
@@ -96,6 +107,21 @@ query = query.order("organization", { ascending: true });
 
   if (state) {
     query = query.eq("state", state);
+  }
+
+  // -----------------------------
+  // TRIBAL ELIGIBILITY
+  // -----------------------------
+  if (tribal === "open_to_everyone") {
+    query = query.or("tribal_eligibility.is.null,tribal_eligibility.eq.open_to_all");
+  }
+
+  if (tribal === "tribal_programs") {
+    query = query.not("tribal_eligibility", "is", null);
+  }
+
+  if (tribe) {
+    query = query.eq("tribe", tribe);
   }
 
   return query;

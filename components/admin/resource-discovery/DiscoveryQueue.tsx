@@ -2,23 +2,22 @@ import type { ResourceDiscoveryQueueItem } from "@/lib/services/admin/resource-d
 
 type DiscoveryQueueProps = {
   items: ResourceDiscoveryQueueItem[];
-  selectedItemId?: string;
-  onSelect: (item: ResourceDiscoveryQueueItem) => void;
+  onUseSearch: (item: ResourceDiscoveryQueueItem) => void;
 };
 
 export default function DiscoveryQueue({
   items,
-  selectedItemId,
-  onSelect,
+  onUseSearch,
 }: DiscoveryQueueProps) {
   return (
     <section className="rounded-xl border border-border bg-surface p-4 shadow-sm">
       <div>
         <h2 className="text-lg font-semibold text-text-primary">
-          Discovery Queue
+          Community Insights
         </h2>
         <p className="mt-1 text-sm text-text-muted">
-          Prioritized from existing Directory Coverage gap scores.
+          Prioritized from Directory Coverage. These insights can pre-fill a
+          search, but they never start AI research automatically.
         </p>
       </div>
 
@@ -36,28 +35,19 @@ export default function DiscoveryQueue({
                 <th className="px-3 py-3">Geography</th>
                 <th className="px-3 py-3">Gap Score</th>
                 <th className="px-3 py-3">Search Demand</th>
-                <th className="py-3 pl-3">Status</th>
+                <th className="py-3 pl-3">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {items.map((item) => (
-                <tr
-                  key={item.id}
-                  className={
-                    item.id === selectedItemId ? "bg-teal-50/70" : undefined
-                  }
-                >
+                <tr key={item.id}>
                   <td className="py-3 pr-4 font-semibold text-text-primary">
                     {item.priority}
                   </td>
                   <td className="px-3 py-3">
-                    <button
-                      type="button"
-                      onClick={() => onSelect(item)}
-                      className="font-medium text-teal-700 hover:text-teal-900"
-                    >
+                    <span className="font-medium text-text-primary">
                       {item.subcategory}
-                    </button>
+                    </span>
                   </td>
                   <td className="px-3 py-3 text-text-muted">
                     {item.geography}
@@ -69,9 +59,13 @@ export default function DiscoveryQueue({
                     {item.searchDemand}
                   </td>
                   <td className="py-3 pl-3">
-                    <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-800">
-                      {item.status}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => onUseSearch(item)}
+                      className="rounded-lg border border-teal-200 bg-teal-50 px-3 py-1.5 text-xs font-medium text-teal-800 transition-colors hover:bg-teal-100"
+                    >
+                      Use This Search
+                    </button>
                   </td>
                 </tr>
               ))}

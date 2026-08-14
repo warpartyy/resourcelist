@@ -7,13 +7,6 @@ import { extractMentions } from "@/lib/utils/extractMentions";
 import type { User } from "@supabase/supabase-js";
 
 
-function mapStatusToSection(status: string) {
-  if (status === "approved") return "resources";
-  if (status === "pending") return "pending";
-  if (status === "rejected") return "rejected";
-  return "pending";
-}
-
 type Props = {
   resourceId?: string;
   submissionId?: string;
@@ -30,25 +23,30 @@ type Comment = {
   created_by: string | null;
 };
 
+type MentionProfile = {
+  id: string;
+  display_name: string | null;
+};
+
 export default function CommentsSection({
   resourceId,
   submissionId,
   user,
   highlightedCommentId,
+  status,
 }: Props) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState("");
-  const [loading, setLoading] = useState(true);
+  const [, setLoading] = useState(true);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
 
   // 🔹 mentions
   const [mentionQuery, setMentionQuery] = useState("");
-  const [mentionResults, setMentionResults] = useState<any[]>([]);
+  const [mentionResults, setMentionResults] = useState<MentionProfile[]>([]);
   const [showMentions, setShowMentions] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const [mentionPosition, setMentionPosition] = useState({ top: 0, left: 0 });
 
 
 
@@ -80,8 +78,6 @@ useEffect(() => {
 useEffect(() => {
   const fetchComments = async () => {
     const supabase = getSupabase();
-
-const column = resourceId
 
 if (!resourceId) return;
 
@@ -216,8 +212,20 @@ const notifications = users.map((u) => ({
 }));
 
     if (notifications.length > 0) {
-      console.log("CREATING NOTIFICATIONS:", notifications);
-      await supabase.from("notifications").insert(notifications);
+      await fetch("/api/engagement/admin-mentioned", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          resourceId,
+          resourceName,
+          commentId: data.id,
+          commentPreview: newComment.trim(),
+          section: mapStatusToSection(status),
+          mentionedUserIds: users.map((u) => u.id),
+        }),
+      });
     }
 
   }
@@ -383,7 +391,7 @@ const notifications = users.map((u) => ({
             }
 
             if (e.key === "Enter") {
-              if (mentionResults[selectedIndex]) {
+              if (mentionResults[selectedIndex]?.display_name) {
                 e.preventDefault();
                 handleSelectMention(
                   mentionResults[selectedIndex].display_name
@@ -401,7 +409,11 @@ const notifications = users.map((u) => ({
             {mentionResults.map((u, i) => (
               <div
                 key={u.id}
-                onClick={() => handleSelectMention(u.display_name)}
+                onClick={() => {
+                  if (u.display_name) {
+                    handleSelectMention(u.display_name);
+                  }
+                }}
                 className={`px-3 py-2 cursor-pointer ${
                   i === selectedIndex
                     ? "bg-blue-100"

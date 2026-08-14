@@ -6,6 +6,28 @@ import type { CandidateSource } from "./evidence/candidateSource";
 import type { EvidenceItem } from "./research/evidence";
 
 export type ResourceDiscoveryConfidence = "High" | "Medium" | "Low";
+export type ResourceDiscoveryFieldConfidence =
+  | ResourceDiscoveryConfidence
+  | "Unknown";
+
+export type ResourceDiscoveryFieldConfidenceMap = Partial<
+  Record<
+    | "organization"
+    | "website"
+    | "phone"
+    | "email"
+    | "address"
+    | "city"
+    | "state"
+    | "zip"
+    | "services"
+    | "description"
+    | "eligibility"
+    | "tribalEligibility"
+    | "countiesServed",
+    ResourceDiscoveryFieldConfidence
+  >
+>;
 
 export enum ResourceDiscoveryResearchStatus {
   ResearchPlanned = "Research Planned",
@@ -17,10 +39,17 @@ export enum ResourceDiscoveryResearchStatus {
 }
 
 export type ResourceDiscoveryCandidate = {
+  id?: string;
+  sessionId?: string;
   organization: string;
   website?: string;
   phone?: string;
+  email?: string;
   address?: string;
+  city?: string;
+  state?: string;
+  zip?: string;
+  description?: string;
   services: string[];
   eligibility?: string;
   countiesServed: string[];
@@ -41,6 +70,9 @@ export type ResourceDiscoveryCandidate = {
   freshness?: EvidenceFreshness;
   conflicts?: EvidenceConflict[];
   confidence: ResourceDiscoveryConfidence;
+  fieldConfidence?: ResourceDiscoveryFieldConfidenceMap;
+  missingFields?: string[];
+  reviewStatus?: ResourceDiscoveryReviewStatus;
   whySuggested: string;
   researchStatus: ResourceDiscoveryResearchStatus;
 };
@@ -65,6 +97,8 @@ export type ResourceDiscoveryQueueItem = {
   id: string;
   priority: number;
   subcategory: string;
+  subcategoryValue?: string;
+  parentCategory?: string;
   geography: string;
   county?: string;
   gapScore: number;
@@ -74,7 +108,43 @@ export type ResourceDiscoveryQueueItem = {
   status: ResourceDiscoveryQueueStatus;
 };
 
-export type ResourceDiscoveryResearchInput = {
-  queueItem: ResourceDiscoveryQueueItem;
-  filters: ResourceDiscoveryFilters;
+export type ResourceDiscoverySearchScope = "Local" | "Nearby" | "Statewide";
+
+export type ResourceDiscoveryResearchRequest = {
+  parentCategory: string;
+  subcategory?: string;
+  state: string;
+  county?: string;
+  city?: string;
+  scope: ResourceDiscoverySearchScope;
+  keywords?: string;
+  maximumResults: number;
+};
+
+export type ResourceDiscoveryResearchInput = ResourceDiscoveryResearchRequest;
+
+export type ResourceDiscoveryReviewStatus =
+  | "New"
+  | "Reviewed"
+  | "Created"
+  | "Dismissed";
+
+export type ResourceDiscoverySessionSummary = {
+  id: string;
+  createdAt: string;
+  createdBy?: string | null;
+  parentCategory: string;
+  subcategory?: string | null;
+  state: string;
+  county?: string | null;
+  city?: string | null;
+  searchScope: ResourceDiscoverySearchScope;
+  keywords?: string | null;
+  maxResults: number;
+  completedAt?: string | null;
+};
+
+export type ResourceDiscoverySavedSession = {
+  session: ResourceDiscoverySessionSummary;
+  candidates: ResourceDiscoveryCandidate[];
 };
